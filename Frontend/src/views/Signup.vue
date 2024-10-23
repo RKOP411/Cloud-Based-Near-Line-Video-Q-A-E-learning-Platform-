@@ -236,7 +236,7 @@ export default {
           },
           body: JSON.stringify(this.form), // Ensure this.form is defined in your component
         });
-        const data = await response.json();
+        const data = await response;
         console.log(data);
         if (data.status === "success") {
           this.$router.push("/"); // Ensure this is accessible in the setup context
