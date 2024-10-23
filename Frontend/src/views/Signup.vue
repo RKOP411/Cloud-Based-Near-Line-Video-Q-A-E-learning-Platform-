@@ -127,24 +127,33 @@ onBeforeUnmount(() => {
               </div>
 
               <form role="form" @submit.prevent="register">
-                <argon-input id="name" type="text" placeholder="Name" aria-label="Name" />
+                <argon-input
+                  id="name"
+                  type="text"
+                  placeholder="Name"
+                  aria-label="Name"
+                  v-model="form.UserName"
+                />
                 <argon-input
                   id="email"
                   type="email"
                   placeholder="Email"
                   aria-label="Email"
+                  v-model="form.Email"
                 />
                 <argon-input
                   id="password"
                   type="password"
                   placeholder="Password"
                   aria-label="Password"
+                  v-model="form.Password"
                 />
                 <argon-input
                   id="confirmPassword"
                   type="password"
                   placeholder="Confirm Password"
                   aria-label="Confirm Password"
+                  v-model="form.ConfirmPassword"
                 />
 
                 <argon-checkbox checked>
@@ -185,6 +194,7 @@ export default {
         UserName: "",
         Email: "",
         Password: "",
+        ConfirmPassword: "",
         Role: "",
       },
       errmsg: "",
@@ -205,12 +215,22 @@ export default {
       } else if (this.form.Email == "") {
         this.errmsg = "Email is required";
         return;
-      } else if (this.form.Role == "") {
-        this.errmsg = "Role is required";
+      } else if (this.form.ConfirmPassword == "") {
+        this.errmsg = "ConfirmPassword is required";
         return;
       } else {
         this.errmsg = "";
       }
+      if (this.isStudentValid(this.form.Password)) {
+        this.form.Role = "Student";
+      } else {
+        this.form.Role = "Teacher";
+      }
+      console.log(this.form); 
+    },
+    isStudentValid(password) {
+      // Check if the first 8 characters are digits
+      return /^\d{8}/.test(password);
     },
   },
 };
