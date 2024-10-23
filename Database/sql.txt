@@ -1,0 +1,105 @@
+CREATE DATABASE IF NOT EXISTS LearnPlatform;
+USE LearnPlatform;
+
+CREATE TABLE User (
+    UserID int AUTO_INCREMENT,
+    UserName varchar(50) NOT NULL,
+    Email varchar(50) NOT NULL,
+    Password varchar(100) NOT NULL,
+    ProfileImg varchar(255),
+    FirstName varchar(50),
+    LastName varchar(50),
+    Address varchar(50),
+    City varchar(50),
+    AboutMe varchar(255),
+    LastLogin datetime,
+    Role varchar(10),
+    PRIMARY KEY (UserID)
+);
+
+CREATE TABLE Question(
+  QAID int AUTO_INCREMENT,
+  UserID int,
+  MediaID int,
+  CourseID int,
+  CourseTitle varchar(255),
+  Week int,
+  QuestionTitle varchar(255) NOT NULL,
+  Text varchar(255) NOT NULL,
+  UploadTime datetime,
+  PRIMARY KEY (QAID),
+  FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
+  FOREIGN KEY (MediaID) REFERENCES Media(MediaID),
+  FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+
+CREATE TABLE Answer(
+  ASID int AUTO_INCREMENT,
+  QAID int,
+  UserID int,
+  Text varchar(255),
+  UploadTime datetime,
+  PRIMARY KEY (ASID),
+  FOREIGN KEY (QAID) REFERENCES Question(QAID),
+  FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+
+CREATE TABLE ChatRoom (
+    ChatRoomID int AUTO_INCREMENT,
+    ChatRoomName varchar(100) NOT NULL,
+    Description varchar(255),
+    ChatRoomType ENUM('Private', 'Group'),
+    UpdatedAt datetime,
+    PRIMARY KEY (ChatRoomID)
+);
+
+
+CREATE TABLE ChatRecord(
+  RecordID int AUTO_INCREMENT,
+  ChatRoomID int,
+  UserID int,
+  Text varchar(255),
+  SendTime  datetime,
+  PRIMARY KEY (RecordID),
+  FOREIGN KEY (ChatRoomID) REFERENCES ChatRoom(ChatRoomID),
+  FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+
+CREATE TABLE ChartJoin(
+  ChatJoinID int AUTO_INCREMENT,
+  ChatRoomID int,
+  UserID int,
+  PRIMARY KEY (ChatJoinID),
+  FOREIGN KEY (ChatRoomID) REFERENCES ChatRoom(ChatRoomID),
+  FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+
+
+CREATE TABLE Media(
+  MediaID int AUTO_INCREMENT,
+  UserID int,
+  Type varchar(10),
+  Title varchar(100),
+  UploadDate datetime,
+  Content varchar(255),
+  FOREIGN KEY (UserID) REFERENCES User(UserID),
+  PRIMARY KEY (MediaID)
+);
+
+CREATE TABLE Course(
+  CourseID int AUTO_INCREMENT,
+  CourseName varchar(150) NOT NULL,
+  Topic varchar(100),
+  NumQuestion int,
+  PRIMARY KEY (CourseID)
+);
+
+CREATE TABLE CourseJoin(
+  CourseJoinID int AUTO_INCREMENT,
+  UserID int,
+  CourseID int,
+  FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
+  FOREIGN KEY (UserID) REFERENCES User(UserID),
+  PRIMARY KEY (CourseJoinID)
+);
+
