@@ -1,11 +1,12 @@
 var express = require('express');
 var router = express.Router();
+const { connectToDB } = require('../util/db');
 
 
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
     res.send('respond with a resource');
-  });
-  
+});
+
 
 
 router.post('/register', async function (req, res, next) {

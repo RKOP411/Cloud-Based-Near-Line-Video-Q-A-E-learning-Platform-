@@ -6,7 +6,6 @@ import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 const body = document.getElementsByTagName("body")[0];
-
 const store = useStore();
 onBeforeMount(() => {
   store.state.hideConfigButton = true;
@@ -187,6 +186,7 @@ onBeforeUnmount(() => {
   <app-footer />
 </template>
 <script>
+import { register } from "../assets/Domain.js";
 export default {
   data() {
     return {
@@ -226,7 +226,21 @@ export default {
       } else {
         this.form.Role = "Teacher";
       }
-      console.log(this.form); 
+      console.log(this.form);
+      register(this.form)
+        .then((res) => {
+          console.log(res);
+          if (res.status == 200) {
+            localStorage.setItem("Role", this.form.Role);
+            this.$router.push("/profile");
+          } else {
+            this.errmsg = res.data;
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          this.errmsg = err;
+        });
     },
     isStudentValid(password) {
       // Check if the first 8 characters are digits

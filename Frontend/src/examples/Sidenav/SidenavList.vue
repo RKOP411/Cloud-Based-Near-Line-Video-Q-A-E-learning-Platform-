@@ -5,9 +5,9 @@ import { useStore } from "vuex";
 
 import SidenavItem from "./SidenavItem.vue";
 
-
 const store = useStore();
 const isRTL = computed(() => store.state.isRTL);
+let Role = localStorage.getItem("Role");
 
 const getRoute = () => {
   const route = useRoute();
@@ -16,13 +16,11 @@ const getRoute = () => {
 };
 </script>
 <template>
-  <div
-    class="collapse navbar-collapse w-auto h-auto h-100"
-    id="sidenav-collapse-main"
-  >
+  <div class="collapse navbar-collapse w-auto h-auto h-100" id="sidenav-collapse-main">
     <ul class="navbar-nav">
       <li class="nav-item">
         <sidenav-item
+          v-if="Role == 'Teacher'"
           to="/dashboard-default"
           :class="getRoute() === 'dashboard-default' ? 'active' : ''"
           :navText="'Analytic Dashboard'"
@@ -35,7 +33,47 @@ const getRoute = () => {
 
       <li class="nav-item">
         <sidenav-item
+          v-if="Role == 'Teacher'"
           to="/managequeue"
+          :class="getRoute() === 'billing' ? 'active' : ''"
+          :navText="'Question List'"
+        >
+          <template v-slot:icon>
+            <i class="fa fa-list text-warning text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
+      <li class="nav-item">
+        <sidenav-item
+          v-if="Role == 'Student'"
+          to="/questionlist"
+          :class="getRoute() === 'billing' ? 'active' : ''"
+          :navText="'Question List'"
+        >
+          <template v-slot:icon>
+            <i class="fa fa-list text-warning text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
+      <li class="nav-item">
+        <sidenav-item
+          v-if="Role == 'Admin'"
+          to="/userList"
+          :class="getRoute() === 'billing' ? 'active' : ''"
+          :navText="'Question List'"
+        >
+          <template v-slot:icon>
+            <i class="fa fa-list text-warning text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
+      <li class="nav-item">
+        <sidenav-item
+          v-if="Role == 'Admin'"
+          to="/mediaList"
           :class="getRoute() === 'billing' ? 'active' : ''"
           :navText="'Question List'"
         >
@@ -52,9 +90,7 @@ const getRoute = () => {
           :navText="'Chat Room'"
         >
           <template v-slot:icon>
-            <i
-              class="ni ni-chat-round text-success text-sm opacity-10"
-            ></i>
+            <i class="ni ni-chat-round text-success text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>
@@ -72,7 +108,6 @@ const getRoute = () => {
       </li> -->
 
       <li class="mt-3 nav-item">
-
         <h6
           class="text-xs ps-4 text-uppercase font-weight-bolder opacity-6"
           :class="isRTL ? 'me-4' : 'ms-2'"
@@ -118,5 +153,4 @@ const getRoute = () => {
       </li>
     </ul>
   </div>
-
 </template>
