@@ -1,6 +1,6 @@
 <script setup>
 import { onBeforeUnmount, onBeforeMount } from "vue";
-import { useStore } from "vuex";  
+import { useStore } from "vuex";
 import AppFooter from "@/examples/PageLayout/Footer.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
@@ -24,12 +24,11 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-
   <main class="main-content mt-0">
     <div
       class="page-header align-items-start min-vh-50 pt-5 pb-11 m-3 border-radius-lg"
       style="
-        background-image: url(&quot;https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signup-cover.jpg&quot;);
+        background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signup-cover.jpg');
         background-position: top;
       "
     >
@@ -38,9 +37,7 @@ onBeforeUnmount(() => {
         <div class="row justify-content-center">
           <div class="col-lg-5 text-center mx-auto">
             <h1 class="text-white mb-2 mt-5">Welcome!</h1>
-            <p class="text-lead text-white">
-              Join Our E-Learning Platform Today!
-            </p>
+            <p class="text-lead text-white">Join Our E-Learning Platform Today!</p>
           </div>
         </div>
       </div>
@@ -55,22 +52,9 @@ onBeforeUnmount(() => {
             <div class="row px-xl-5 px-sm-4 px-3">
               <div class="col-3 ms-auto px-1">
                 <a class="btn btn-outline-light w-100" href="javascript:;">
-                  <svg
-                    width="24px"
-                    height="32px"
-                    viewBox="0 0 64 64"
-                    version="1.1"
-                  >
-                    <g
-                      stroke="none"
-                      stroke-width="1"
-                      fill="none"
-                      fill-rule="evenodd"
-                    >
-                      <g
-                        transform="translate(3.000000, 3.000000)"
-                        fill-rule="nonzero"
-                      >
+                  <svg width="24px" height="32px" viewBox="0 0 64 64" version="1.1">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                      <g transform="translate(3.000000, 3.000000)" fill-rule="nonzero">
                         <circle
                           fill="#3C5A9A"
                           cx="29.5091719"
@@ -88,18 +72,8 @@ onBeforeUnmount(() => {
               </div>
               <div class="col-3 px-1">
                 <a class="btn btn-outline-light w-100" href="javascript:;">
-                  <svg
-                    width="24px"
-                    height="32px"
-                    viewBox="0 0 64 64"
-                    version="1.1"
-                  >
-                    <g
-                      stroke="none"
-                      stroke-width="1"
-                      fill="none"
-                      fill-rule="evenodd"
-                    >
+                  <svg width="24px" height="32px" viewBox="0 0 64 64" version="1.1">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                       <g
                         transform="translate(7.000000, 0.564551)"
                         fill="#000000"
@@ -115,22 +89,9 @@ onBeforeUnmount(() => {
               </div>
               <div class="col-3 me-auto px-1">
                 <a class="btn btn-outline-light w-100" href="javascript:;">
-                  <svg
-                    width="24px"
-                    height="32px"
-                    viewBox="0 0 64 64"
-                    version="1.1"
-                  >
-                    <g
-                      stroke="none"
-                      stroke-width="1"
-                      fill="none"
-                      fill-rule="evenodd"
-                    >
-                      <g
-                        transform="translate(3.000000, 2.000000)"
-                        fill-rule="nonzero"
-                      >
+                  <svg width="24px" height="32px" viewBox="0 0 64 64" version="1.1">
+                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                      <g transform="translate(3.000000, 2.000000)" fill-rule="nonzero">
                         <path
                           d="M57.8123233,30.1515267 C57.8123233,27.7263183 57.6155321,25.9565533 57.1896408,24.1212666 L29.4960833,24.1212666 L29.4960833,35.0674653 L45.7515771,35.0674653 C45.4239683,37.7877475 43.6542033,41.8844383 39.7213169,44.6372555 L39.6661883,45.0037254 L48.4223791,51.7870338 L49.0290201,51.8475849 C54.6004021,46.7020943 57.8123233,39.1313952 57.8123233,30.1515267"
                           fill="#4285F4"
@@ -161,13 +122,12 @@ onBeforeUnmount(() => {
               </div>
             </div>
             <div class="card-body">
-              <form role="form">
-                <argon-input
-                  id="name"
-                  type="text"
-                  placeholder="Name"
-                  aria-label="Name"
-                />
+              <div class="alert alert-danger" role="alert" v-if="errmsg">
+                {{ errmsg }}
+              </div>
+
+              <form role="form" @submit.prevent="register">
+                <argon-input id="name" type="text" placeholder="Name" aria-label="Name" />
                 <argon-input
                   id="email"
                   type="email"
@@ -180,6 +140,13 @@ onBeforeUnmount(() => {
                   placeholder="Password"
                   aria-label="Password"
                 />
+                <argon-input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Confirm Password"
+                  aria-label="Confirm Password"
+                />
+
                 <argon-checkbox checked>
                   <label class="form-check-label" for="flexCheckDefault">
                     I agree the
@@ -199,9 +166,7 @@ onBeforeUnmount(() => {
                 </div>
                 <p class="text-sm mt-3 mb-0">
                   Already have an account?
-                  <a href="javascript:;" class="text-dark font-weight-bolder"
-                    >Sign in</a
-                  >
+                  <a href="javascript:;" class="text-dark font-weight-bolder">Sign in</a>
                 </p>
               </form>
             </div>
@@ -212,3 +177,41 @@ onBeforeUnmount(() => {
   </main>
   <app-footer />
 </template>
+<script>
+export default {
+  data() {
+    return {
+      form: {
+        UserName: "",
+        Email: "",
+        Password: "",
+        Role: "",
+      },
+      errmsg: "",
+    };
+  },
+  methods: {
+    register() {
+      console.log("Register");
+      if (this.form.Password != this.form.ConfirmPassword) {
+        this.errmsg = "Password and Confirm Password do not match";
+        return;
+      } else if (this.form.Password.length < 6) {
+        this.errmsg = "Password must be at least 6 characters long";
+        return;
+      } else if (this.form.UserName == "") {
+        this.errmsg = "Name  are required";
+        return;
+      } else if (this.form.Email == "") {
+        this.errmsg = "Email is required";
+        return;
+      } else if (this.form.Role == "") {
+        this.errmsg = "Role is required";
+        return;
+      } else {
+        this.errmsg = "";
+      }
+    },
+  },
+};
+</script>
