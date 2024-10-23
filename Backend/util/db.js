@@ -5,7 +5,7 @@ async function connectToDB() {
     const connection = mysql.createConnection({
         host: 'localhost', // Your database host
         user: 'root',      // Your database username
-        password: 'your_password', // Your database password
+        password: 'root12', // Your database password
         database: 'LearnPlatform' // Your database name
     });
 
