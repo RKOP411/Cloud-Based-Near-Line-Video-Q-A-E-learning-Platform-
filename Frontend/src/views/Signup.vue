@@ -186,7 +186,8 @@ onBeforeUnmount(() => {
   <app-footer />
 </template>
 <script>
-
+import {register} from "../assets/Domain.js";
+console.log(register);
 export default {
   data() {
     return {
@@ -202,6 +203,7 @@ export default {
   },
   methods: {
     async register() {
+      console.log(register);
       console.log("Register");
       if (this.form.Password != this.form.ConfirmPassword) {
         this.errmsg = "Password and Confirm Password do not match";
