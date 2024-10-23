@@ -187,6 +187,7 @@ onBeforeUnmount(() => {
 </template>
 <script>
 import { register } from "../assets/Domain.js";
+console.log(register);
 export default {
   data() {
     return {
@@ -201,7 +202,7 @@ export default {
     };
   },
   methods: {
-    register() {
+    async register() {
       console.log("Register");
       if (this.form.Password != this.form.ConfirmPassword) {
         this.errmsg = "Password and Confirm Password do not match";
@@ -227,20 +228,25 @@ export default {
         this.form.Role = "Teacher";
       }
       console.log(this.form);
-      register(this.form)
-        .then((res) => {
-          console.log(res);
-          if (res.status == 200) {
-            localStorage.setItem("Role", this.form.Role);
-            this.$router.push("/profile");
-          } else {
-            this.errmsg = res.data;
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          this.errmsg = err;
+      try {
+        const response = await fetch(register, {
+          // Use register directly
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(this.form), // Ensure this.form is defined in your component
         });
+        const data = await response.json();
+        console.log(data);
+        if (data.status === "success") {
+          this.$router.push("/"); // Ensure this is accessible in the setup context
+        } else {
+          this.errmsg = data.message; // Ensure errmsg is reactive
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
     },
     isStudentValid(password) {
       // Check if the first 8 characters are digits
