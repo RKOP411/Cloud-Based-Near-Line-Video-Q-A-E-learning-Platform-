@@ -186,8 +186,7 @@ onBeforeUnmount(() => {
   <app-footer />
 </template>
 <script>
-import { register } from "../assets/Domain.js";
-console.log(register);
+
 export default {
   data() {
     return {
@@ -229,7 +228,7 @@ export default {
       }
       console.log(this.form);
       try {
-        const response = await fetch(register, {
+        const response = await fetch("http://localhost:3000/account/register", {
           // Use register directly
           method: "POST",
           headers: {
