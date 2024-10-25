@@ -194,11 +194,8 @@ import { useRouter } from "vue-router";
 export default {
   setup() {
     const router = useRouter();
-    return {
-      router,
-    };
+    return { router };
   },
-
   data() {
     return {
       form: {
@@ -243,7 +240,7 @@ export default {
         return;
       }
       try {
-        const response = await fetch(registerDomain, {
+        await fetch(registerDomain, {
           // Use register directly
           method: "POST",
           headers: {
@@ -252,12 +249,7 @@ export default {
           body: JSON.stringify(this.form), // Ensure this.form is defined in your component
         });
         localStorage.setItem("Role", this.form.Role);
-        const data = await response;
-        if (data.status === "success") {
-          this.router.push("/"); // Ensure this is accessible in the setup context
-        } else {
-          this.errmsg = data.message; // Ensure errmsg is reactive
-        }
+        this.$router.push("/"); // Ensure this is accessible in the setup context
       } catch (error) {
         console.error("Error:", error);
       }
