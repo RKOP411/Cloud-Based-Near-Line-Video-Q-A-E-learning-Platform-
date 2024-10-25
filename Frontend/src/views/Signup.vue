@@ -125,6 +125,10 @@ onBeforeUnmount(() => {
                 {{ errmsg }}
               </div>
 
+              <div class="alert alert-success" role="alert" v-if="succmsg">
+                {{ succmsg }}
+              </div>
+
               <form role="form" @submit.prevent="register">
                 <argon-input
                   id="name"
@@ -206,6 +210,7 @@ export default {
         Role: "",
       },
       errmsg: "",
+      succmsg: "",
     };
   },
   methods: {
@@ -235,7 +240,8 @@ export default {
         this.form.Role = "Teacher";
       }
 
-      if ((await VerifyEmail(this.form.Email)) === false) {
+      console.log("(await VerifyEmail(this.form.Email)).length "+(await VerifyEmail(this.form.Email)).length); 
+      if ((await VerifyEmail(this.form.Email)).length > 0) {
         this.errmsg = "Invalid Email";
         return;
       }
@@ -248,6 +254,7 @@ export default {
           },
           body: JSON.stringify(this.form), // Ensure this.form is defined in your component
         });
+        this.succmsg = "Successfully Registered";
         localStorage.setItem("Role", this.form.Role);
         localStorage.setItem("Email", this.form.Email);
         this.$router.push("/"); // Ensure this is accessible in the setup context

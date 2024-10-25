@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
 
+
 const store = useStore();
 const isRTL = computed(() => store.state.isRTL);
 const isNavFixed = computed(() => store.state.isNavFixed);

@@ -6,6 +6,15 @@ import setNavPills from "@/assets/js/nav-pills.js";
 import setTooltip from "@/assets/js/tooltip.js";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
+import { useRouter } from "vue-router";
+const router = useRouter();
+let Email = localStorage.getItem("Email");
+
+if (Email === null || Email === "") {
+  router.push("/signin");
+}
+
+
 
 const body = document.getElementsByTagName("body")[0];
 
@@ -31,6 +40,8 @@ onBeforeUnmount(() => {
   store.state.hideConfigButton = false;
   body.classList.remove("profile-overview");
 });
+
+
 </script>
 <template>
   <main>
@@ -38,7 +49,7 @@ onBeforeUnmount(() => {
       <div
         class="page-header min-height-300"
         style="
-          background-image: url(&quot;https://images.unsplash.com/photo-1531512073830-ba890ca4eba2?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80&quot;);
+          background-image: url('https://images.unsplash.com/photo-1531512073830-ba890ca4eba2?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
           margin-right: -24px;
           margin-left: -34%;
         "
@@ -63,14 +74,9 @@ onBeforeUnmount(() => {
                 <p class="mb-0 font-weight-bold text-sm">Public Relations</p>
               </div>
             </div>
-            <div
-              class="mx-auto mt-3 col-lg-4 col-md-6 my-sm-auto ms-sm-auto me-sm-0"
-            >
+            <div class="mx-auto mt-3 col-lg-4 col-md-6 my-sm-auto ms-sm-auto me-sm-0">
               <div class="nav-wrapper position-relative end-0">
-                <ul
-                  class="p-1 bg-transparent nav nav-pills nav-fill"
-                  role="tablist"
-                >
+                <ul class="p-1 bg-transparent nav nav-pills nav-fill" role="tablist">
                   <li class="nav-item">
                     <a
                       class="px-0 py-1 mb-0 nav-link active"
@@ -88,12 +94,7 @@ onBeforeUnmount(() => {
                         xmlns="http://www.w3.org/2000/svg"
                         xmlns:xlink="http://www.w3.org/1999/xlink"
                       >
-                        <g
-                          stroke="none"
-                          stroke-width="1"
-                          fill="none"
-                          fill-rule="evenodd"
-                        >
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                           <g
                             transform="translate(-2319.000000, -291.000000)"
                             fill="#FFFFFF"
@@ -141,12 +142,7 @@ onBeforeUnmount(() => {
                         xmlns:xlink="http://www.w3.org/1999/xlink"
                       >
                         <title>document</title>
-                        <g
-                          stroke="none"
-                          stroke-width="1"
-                          fill="none"
-                          fill-rule="evenodd"
-                        >
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                           <g
                             transform="translate(-1870.000000, -591.000000)"
                             fill="#FFFFFF"
@@ -189,12 +185,7 @@ onBeforeUnmount(() => {
                         xmlns:xlink="http://www.w3.org/1999/xlink"
                       >
                         <title>settings</title>
-                        <g
-                          stroke="none"
-                          stroke-width="1"
-                          fill="none"
-                          fill-rule="evenodd"
-                        >
+                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                           <g
                             transform="translate(-2020.000000, -442.000000)"
                             fill="#FFFFFF"
@@ -284,9 +275,7 @@ onBeforeUnmount(() => {
                   />
                 </div>
                 <div class="col-md-4">
-                  <label for="example-text-input" class="form-control-label"
-                    >City</label
-                  >
+                  <label for="example-text-input" class="form-control-label">City</label>
                   <argon-input type="text" value="New York" />
                 </div>
                 <div class="col-md-4">
@@ -318,10 +307,9 @@ onBeforeUnmount(() => {
             </div>
           </div>
         </div>
-        <div class="col-md-4">
-
-        </div>
+        <div class="col-md-4"></div>
       </div>
     </div>
   </main>
 </template>
+

@@ -7,10 +7,10 @@ export default async function VerifyEmail() {
   console.log(data);
   if (data.length > 0) {
     console.log("Email already exists");
-    return false;
+    return data;
   } else {
     console.log("Email is available");
-    return true;
+    return data;
   }
 
 }
