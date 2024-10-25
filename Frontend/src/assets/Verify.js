@@ -1,17 +1,19 @@
-import { verifyEmail } from "../assets/Domain.js";
+import { verifyEmailDomain } from "../assets/Domain.js";
 
 export default async function VerifyEmail() {
-  try {
-    const response = await fetch(verifyEmail, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      }
-    });
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.log(error);
+  const email = document.getElementById("email").value;
+  const response = await fetch(`${verifyEmailDomain}?email=${email}`);
+  const data = await response.json();
+  console.log(data);
+  if (data.length > 0) {
+    console.log("Email already exists");
+    return false;
+  } else {
+    console.log("Email is available");
+    return true;
   }
 
 }
+
+
+export { VerifyEmail };

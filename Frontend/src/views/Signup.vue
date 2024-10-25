@@ -188,9 +188,17 @@ onBeforeUnmount(() => {
 <script>
 console.log("Signup");
 import { registerDomain } from "../assets/Domain.js";
-// import { VerifyEmail } from "../assets/Verify.js";
-console.log(registerDomain);
+import { VerifyEmail } from "../assets/Verify.js";
+import { useRouter } from "vue-router";
+
 export default {
+  setup() {
+    const router = useRouter();
+    return {
+      router,
+    };
+  },
+
   data() {
     return {
       form: {
@@ -229,14 +237,13 @@ export default {
       } else {
         this.form.Role = "Teacher";
       }
-      // if (VerifyEmail(this.form.Email)) {
-      //   console.log(VerifyEmail(this.form.Email));
-      //   this.errmsg = "Email is uesd";
-      //   return;
-      // }
-      console.log(this.form);
+
+      if ((await VerifyEmail(this.form.Email)) === false) {
+        this.errmsg = "Invalid Email";
+        return;
+      }
       try {
-        const response = await fetch("http://localhost:3000/account/register", {
+        const response = await fetch(registerDomain, {
           // Use register directly
           method: "POST",
           headers: {
@@ -244,10 +251,10 @@ export default {
           },
           body: JSON.stringify(this.form), // Ensure this.form is defined in your component
         });
+        localStorage.setItem("Role", this.form.Role);
         const data = await response;
-        console.log(data);
         if (data.status === "success") {
-          this.$router.push("/"); // Ensure this is accessible in the setup context
+          this.router.push("/"); // Ensure this is accessible in the setup context
         } else {
           this.errmsg = data.message; // Ensure errmsg is reactive
         }

@@ -8,36 +8,30 @@ router.get('/', function (req, res, next) {
 });
 
 router.get('/verifyEmail', async function (req, res, next) {
-    let connection;
     try {
-        // Establish a database connection
-        connection = await connectToDB();
-
-        // Get the email from the query parameters
+        const connection = await connectToDB();
         const email = req.query.email;
 
-        if (!email) {
-            return res.status(400).send('Email is required');
-        }
+        const sql = `SELECT * FROM User WHERE Email = ?`;
 
-        // Query the database to find the user by email
-        const [rows] = await connection.execute('SELECT * FROM user WHERE email = ?', [email]);
+        connection.query(sql, email, (err, results) => {
+            if (err) {
+                console.error('Error getting emails:', err);
+                console.log("Database error");
+            }
+            console.log(results);
+            res.status(200).json(results);
+        });
 
-        if (rows.length === 0) {
-            return res.status(404).send('Account not found');
-        }
+        // Close the connection
+        connection.end();
 
-        // If user is found, send a success response
-        res.status(200).send(`Account verified for email: ${email}`);
     } catch (error) {
-        console.error('Error connecting to the database or verifying email:', error);
+        console.error('Error connecting to the database:', error);
         res.status(500).send('Server error');
-    } finally {
-        if (connection) {
-            await connection.end(); // Close the connection
-        }
     }
 });
+
 
 
 
