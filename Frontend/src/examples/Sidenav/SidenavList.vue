@@ -2,12 +2,18 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "vuex";
-
 import SidenavItem from "./SidenavItem.vue";
+import { useRouter } from "vue-router";
+const router = useRouter();
 
 const store = useStore();
 const isRTL = computed(() => store.state.isRTL);
 let Role = localStorage.getItem("Role");
+let Email = localStorage.getItem("Email");
+
+if (Email === null || Email === "") {
+  router.push("/signin");
+} 
 
 console.log("localStorage.getItem(): " + localStorage.length);
 

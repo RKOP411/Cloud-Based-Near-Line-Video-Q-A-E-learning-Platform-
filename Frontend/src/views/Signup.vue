@@ -249,6 +249,7 @@ export default {
           body: JSON.stringify(this.form), // Ensure this.form is defined in your component
         });
         localStorage.setItem("Role", this.form.Role);
+        localStorage.setItem("Email", this.form.Email);
         this.$router.push("/"); // Ensure this is accessible in the setup context
       } catch (error) {
         console.error("Error:", error);
