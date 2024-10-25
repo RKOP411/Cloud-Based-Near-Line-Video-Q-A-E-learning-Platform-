@@ -15,11 +15,13 @@ import CreateChat from "../views/CreateChatCroup.vue";
 import UploadQuestion from "../views/Student/Upload_Question.vue";
 import JoinChat from "../views/JoinChat.vue";
 
+
+
 const routes = [
   {
     path: "/",
     name: "/",
-    redirect: "/dashboard-default",
+    redirect: "/profile",
   },
   {
     path: "/dashboard-default",
