@@ -187,7 +187,6 @@ onBeforeUnmount(() => {
 </template>
 <script>
 import {register} from "../assets/Domain.js";
-console.log(register);
 export default {
   data() {
     return {
@@ -203,7 +202,6 @@ export default {
   },
   methods: {
     async register() {
-      console.log(register);
       console.log("Register");
       if (this.form.Password != this.form.ConfirmPassword) {
         this.errmsg = "Password and Confirm Password do not match";
@@ -230,7 +228,7 @@ export default {
       }
       console.log(this.form);
       try {
-        const response = await fetch("http://localhost:3000/account/register", {
+        const response = await fetch(register, {
           // Use register directly
           method: "POST",
           headers: {

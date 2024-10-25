@@ -9,6 +9,12 @@ const store = useStore();
 const isRTL = computed(() => store.state.isRTL);
 let Role = localStorage.getItem("Role");
 
+console.log("localStorage.getItem(): " + localStorage.length);
+
+if (Role === null || Role === "") {
+  Role = "Student";
+}
+console.log(Role);
 const getRoute = () => {
   const route = useRoute();
   const routeArr = route.path.split("/");
