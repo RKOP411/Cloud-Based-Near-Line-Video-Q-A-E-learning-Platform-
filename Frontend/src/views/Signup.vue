@@ -186,7 +186,10 @@ onBeforeUnmount(() => {
   <app-footer />
 </template>
 <script>
-import {register} from "../assets/Domain.js";
+console.log("Signup");
+import { registerDomain } from "../assets/Domain.js";
+// import { VerifyEmail } from "../assets/Verify.js";
+console.log(registerDomain);
 export default {
   data() {
     return {
@@ -226,9 +229,14 @@ export default {
       } else {
         this.form.Role = "Teacher";
       }
+      // if (VerifyEmail(this.form.Email)) {
+      //   console.log(VerifyEmail(this.form.Email));
+      //   this.errmsg = "Email is uesd";
+      //   return;
+      // }
       console.log(this.form);
       try {
-        const response = await fetch(register, {
+        const response = await fetch("http://localhost:3000/account/register", {
           // Use register directly
           method: "POST",
           headers: {

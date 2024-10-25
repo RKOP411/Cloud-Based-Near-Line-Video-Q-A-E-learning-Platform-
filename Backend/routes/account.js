@@ -7,7 +7,7 @@ router.get('/', function (req, res, next) {
     res.send('respond with a resource');
 });
 
-router.get('/verifyAccount', async function (req, res, next) {
+router.get('/verifyEmail', async function (req, res, next) {
     let connection;
     try {
         // Establish a database connection
