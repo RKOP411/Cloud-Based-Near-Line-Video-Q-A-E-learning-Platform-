@@ -30,12 +30,17 @@ onBeforeUnmount(() => {
         <div class="container">
           <div class="row">
             <div class="mx-auto col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0">
+            <div class="mx-auto col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0">
               <div class="card card-plain">
                 <div class="pb-0 card-header text-start">
                   <h4 class="font-weight-bolder">Sign In</h4>
                   <p class="mb-0">Enter your email and password to sign in</p>
                 </div>
                 <div class="card-body">
+                  <div class="alert alert-danger" role="alert" v-if="errmsg">
+                    {{ errmsg }}
+                  </div>
+                  <form role="form" @submit.prevent="login">
                   <div class="alert alert-danger" role="alert" v-if="errmsg">
                     {{ errmsg }}
                   </div>
@@ -48,6 +53,7 @@ onBeforeUnmount(() => {
                         name="email"
                         size="lg"
                         v-model="form.Email"
+                        v-model="form.Email"
                       />
                     </div>
                     <div class="mb-3">
@@ -58,10 +64,14 @@ onBeforeUnmount(() => {
                         name="password"
                         size="lg"
                         v-model="form.Password"
+                        v-model="form.Password"
                       />
                     </div>
                     <argon-switch class="mb-3" id="rememberMe" name="remember-me"
                       >Remember me</argon-switch
+                    >
+                    <a href="javascript:;" class="text-primary text-gradient"
+                      >Forget Password</a
                     >
                     <a href="javascript:;" class="text-primary text-gradient"
                       >Forget Password</a
@@ -84,6 +94,9 @@ onBeforeUnmount(() => {
                     <a href="/signup" class="text-success text-gradient font-weight-bold"
                       >Sign up</a
                     >
+                    <a href="/signup" class="text-success text-gradient font-weight-bold"
+                      >Sign up</a
+                    >
                   </p>
                 </div>
               </div>
@@ -95,6 +108,7 @@ onBeforeUnmount(() => {
                 class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden"
                 style="
                   background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg');
+                  background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg');
                   background-size: cover;
                 "
               >
@@ -102,7 +116,12 @@ onBeforeUnmount(() => {
                 <h4 class="mt-5 text-white font-weight-bolder position-relative">
                   "The beautiful thing about learning is that no one can take it away from
                   you."
+                <h4 class="mt-5 text-white font-weight-bolder position-relative">
+                  "The beautiful thing about learning is that no one can take it away from
+                  you."
                 </h4>
+                <br />
+                <p class="text-white position-relative">— B.B. King</p>
                 <br />
                 <p class="text-white position-relative">— B.B. King</p>
               </div>

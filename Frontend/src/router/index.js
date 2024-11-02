@@ -17,6 +17,8 @@ import JoinQuestion from "../views/JoinQuestion.vue";
 
 
 
+
+
 const routes = [
   {
     path: "/",
