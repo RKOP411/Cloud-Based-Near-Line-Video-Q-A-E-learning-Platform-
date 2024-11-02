@@ -2,21 +2,57 @@
   <div class="card">
     <div class="card-header pb-0 px-3">
       <h6 class="mb-0">Questions Information</h6>
+      <div class="row">
+        <div class="col-auto">
+          <div class="avatar avatar-xl position-relative">
+            <img
+              src="../../assets/img/team-3.jpg"
+              alt="profile_image"
+              class="shadow-sm w-70 border-radius-lg"
+            />
+          </div>
+        </div>
+        <div class="col-auto my-auto">
+          <div class="h-100">
+            <h5 class="mb-1">Sayo Kravits</h5>
+            <span class="badge badge-sm bg-gradient-success">Online</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Search Bar -->
     <div class="d-flex p-3 mb-2">
-      <span class="input-group-text text-body">
+      <span class="input-group-text text-body ">
         <i class="fas fa-search" aria-hidden="true"></i>
       </span>
-      <input type="text" class="form-control " :placeholder="'Type here...'" />
+      <input type="text" class="form-control" :placeholder="'Type here...'" />
     </div>
     <!-- Search Bar End-->
-    <div class="card-body pt-4 p-3">
 
+    <!-- Queue -->
+    <div class="row d-flex px-4 justify-content-between">
+      <div class="card col-5 text-center bg-success me-1">
+        <div class="card-body">
+          <h5 class="card-title">Queue</h5>
+          <p class="bg-light" style="padding: 10px">3</p>
+        </div>
+      </div>
+
+      <div class="card col-5 text-center bg-success me-1">
+        <div class="card-body ">
+          <h5 class="card-title">Waiting Time</h5>
+          <p class="bg-light" style="padding: 10px">03m 12s</p>
+        </div>
+      </div>
+    </div>
+    <!-- Queue End -->
+    <div class="card-body pt-4 p-3">
       <ul class="list-group">
         <!-- List Card -->
-        <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
+        <li
+          class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
+        >
           <div class="d-flex flex-column">
             <h6 class="mb-3 text-sm">You</h6>
             <span class="mb-2 text-xs">
@@ -25,8 +61,9 @@
             </span>
             <span class="mb-2 text-xs">
               Description:
-              <span class="text-dark ms-sm-2 font-weight-bold">Why is the vertex cover problem classified as
-                NP-hard?</span>
+              <span class="text-dark ms-sm-2 font-weight-bold"
+                >Why is the vertex cover problem classified as NP-hard?</span
+              >
             </span>
           </div>
           <div class="ms-auto text-end d-flex">
@@ -37,7 +74,9 @@
         </li>
         <!--End of List Card -->
 
-        <li class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg">
+        <li
+          class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg"
+        >
           <div class="d-flex flex-column">
             <h6 class="mb-3 text-sm">Lucas Harper</h6>
             <span class="mb-2 text-xs">
@@ -46,18 +85,22 @@
             </span>
             <span class="mb-2 text-xs">
               Description:
-              <span class="text-dark ms-sm-2 font-weight-bold">How can the Max-Flow Min-Cut Theorem be applied to solve
-                real-world problems?</span>
+              <span class="text-dark ms-sm-2 font-weight-bold"
+                >How can the Max-Flow Min-Cut Theorem be applied to solve
+                real-world problems?</span
+              >
             </span>
           </div>
           <div class="ms-auto text-end d-flex">
-            <br/>
+            <br />
             <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;">
               <i class="fa fa-eye text-dark me-2" aria-hidden="true"></i>
             </a>
           </div>
         </li>
-        <li class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg">
+        <li
+          class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg"
+        >
           <div class="d-flex flex-column">
             <h6 class="mb-3 text-sm">Ethan James</h6>
             <span class="mb-2 text-xs">
@@ -66,12 +109,14 @@
             </span>
             <span class="mb-2 text-xs">
               Description:
-              <span class="text-dark ms-sm-2 font-weight-bold ">When implementing a depth-first search (DFS) algorithm,
-                the graph is disconnected, and the algorithm won't visit all nodes</span>
+              <span class="text-dark ms-sm-2 font-weight-bold"
+                >When implementing a depth-first search (DFS) algorithm, the
+                graph is disconnected, and the algorithm won't visit all
+                nodes</span
+              >
             </span>
           </div>
           <div class="ms-auto text-end d-flex">
-
             <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;">
               <i class="fa fa-eye text-dark me-2" aria-hidden="true"></i>
             </a>
@@ -81,11 +126,3 @@
     </div>
   </div>
 </template>
-
-<style scoped>
-
-.input-group {
-  margin-left: 16px;
-  width: auto;
-}
-</style>
