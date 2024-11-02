@@ -4,3 +4,4 @@ import DefaultDashboard from "@/views/dashboards/Default.vue";
 <template>
   <default-dashboard />
 </template>
+

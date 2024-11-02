@@ -13,13 +13,15 @@ import MediaList from "../views/Admin/MediaList.vue";
 import Manage_Queue from "../views/Teacher/ManageQueue.vue";
 import CreateChat from "../views/CreateChatCroup.vue";
 import UploadQuestion from "../views/Student/Upload_Question.vue";
-import JoinChat from "../views/JoinChat.vue";
+import JoinQuestion from "../views/JoinQuestion.vue";
+
+
 
 const routes = [
   {
     path: "/",
     name: "/",
-    redirect: "/dashboard-default",
+    redirect: "/profile",
   },
   {
     path: "/dashboard-default",
@@ -93,9 +95,9 @@ const routes = [
     component: UploadQuestion,
   },
   {
-    path: "/joinchat",
+    path: "/JoinQuestion",
     name: "Join Chat Group",
-    component: JoinChat,
+    component: JoinQuestion,
   }
 ];
 

@@ -1,3 +1,12 @@
+<script setup>
+import { useRouter } from "vue-router";
+const router = useRouter();
+let Email = localStorage.getItem("Email");
+
+if (Email === null || Email === "") {
+  router.push("/signin");
+}
+</script>
 <template>
   <main>
     <div class="py-4 container-fluid">
@@ -10,13 +19,10 @@
               </div>
             </div>
             <div class="card-body">
-           
               <!-- Select Bar-->
               <ul class="nav nav-tabs mb-3">
                 <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="#"
-                    >Text</a
-                  >
+                  <a class="nav-link active" aria-current="page" href="#">Text</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="#">Image & Video</a>
@@ -44,11 +50,7 @@
                   <label for="example-text-input" class="form-control-label"
                     >Description</label
                   >
-                  <textarea
-                    class="form-control"
-                    id="description"
-                    rows="3"
-                  ></textarea>
+                  <textarea class="form-control" id="description" rows="3"></textarea>
                 </div>
                 <!-- Contant Input End-->
               </div>

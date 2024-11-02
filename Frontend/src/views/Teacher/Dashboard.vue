@@ -7,6 +7,13 @@ import US from "@/assets/img/icons/flags/US.png";
 import DE from "@/assets/img/icons/flags/DE.png";
 import GB from "@/assets/img/icons/flags/GB.png";
 import BR from "@/assets/img/icons/flags/BR.png";
+import { useRouter } from "vue-router";
+const router = useRouter();
+let Email = localStorage.getItem("Email");
+
+if (Email === null || Email === "") {
+  router.push("/signin");
+}
 
 
 

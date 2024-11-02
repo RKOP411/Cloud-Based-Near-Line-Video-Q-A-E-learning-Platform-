@@ -50,5 +50,7 @@
   },
   "engines": {
     "node": ">=8 <=21"
-  }
+  },
+  "main": ".eslintrc.js",
+  "keywords": []
 }
