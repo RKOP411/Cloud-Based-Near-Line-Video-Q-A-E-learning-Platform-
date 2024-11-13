@@ -16,7 +16,7 @@
               <th
                 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
               >
-              Discussion
+                Discussion
               </th>
               <th
                 class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
@@ -37,7 +37,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr v-for="(item, index) in items" :key="index">
               <td>
                 <div class="d-flex px-2 py-1">
                   <div>
@@ -48,25 +48,25 @@
                     ></i>
                   </div>
                   <div class="d-flex flex-column justify-content-center">
-                    <h6 class="mb-0 text-sm">What is NPC problems</h6>
-                    <p class="text-xs text-secondary mb-0">John Michael</p>
+                    <h6 class="mb-0 text-sm">{{ item.ForumTitle }}</h6>
+                    <p class="text-xs text-secondary mb-0">{{ item.UserName }}</p>
                   </div>
                 </div>
               </td>
               <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >10-14 22:32</span
-                >
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  item.LastUpdated
+                }}</span>
               </td>
               <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >23/04/2024</span
-                >
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  item.UpdatedTime
+                }}</span>
               </td>
               <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >10</span
-                >
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  item.Replies
+                }}</span>
               </td>
               <td class="align-middle">
                 <a
@@ -76,221 +76,6 @@
                   data-original-title="Edit user"
                   ><i class="fa fa-th-list" aria-hidden="true"></i
                 ></a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="d-flex px-2 py-1">
-                  <div>
-                    <i
-                      class="avatar-sm me-3 fa fa-star star"
-                      aria-hidden="true"
-                      style="font-size: 20px"
-                    ></i>
-                  </div>
-                  <div class="d-flex flex-column justify-content-center">
-                    <h6 class="mb-0 text-sm">
-                      How are algorithms used in machine learning?
-                    </h6>
-                    <p class="text-xs text-secondary mb-0">Alexa Liras</p>
-                  </div>
-                </div>
-              </td>
-              <td class="align-middle text-center text-sm">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >10-28 01:52</span
-                >
-              </td>
-              <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >11/01/2024</span
-                >
-              </td>
-              <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >2</span
-                >
-              </td>
-              <td class="align-middle">
-                <a
-                  href="javascript:;"
-                  class="text-secondary font-weight-bold text-xs"
-                  data-toggle="tooltip"
-                  data-original-title="Edit user"
-                  ><i class="fa fa-th-list" aria-hidden="true"></i
-                ></a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="d-flex px-2 py-1">
-                  <div>
-                    <i
-                      class="avatar-sm me-3 fa fa-star star"
-                      aria-hidden="true"
-                      style="font-size: 20px"
-                    ></i>
-                  </div>
-                  <div class="d-flex flex-column justify-content-center">
-                    <h6 class="mb-0 text-sm">
-                      Who can explain the difference between JDK, and JVM?
-                    </h6>
-                    <p class="text-xs text-secondary mb-0">Laurent Perrier</p>
-                  </div>
-                </div>
-              </td>
-
-              <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >20 minute ago</span
-                >
-              </td>
-              <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >19/09/2024</span
-                >
-              </td>
-              <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >1</span
-                >
-              </td>
-              <td class="align-middle">
-                <a
-                  href="javascript:;"
-                  class="text-secondary font-weight-bold text-xs"
-                  data-toggle="tooltip"
-                  data-original-title="Edit user"
-                  ><i class="fa fa-th-list" aria-hidden="true"></i
-                ></a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="d-flex px-2 py-1">
-                  <div>
-                    <i
-                      class="avatar-sm me-3 fa fa-star star"
-                      aria-hidden="true"
-                      style="font-size: 20px"
-                    ></i>
-                  </div>
-                  <div class="d-flex flex-column justify-content-center">
-                    <h6 class="mb-0 text-sm">Michael Levi</h6>
-                    <p class="text-xs text-secondary mb-0">Michael Levi</p>
-                  </div>
-                </div>
-              </td>
-              <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >5 hours ago</span
-                >
-              </td>
-              <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >24/12/2024</span
-                >
-              </td>
-              <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >31</span
-                >
-              </td>
-              <td class="align-middle">
-                <a
-                  href="javascript:;"
-                  class="text-secondary font-weight-bold text-xs"
-                  data-toggle="tooltip"
-                  data-original-title="Edit user"
-                  ><i class="fa fa-th-list" aria-hidden="true"></i
-                ></a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="d-flex px-2 py-1">
-                  <div>
-                    <i
-                      class="avatar-sm me-3 fa fa-star star"
-                      aria-hidden="true"
-                      style="font-size: 20px"
-                    ></i>
-                  </div>
-                  <div class="d-flex flex-column justify-content-center">
-                    <h6 class="mb-0 text-sm">
-                      What is the difference between ArrayList and LinkedList?
-                    </h6>
-                    <p class="text-xs text-secondary mb-0">Tom Riddle</p>
-                  </div>
-                </div>
-              </td>
-              <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >Yesterday 03:16</span
-                >
-              </td>
-              <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >04/10/2024</span
-                >
-              </td>
-              <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >1</span
-                >
-              </td>
-              <td class="align-middle">
-                <a
-                  href="javascript:;"
-                  class="text-secondary font-weight-bold text-xs"
-                  data-toggle="tooltip"
-                  data-original-title="Edit user"
-                  ><i class="fa fa-th-list" aria-hidden="true"></i
-                ></a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="d-flex px-2 py-1">
-                  <div>
-                    <i
-                      class="avatar-sm me-3 fa fa-star star"
-                      aria-hidden="true"
-                      style="font-size: 20px"
-                    ></i>
-                  </div>
-                  <div class="d-flex flex-column justify-content-center">
-                    <h6 class="mb-0 text-sm">
-                      What is Dijkstra’s algorithm, and what problem does it
-                      solve?
-                    </h6>
-                    <p class="text-xs text-secondary mb-0">Miriam Eric</p>
-                  </div>
-                </div>
-              </td>
-              <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >9-14 09:38</span
-                >
-              </td>
-              <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >14/09/2024</span
-                >
-              </td>
-              <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >0</span
-                >
-              </td>
-              <td class="align-middle">
-                <a
-                  href="javascript:;"
-                  class="text-secondary font-weight-bold text-xs"
-                  data-toggle="tooltip"
-                  data-original-title="Edit user"
-                  ><i class="fa fa-th-list" aria-hidden="true"></i>
-                </a>
               </td>
             </tr>
           </tbody>
@@ -300,6 +85,38 @@
   </div>
   <br />
 </template>
+<script>
+export default {
+  data() {
+    return {
+      items: [
+        {
+          ForumTitle: "What is NPC problems",
+          UserName: "John Michael",
+          LastUpdated: "10-14 22:32",
+          UpdatedTime: "23/04/2024",
+          Replies: 10,
+        },
+        {
+          ForumTitle: "No problem",
+          UserName: "Tommy",
+          LastUpdated: "10-24 22:32",
+          UpdatedTime: "23/04/2024",
+          Replies: 1,
+        },
+        {
+          ForumTitle: "What is java ",
+          UserName: "Chris",
+          LastUpdated: "10-24 22:32",
+          UpdatedTime: "23/04/2024",
+          Replies: 10,
+        },
+      ],
+    };
+  },
+};
+</script>
+
 <style>
 .star {
   align-items: center;

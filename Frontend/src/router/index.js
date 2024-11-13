@@ -32,7 +32,7 @@ const routes = [
   },
   {
     path: "/tables",
-    name: "Chat Room",
+    name: "Forum",
     component: Tables,
   },
   {
