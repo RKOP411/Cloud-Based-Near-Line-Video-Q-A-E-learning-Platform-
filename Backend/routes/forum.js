@@ -7,7 +7,7 @@ router.get('/GetAllforum', async function (req, res, next) {
     try {
         const connection = await connectToDB();
 
-        const sql = `SELECT * FROM Forum`;
+        const sql = `SELECT  f.*, u.UserName FROM Forum f LEFT JOIN User u  ON f.UserID = u.UserID`;
 
         connection.query(sql, (err, results) => {
             if (err) {

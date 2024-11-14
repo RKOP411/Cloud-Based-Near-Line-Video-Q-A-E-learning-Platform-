@@ -47,9 +47,12 @@
                       style="font-size: 20px"
                     ></i>
                   </div>
+                  
                   <div class="d-flex flex-column justify-content-center">
                     <h6 class="mb-0 text-sm">{{ item.ForumTitle }}</h6>
-                    <p class="text-xs text-secondary mb-0">{{ item.UserName }}</p>
+                    <p class="text-xs text-secondary mb-0">
+                      {{ item.UserName }}
+                    </p>
                   </div>
                 </div>
               </td>
@@ -104,6 +107,22 @@ export default {
       });
       const data = await response.json();
       this.items = data;
+
+      this.items.forEach((item) => {
+        let date = new Date(item.UpdatedTime);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        item.UpdatedTime = `${year}/${month}/${day}`;
+
+        date = new Date(item.LastUpdated);
+
+        const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-
+        ${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:
+        ${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
+
+        item.LastUpdated = formattedDate;
+      });
     },
   },
   mounted() {
