@@ -12,7 +12,9 @@
             <div class="card-body">
               <div class="card">
                 <div class="card-body">
-                  <a href="/tables/forum"><i class="fa fa-arrow-left backArr" aria-hidden="true"></i></a>
+                  <a href="/tables/forum"
+                    ><i class="fa fa-arrow-left backArr" aria-hidden="true"></i
+                  ></a>
                   <img
                     src="../assets/img/team-1.jpg"
                     alt="profile_image"
@@ -30,6 +32,24 @@
                   }}</i>
                   <i class="fa fa-comment-o CommentIcon" aria-hidden="true"></i>
                   <i class="fa fa-share ShareIcon" aria-hidden="true">Share</i>
+                  <br />
+                  <br />
+                  <textarea
+                    class="form-control"
+                    id="exampleFormControlTextarea1"
+                    rows="3"
+                  ></textarea>
+                  <br />
+                  <br />
+               
+                    <div class="card-body">
+                      <h5 class="card-title">User</h5>
+                      <p class="card-text">
+                        Some quick example text to build on the card title and
+                        make up the bulk of the card's content.
+                      </p>
+                      <i class="fa fa-thumbs-o-up LikeCommentIcon" aria-hidden="true"></i>
+                  </div>
                 </div>
               </div>
             </div>
@@ -41,7 +61,7 @@
 </template>
 
 <script>
-import { GetForumContentByID } from "../assets/Domain.js";
+import { GetForumContentByID, GetCommentByForumID } from "../assets/Domain.js";
 
 const params = new URLSearchParams(window.location.search);
 const ForumID = params.get("ForumID");
@@ -50,6 +70,7 @@ export default {
   data() {
     return {
       items: [],
+      comment: [],
     };
   },
   methods: {
@@ -99,6 +120,16 @@ export default {
       this.items.UpdatedTime = lastUpdatedTime;
       console.log(this.items.UpdatedTime);
     },
+    async getComment() {
+      const response = await fetch(GetCommentByForumID + ForumID, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      this.comment = data;
+    },
   },
   mounted() {
     this.getForumContent();
@@ -130,6 +161,15 @@ export default {
   font-weight: bold;
 }
 
+.LikeCommentIcon{
+    font-size: 15px;
+    margin: 5px;
+}
+.LikeCommentIcon:hover {
+  cursor: pointer;
+  color: green;
+}
+
 .LikeIcon {
   font-size: 25px;
   margin: 5px;
@@ -159,5 +199,16 @@ export default {
 .ShareIcon:hover {
   cursor: pointer;
   color: #e9ecef;
+}
+
+.editor {
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  padding: 10px;
+  min-height: 150px;
+  cursor: text;
+}
+.toolbar button {
+  margin-right: 5px;
 }
 </style>
