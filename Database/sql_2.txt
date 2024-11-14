@@ -85,7 +85,8 @@ CREATE TABLE Media(
 CREATE TABLE Course(
   CourseID int AUTO_INCREMENT,
   CourseName varchar(150) NOT NULL,
-  Topic varchar(100),
+  TeacherName varchar(20),
+  Semester varchar(20),
   NumQuestion int,
   PRIMARY KEY (CourseID)
 );
@@ -97,5 +98,15 @@ CREATE TABLE CourseJoin(
   FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
   FOREIGN KEY (UserID) REFERENCES User(UserID),
   PRIMARY KEY (CourseJoinID)
+);
+
+
+CREATE TABLE CourseForum(
+  CourseForum int,
+  CourseID int,
+  ForumID int,
+  FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
+  FOREIGN KEY (ForumID) REFERENCES Forum(ForumID),
+  PRIMARY KEY (CourseForum)
 );
 
