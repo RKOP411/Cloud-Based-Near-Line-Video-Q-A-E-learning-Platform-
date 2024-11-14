@@ -48,12 +48,14 @@ CREATE TABLE Forum (
     ForumID int AUTO_INCREMENT,
     MediaID int,
     UserID int,
+    CourseID int,
     ForumTitle varchar(100) NOT NULL,
     Description varchar(255),
     ForumType ENUM('Private', 'Group'),
     UpdatedTime datetime,
     LastUpdated datetime,
     Reples int(10) DEFAULT 0,
+    FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
     FOREIGN KEY (UserID) REFERENCES User(UserID),
     FOREIGN KEY (MediaID) REFERENCES Media(MediaID),
     PRIMARY KEY (ForumID)
@@ -98,15 +100,5 @@ CREATE TABLE CourseJoin(
   FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
   FOREIGN KEY (UserID) REFERENCES User(UserID),
   PRIMARY KEY (CourseJoinID)
-);
-
-
-CREATE TABLE CourseForum(
-  CourseForum int,
-  CourseID int,
-  ForumID int,
-  FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
-  FOREIGN KEY (ForumID) REFERENCES Forum(ForumID),
-  PRIMARY KEY (CourseForum)
 );
 
