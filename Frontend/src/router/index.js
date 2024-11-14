@@ -15,6 +15,7 @@ import CreateChat from "../views/CreateChatCroup.vue";
 import UploadQuestion from "../views/Student/Upload_Question.vue";
 import JoinQuestion from "../views/JoinQuestion.vue";
 import Forum from "../views/Forum.vue";
+import ForumContent from "../views/ForumContent.vue";
 
 
 
@@ -37,10 +38,18 @@ const routes = [
     component: Tables,
   },
   {
-    path: "/forum",
+    path: "/tables/forum",
     name: "Forum",
     component: Forum,
   },
+
+  {
+    path: "/tables/forum/forumcontent",
+    name: "Forum Content",
+    component: ForumContent,
+  },
+
+  
 
   {
     path: "/virtual-reality",

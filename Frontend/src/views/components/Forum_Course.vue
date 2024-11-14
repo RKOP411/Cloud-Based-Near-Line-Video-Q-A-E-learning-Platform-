@@ -43,7 +43,7 @@
                     ></i>
                   </div>
                   <div class="d-flex flex-column justify-content-center">
-                    <a href="forum" class="text-decoration-none">
+                    <a href="tables/forum" class="text-decoration-none">
                       <h6 class="mb-0 text-sm">{{ item.CourseName }}</h6>
                       <p class="text-xs text-secondary mb-0">
                         {{ item.TeacherName }}
