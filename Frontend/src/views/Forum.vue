@@ -86,33 +86,28 @@
   <br />
 </template>
 <script>
+import { GetAllForum } from "../assets/Domain.js";
+
 export default {
   data() {
     return {
-      items: [
-        {
-          ForumTitle: "What is NPC problems",
-          UserName: "John Michael",
-          LastUpdated: "10-14 22:32",
-          UpdatedTime: "23/04/2024",
-          Replies: 10,
-        },
-        {
-          ForumTitle: "No problem",
-          UserName: "Tommy",
-          LastUpdated: "10-24 22:32",
-          UpdatedTime: "23/04/2024",
-          Replies: 1,
-        },
-        {
-          ForumTitle: "What is java ",
-          UserName: "Chris",
-          LastUpdated: "10-24 22:32",
-          UpdatedTime: "23/04/2024",
-          Replies: 10,
-        },
-      ],
+      items: [],
     };
+  },
+  methods: {
+    async getForum() {
+      const response = await fetch(GetAllForum, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      this.items = data;
+    },
+  },
+  mounted() {
+    this.getForum();
   },
 };
 </script>

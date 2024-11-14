@@ -1,5 +1,7 @@
-const registerDomain = "http://localhost:3000/account/register";
+const DomainName = "http://localhost:3000/";
 
-const verifyEmailDomain = "http://localhost:3000/account/verifyEmail";
+const registerDomain = DomainName + "account/register";
+const verifyEmailDomain = DomainName + "account/verifyEmail";
+const GetAllForum = DomainName + "forum/GetAllforum";
 
-export {registerDomain, verifyEmailDomain};
+export { registerDomain, verifyEmailDomain, GetAllForum };
