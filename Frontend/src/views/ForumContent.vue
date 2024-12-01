@@ -37,8 +37,11 @@
                   <br />
                   <br />
                   <!--Text Editor-->
-                
- 
+                  <div>
+                    <div ref="editor" class="quill-editor"></div>
+                    <br/>
+                    <button type="button" class="btn btn-primary">Comment</button>
+                  </div>
                   <!--Text Editor-->
                   <br />
                   <br />
@@ -95,6 +98,8 @@
 
 <script>
 import { GetForumContentByID, GetCommentByForumID } from "../assets/Domain.js";
+import Quill from "quill";
+import "quill/dist/quill.snow.css"; // Import Quill's CSS
 
 const params = new URLSearchParams(window.location.search);
 const ForumID = params.get("ForumID");
@@ -107,6 +112,18 @@ export default {
     };
   },
   methods: {
+    initQuill() {
+      this.quill = new Quill(this.$refs.editor, {
+        theme: "snow",
+        modules: {
+          toolbar: [
+            ["bold", "italic", "underline"],
+            ["link", "image"],
+            [{ list: "ordered" }, { list: "bullet" }],
+          ],
+        },
+      });
+    },
     async getForumContent() {
       const response = await fetch(GetForumContentByID + ForumID, {
         method: "GET",
@@ -177,6 +194,7 @@ export default {
   mounted() {
     this.getForumContent();
     this.getComment();
+    this.initQuill();
   },
 };
 </script>
