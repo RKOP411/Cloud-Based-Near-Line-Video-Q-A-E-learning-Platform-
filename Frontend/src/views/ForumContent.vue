@@ -30,7 +30,7 @@
                   <i
                     class="fa fa-thumbs-up LikeIcon"
                     aria-hidden="true"
-                    @click="AddLike()"
+                    @click="likedStatus ? DeleteLike() : AddLike()"
                   >
                     &nbsp;{{ likeNum }}</i
                   >
@@ -113,6 +113,7 @@ import {
   ForumLikes,
   AddLike,
   CheckUserLiked,
+  DeleteLike,
 } from "../assets/Domain.js";
 import Quill from "quill";
 import "quill/dist/quill.snow.css"; // Import Quill's CSS
@@ -130,9 +131,52 @@ export default {
     };
   },
   methods: {
+    DeleteLike() {
+      const userId = localStorage.getItem("UserID");
+      const forumId = ForumID;
+      if (this.likedStatus == true) {
+        fetch(DeleteLike + userId + "/" + forumId, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            UserID: localStorage.getItem("UserID"),
+            ForumID: ForumID,
+          }),
+        }).then((response) => {
+          if (response.status === 200) {
+            this.likedStatus = false;
+            document.querySelector(".LikeIcon").style.color = "";
+            this.GetForumLikes();
+          }
+        });
+      }
+    },
+    AddLike() {
+      if (this.likedStatus == false) {
+        fetch(AddLike, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            UserID: localStorage.getItem("UserID"),
+            ForumID: ForumID,
+          }),
+        }).then((response) => {
+          if (response.status === 200) {
+            this.likedStatus = true;
+            document.querySelector(".LikeIcon").style.color = "green";
+            this.GetForumLikes();
+           
+          }
+        });
+      }
+    },
     CheckUserLiked() {
       const userId = localStorage.getItem("UserID");
-      const forumId = ForumID; // Ensure ForumID is defined in your scope
+      const forumId = ForumID;
 
       fetch(CheckUserLiked + userId + "/" + forumId, {
         // Correct URL formatting
@@ -157,24 +201,7 @@ export default {
           console.error("Error:", error);
         });
     },
-    AddLike() {
-      if (this.likedStatus == false) {
-        fetch(AddLike, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            UserID: localStorage.getItem("UserID"),
-            ForumID: ForumID,
-          }),
-        }).then((response) => {
-          if (response.status === 200) {
-            this.GetForumLikes();
-          }
-        });
-      }
-    },
+
     GetForumLikes() {
       fetch(ForumLikes + ForumID, {
         method: "GET",

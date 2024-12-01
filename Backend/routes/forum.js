@@ -218,5 +218,29 @@ router.post('/AddComment', async function (req, res, next) {
     }
 });
 
+router.get('CommentLikes/:commentId', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const commentId = req.params.commentId; // Get the CommentID from the URL parameter
+
+        const sql = `SELECT COUNT(*) AS Likes FROM CommentLikes WHERE CommentID = ?`;
+
+        connection.query(sql, [commentId], (err, results) => {
+            if (err) {
+                console.error('Error retrieving comment likes:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json(results); // Return the first result
+        });
+
+        // Close the connection
+        connection.end();
+
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
 
 module.exports = router;
