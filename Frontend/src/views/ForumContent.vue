@@ -87,6 +87,7 @@
                       <i
                         class="fa fa-thumbs-up LikeCommentIcon"
                         aria-hidden="true"
+                        @click="AddCommentLike(comment.CommentID)"
                         >&nbsp; {{ comment.LikeNum }}</i
                       >
                       <i class="fa fa-share ShareCommentIcon" aria-hidden="true"
@@ -114,6 +115,9 @@ import {
   AddLike,
   CheckUserLiked,
   DeleteLike,
+  AddCommentLike,
+  AddCommentLike_Num,
+  CheckUserLikedComment,
 } from "../assets/Domain.js";
 import Quill from "quill";
 import "quill/dist/quill.snow.css"; // Import Quill's CSS
@@ -169,7 +173,6 @@ export default {
             this.likedStatus = true;
             document.querySelector(".LikeIcon").style.color = "green";
             this.GetForumLikes();
-           
           }
         });
       }
@@ -249,6 +252,61 @@ export default {
         this.items.UpdatedTime
       );
     },
+
+    AddCommentLike(CommentID) {
+      fetch(AddCommentLike, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          CommentID: CommentID,
+          UserID: localStorage.getItem("UserID"),
+        }),
+      }).then((response) => {
+        if (response.status === 200) {
+          this.getComment();
+        }
+      });
+
+      fetch(AddCommentLike_Num + CommentID, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then((response) => {
+        if (response.status === 200) {
+          this.getComment();
+        }
+      });
+    },
+
+    async CheckUserLikedComment(CommentID) {
+      let likedStatus = false;
+      const userId = localStorage.getItem("UserID");
+      try {
+        const response = await fetch(
+          CheckUserLikedComment + userId + "/" + CommentID,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        if (data[0]) {
+          document.querySelector(".LikeCommentIcon").style.color = "green";
+          likedStatus = true;
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+      return likedStatus;
+    },
     async getComment() {
       const response = await fetch(GetCommentByForumID + ForumID, {
         method: "GET",
@@ -260,11 +318,16 @@ export default {
       const data = await response.json();
       this.comments = data;
       for (let i = 0; i < this.comments.length; i++) {
+        this.comments[i].LikedStatus = this.CheckUserLikedComment(
+          this.comments[i].CommentID
+        );
         this.comments[i].SendTime = this.Calculate_LastUpdate(
           this.comments[i].SendTime
         );
+        console.log(this.comments[i]);
       }
     },
+
     Calculate_LastUpdate(time) {
       let date = new Date(time);
       let currentDate = new Date();

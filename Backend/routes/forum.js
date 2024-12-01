@@ -218,7 +218,7 @@ router.post('/AddComment', async function (req, res, next) {
     }
 });
 
-router.get('CommentLikes/:commentId', async function (req, res, next) {
+router.get('/CommentLikes/:commentId', async function (req, res, next) {
     try {
         const connection = await connectToDB();
         const commentId = req.params.commentId; // Get the CommentID from the URL parameter
@@ -227,7 +227,7 @@ router.get('CommentLikes/:commentId', async function (req, res, next) {
 
         connection.query(sql, [commentId], (err, results) => {
             if (err) {
-                console.error('Error retrieving comment likes:', err);
+                console.error('Error retrieving forum likes:', err);
                 return res.status(500).json({ error: 'Database error' });
             }
 
@@ -237,6 +237,79 @@ router.get('CommentLikes/:commentId', async function (req, res, next) {
         // Close the connection
         connection.end();
 
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.post('/AddCommentLike', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const { CommentID, UserID } = req.body;
+
+        const sql = `INSERT INTO CommentLikes (CommentID, UserID) VALUES (?, ?)`;
+
+        connection.query(sql, [CommentID, UserID], (err, results) => {
+            if (err) {
+                console.error('Error adding like:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json({ message: 'Like added successfully' });
+        });
+
+        // Close the connection
+        connection.end();
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.put('/updateLike/:commentId', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const commentId = req.params.commentId; // Get the CommentID from the URL parameter
+
+        const sql = `UPDATE ForumComment SET LikeNum = LikeNum + 1 WHERE CommentID = ?`;
+
+        connection.query(sql, [commentId], (err, results) => {
+            if (err) {
+                console.error('Error updating like:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json({ message: 'Like updated successfully' });
+        });
+
+        // Close the connection
+        connection.end();
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.get('/CheckUserLikedComment/:userId/:commentId', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const userId = req.params.userId; // Get the UserID from the URL parameter
+        const commentId = req.params.commentId; // Get the CommentID from the URL parameter
+
+        const sql = `SELECT * FROM CommentLikes WHERE UserID = ? AND CommentID = ?`;
+
+        connection.query(sql, [userId, commentId], (err, results) => {
+            if (err) {
+                console.error('Error retrieving like:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json(results); // Return the results
+        });
+
+        // Close the connection (this should be in a finally block)
+        connection.end();
     } catch (error) {
         console.error('Error connecting to the database:', error);
         res.status(500).send('Server error');

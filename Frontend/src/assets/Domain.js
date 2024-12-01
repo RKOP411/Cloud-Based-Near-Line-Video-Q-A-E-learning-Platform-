@@ -10,7 +10,13 @@ const ForumLikes = DomainName + "forum/ForumLikes/";
 const AddLike = DomainName + "forum/AddLike/";
 const CheckUserLiked = DomainName + "forum/CheckUserLiked/";
 const DeleteLike = DomainName + "forum/DeleteLike/";
+const AddCommentLike = DomainName + "forum/AddCommentLike/";
+const AddCommentLike_Num = DomainName + "forum/updateLike/";
+const CheckUserLikedComment = DomainName + "forum/CheckUserLikedComment/";
+
 export {
     registerDomain, verifyEmailDomain,
-    GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment, ForumLikes, AddLike, CheckUserLiked,DeleteLike
+    GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment,      //Forum
+    ForumLikes, AddLike, CheckUserLiked,DeleteLike,                         //ForumLikes
+    AddCommentLike, AddCommentLike_Num, CheckUserLikedComment
 };
