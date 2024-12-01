@@ -163,6 +163,7 @@ export default {
       } else {
         localStorage.setItem("Role", data[0].Role);
         localStorage.setItem("Email", this.form.Email);
+        localStorage.setItem("UserID", data[0].UserID);
         this.$router.push("/");
       }
     },

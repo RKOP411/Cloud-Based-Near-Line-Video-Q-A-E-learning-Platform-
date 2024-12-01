@@ -39,8 +39,14 @@
                   <!--Text Editor-->
                   <div>
                     <div ref="editor" class="quill-editor"></div>
-                    <br/>
-                    <button type="button" class="btn btn-primary">Comment</button>
+                    <br />
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      @click="AddComment()"
+                    >
+                      Comment
+                    </button>
                   </div>
                   <!--Text Editor-->
                   <br />
@@ -69,10 +75,10 @@
                     >
                       {{ comment.Role }}
                     </span>
-
-                    <p class="card-text">
-                      {{ comment.Text }}
-                    </p>
+                    <p
+                      class="card-text"
+                      v-html="sanitizeComment(comment.Text)"
+                    ></p>
                     <span class="oval-border">
                       <i
                         class="fa fa-thumbs-up LikeCommentIcon"
@@ -95,15 +101,18 @@
   </main>
 </template>
 
-
 <script>
-import { GetForumContentByID, GetCommentByForumID } from "../assets/Domain.js";
+import {
+  GetForumContentByID,
+  GetCommentByForumID,
+  AddComment,
+} from "../assets/Domain.js";
 import Quill from "quill";
 import "quill/dist/quill.snow.css"; // Import Quill's CSS
+import DOMPurify from "dompurify";
 
 const params = new URLSearchParams(window.location.search);
 const ForumID = params.get("ForumID");
-
 export default {
   data() {
     return {
@@ -112,6 +121,9 @@ export default {
     };
   },
   methods: {
+    sanitizeComment(commentHtml) {
+      return DOMPurify.sanitize(commentHtml);
+    },
     initQuill() {
       this.quill = new Quill(this.$refs.editor, {
         theme: "snow",
@@ -133,7 +145,6 @@ export default {
       });
       const data = await response.json();
       this.items = data;
-
       // Update the item with the formatted time
       this.items.UpdatedTime = this.Calculate_LastUpdate(
         this.items.UpdatedTime
@@ -189,6 +200,30 @@ export default {
       }
 
       return lastUpdatedTime;
+    },
+
+    AddComment() {
+      if (this.quill.root.innerHTML !== "<p><br></p>") {
+        fetch(AddComment, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ForumID: ForumID,
+            UserID: localStorage.getItem("UserID"),
+            Text: this.quill.root.innerHTML.replace(/\\n/g, ""),
+          }),
+        }).then((response) => {
+          if (response.status === 200) {
+            this.quill.root.innerHTML = "<p><br></p>";
+            this.getComment();
+            
+          }
+        });
+      } else {
+        alert("Please enter your comment");
+      }
     },
   },
   mounted() {

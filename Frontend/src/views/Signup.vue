@@ -190,7 +190,6 @@ onBeforeUnmount(() => {
   <app-footer />
 </template>
 <script>
-console.log("Signup");
 import { registerDomain } from "../assets/Domain.js";
 import { VerifyEmail } from "../assets/Verify.js";
 import { useRouter } from "vue-router";
@@ -240,7 +239,7 @@ export default {
         this.form.Role = "Teacher";
       }
 
-      console.log("(await VerifyEmail(this.form.Email)).length "+(await VerifyEmail(this.form.Email)).length); 
+      //console.log("(await VerifyEmail(this.form.Email)).length "+(await VerifyEmail(this.form.Email)).length); 
       if ((await VerifyEmail(this.form.Email)).length > 0) {
         this.errmsg = "Invalid Email";
         return;
@@ -257,6 +256,8 @@ export default {
         this.succmsg = "Successfully Registered";
         localStorage.setItem("Role", this.form.Role);
         localStorage.setItem("Email", this.form.Email);
+        const Userdata = await VerifyEmail(this.form.Email);
+        localStorage.setItem("UserID", Userdata[0].UserID);
         this.$router.push("/"); // Ensure this is accessible in the setup context
       } catch (error) {
         console.error("Error:", error);

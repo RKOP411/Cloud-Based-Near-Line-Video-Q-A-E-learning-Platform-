@@ -37,7 +37,7 @@ CREATE TABLE Answer(
   ASID int AUTO_INCREMENT,
   QAID int,
   UserID int,
-  Text varchar(255),
+  Text LONGTEXT,
   UploadTime datetime,
   PRIMARY KEY (ASID),
   FOREIGN KEY (QAID) REFERENCES Question(QAID),
@@ -62,6 +62,14 @@ CREATE TABLE Forum (
     PRIMARY KEY (ForumID)
 );
 
+CREATE TABLE ForumLikes (
+    LikeID INT AUTO_INCREMENT PRIMARY KEY,
+    ForumID INT,
+    UserID INT,
+    FOREIGN KEY (ForumID) REFERENCES Forum(ForumID),
+    FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+
 
 CREATE TABLE ForumComment(
   CommentID int AUTO_INCREMENT,
@@ -74,6 +82,17 @@ CREATE TABLE ForumComment(
   FOREIGN KEY (ForumID) REFERENCES Forum(ForumID),
   FOREIGN KEY (UserID) REFERENCES User(UserID)
 );
+
+
+CREATE TABLE CommentLikes (
+    LikeID INT AUTO_INCREMENT PRIMARY KEY,
+    CommentID INT,
+    UserID INT,
+    FOREIGN KEY (CommentID) REFERENCES ForumComment(CommentID),
+    FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+
+
 
 CREATE TABLE Media(
   MediaID int AUTO_INCREMENT,
