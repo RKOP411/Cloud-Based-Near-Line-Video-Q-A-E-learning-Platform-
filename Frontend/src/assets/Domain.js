@@ -6,5 +6,11 @@ const GetAllForum = DomainName + "forum/GetAllforum";
 const GetForumContentByID = DomainName + "forum/GetforumByID/";
 const GetCommentByForumID = DomainName + "forum/GetCommentByForumID/";
 const AddComment = DomainName + "forum/AddComment/";
+const ForumLikes = DomainName + "forum/ForumLikes/";
+const AddLike = DomainName + "forum/AddLike/";
+const CheckUserLiked = DomainName + "forum/CheckUserLiked/";
 
-export { registerDomain, verifyEmailDomain, GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment };
+export {
+    registerDomain, verifyEmailDomain,
+    GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment, ForumLikes, AddLike, CheckUserLiked
+};

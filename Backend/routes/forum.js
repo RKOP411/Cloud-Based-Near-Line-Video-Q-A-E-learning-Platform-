@@ -65,7 +65,7 @@ router.get('/ForumLikes/:forumId', async function (req, res, next) {
         const connection = await connectToDB();
         const forumId = req.params.forumId; // Get the ForumID from the URL parameter
 
-        const sql = `SELECT COUNT(*) AS Likes FROM ForumLike WHERE ForumID = ?`;
+        const sql = `SELECT COUNT(*) AS Likes FROM ForumLikes WHERE ForumID = ?`;
 
         connection.query(sql, [forumId], (err, results) => {
             if (err) {
@@ -73,12 +73,86 @@ router.get('/ForumLikes/:forumId', async function (req, res, next) {
                 return res.status(500).json({ error: 'Database error' });
             }
 
-            res.status(200).json(results[0]); // Return the first result
+            res.status(200).json(results); // Return the first result
         });
 
         // Close the connection
         connection.end();
 
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.post('/AddLike', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const { ForumID, UserID } = req.body;
+
+        const sql = `INSERT INTO ForumLikes (ForumID, UserID) VALUES (?, ?)`;
+
+        connection.query(sql, [ForumID, UserID], (err, results) => {
+            if (err) {
+                console.error('Error adding like:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json({ message: 'Like added successfully' });
+        });
+
+        // Close the connection
+        connection.end();
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.get('/CheckUserLiked/:userId/:forumId', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const userId = req.params.userId; // Get the UserID from the URL parameter
+        const forumId = req.params.forumId; // Get the ForumID from the URL parameter
+
+        const sql = `SELECT * FROM ForumLikes WHERE UserID = ? AND ForumID = ?`;
+
+        connection.query(sql, [userId, forumId], (err, results) => {
+            if (err) {
+                console.error('Error retrieving like:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json(results); // Return the results
+        });
+
+        // Close the connection (this should be in a finally block)
+        connection.end();
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.delete('/DeleteLike/:userId/:forumId', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const userId = req.params.userId; // Get the UserID from the URL parameter
+        const forumId = req.params.forumId; // Get the ForumID from the URL parameter
+
+        const sql = `DELETE FROM ForumLikes WHERE UserID = ? AND ForumID = ?`;
+
+        connection.query(sql, [userId, forumId], (err, results) => {
+            if (err) {
+                console.error('Error deleting like:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json({ message: 'Like deleted successfully' });
+        });
+
+        // Close the connection
+        connection.end();
     } catch (error) {
         console.error('Error connecting to the database:', error);
         res.status(500).send('Server error');
@@ -107,7 +181,7 @@ router.get('/GetCommentByForumID/:forumId', async function (req, res, next) {
                 return res.status(404).json({ error: 'Forum not found' });
             }
 
-            res.status(200).json(results); 
+            res.status(200).json(results);
         });
 
         // Close the connection
@@ -135,7 +209,7 @@ router.post('/AddComment', async function (req, res, next) {
             res.status(200).json({ message: 'Comment added successfully' });
         });
 
-        
+
         // Close the connection
         connection.end();
     } catch (error) {

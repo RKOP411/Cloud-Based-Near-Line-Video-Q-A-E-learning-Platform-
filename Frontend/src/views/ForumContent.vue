@@ -27,8 +27,12 @@
                     {{ items.Description }}
                   </p>
                   <br />
-                  <i class="fa fa-thumbs-up LikeIcon" aria-hidden="true">
-                    &nbsp;{{ items.LikeNum }}</i
+                  <i
+                    class="fa fa-thumbs-up LikeIcon"
+                    aria-hidden="true"
+                    @click="AddLike()"
+                  >
+                    &nbsp;{{ likeNum }}</i
                   >
                   <i class="fa fa-comment CommentIcon" aria-hidden="true"></i>
                   <i class="fa fa-share ShareIcon" aria-hidden="true"
@@ -106,6 +110,9 @@ import {
   GetForumContentByID,
   GetCommentByForumID,
   AddComment,
+  ForumLikes,
+  AddLike,
+  CheckUserLiked,
 } from "../assets/Domain.js";
 import Quill from "quill";
 import "quill/dist/quill.snow.css"; // Import Quill's CSS
@@ -118,9 +125,74 @@ export default {
     return {
       items: [],
       comments: [],
+      likeNum: 0,
+      likedStatus: false,
     };
   },
   methods: {
+    CheckUserLiked() {
+      const userId = localStorage.getItem("UserID");
+      const forumId = ForumID; // Ensure ForumID is defined in your scope
+
+      fetch(CheckUserLiked + userId + "/" + forumId, {
+        // Correct URL formatting
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          if (Array.isArray(data) && data.length > 0) {
+            document.querySelector(".LikeIcon").style.color = "green"; // Change the icon color if liked
+            this.likedStatus = true;
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    },
+    AddLike() {
+      if (this.likedStatus == false) {
+        fetch(AddLike, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            UserID: localStorage.getItem("UserID"),
+            ForumID: ForumID,
+          }),
+        }).then((response) => {
+          if (response.status === 200) {
+            this.GetForumLikes();
+          }
+        });
+      }
+    },
+    GetForumLikes() {
+      fetch(ForumLikes + ForumID, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            //console.log(data[0]);
+            this.likeNum = data[0].Likes;
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    },
     sanitizeComment(commentHtml) {
       return DOMPurify.sanitize(commentHtml);
     },
@@ -218,7 +290,6 @@ export default {
           if (response.status === 200) {
             this.quill.root.innerHTML = "<p><br></p>";
             this.getComment();
-            
           }
         });
       } else {
@@ -227,6 +298,8 @@ export default {
     },
   },
   mounted() {
+    this.GetForumLikes();
+    this.CheckUserLiked();
     this.getForumContent();
     this.getComment();
     this.initQuill();
