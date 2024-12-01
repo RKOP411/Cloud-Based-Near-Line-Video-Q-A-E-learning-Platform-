@@ -69,6 +69,7 @@ CREATE TABLE ForumComment(
   UserID int,
   Text varchar(255),
   SendTime  datetime,
+  LikeNum int(255),
   PRIMARY KEY (CommentID),
   FOREIGN KEY (ForumID) REFERENCES Forum(ForumID),
   FOREIGN KEY (UserID) REFERENCES User(UserID)

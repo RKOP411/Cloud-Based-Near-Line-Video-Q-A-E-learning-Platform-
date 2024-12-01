@@ -95,5 +95,31 @@ router.get('/GetCommentByForumID/:forumId', async function (req, res, next) {
     }
 });
 
+router.post('/AddComment', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const { ForumID, UserID, Text, SendTime } = req.body;
+
+        const sql = `INSERT INTO ForumComment (ForumID, UserID, Text, SendTime) VALUES (?, ?, ?, NOW())`;
+
+        connection.query(sql, [ForumID, UserID, Text, SendTime], (err, results) => {
+            if (err) {
+                console.error('Error adding comment:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json({ message: 'Comment added successfully' });
+        });
+
+        
+        // Close the connection
+        connection.end();
+ res.status(200).json(results); 
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 
 module.exports = router;
