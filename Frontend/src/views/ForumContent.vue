@@ -87,7 +87,17 @@
                       <i
                         class="fa fa-thumbs-up LikeCommentIcon"
                         aria-hidden="true"
-                        @click="AddCommentLike(comment.CommentID)"
+                        @click="
+                          comment.LikedStatus
+                            ? DeleteCommentLike(
+                                comment.CommentID,
+                                comment.LikedStatus
+                              )
+                            : AddCommentLike(
+                                comment.CommentID,
+                                comment.LikedStatus
+                              )
+                        "
                         >&nbsp; {{ comment.LikeNum }}</i
                       >
                       <i class="fa fa-share ShareCommentIcon" aria-hidden="true"
@@ -118,6 +128,7 @@ import {
   AddCommentLike,
   AddCommentLike_Num,
   CheckUserLikedComment,
+  DeleteCommentLike,
 } from "../assets/Domain.js";
 import Quill from "quill";
 import "quill/dist/quill.snow.css"; // Import Quill's CSS
@@ -253,32 +264,53 @@ export default {
       );
     },
 
-    AddCommentLike(CommentID) {
-      fetch(AddCommentLike, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          CommentID: CommentID,
-          UserID: localStorage.getItem("UserID"),
-        }),
-      }).then((response) => {
-        if (response.status === 200) {
-          this.getComment();
-        }
-      });
+    AddCommentLike(CommentID, LikedStatus) {
+      if (LikedStatus === false) {
+        fetch(AddCommentLike, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            CommentID: CommentID,
+            UserID: localStorage.getItem("UserID"),
+          }),
+        }).then((response) => {
+          if (response.status === 200) {
+            this.getComment();
+          }
+        });
 
-      fetch(AddCommentLike_Num + CommentID, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then((response) => {
-        if (response.status === 200) {
-          this.getComment();
-        }
-      });
+        fetch(AddCommentLike_Num + CommentID, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }).then((response) => {
+          if (response.status === 200) {
+            this.getComment();
+          }
+        });
+      }
+    },
+    DeleteCommentLike(CommentID, LikedStatus) {
+      const userId = localStorage.getItem("UserID");
+      if (LikedStatus === true) {
+        fetch(DeleteCommentLike + userId + "/" + CommentID, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            CommentID: CommentID,
+            UserID: localStorage.getItem("UserID"),
+          }),
+        }).then((response) => {
+          if (response.status === 200) {
+            this.getComment();
+          }
+        });
+      }
     },
 
     async CheckUserLikedComment(CommentID) {
@@ -318,13 +350,13 @@ export default {
       const data = await response.json();
       this.comments = data;
       for (let i = 0; i < this.comments.length; i++) {
-        this.comments[i].LikedStatus = this.CheckUserLikedComment(
+        this.comments[i].LikedStatus = await this.CheckUserLikedComment(
           this.comments[i].CommentID
         );
         this.comments[i].SendTime = this.Calculate_LastUpdate(
           this.comments[i].SendTime
         );
-        console.log(this.comments[i]);
+        // console.log(this.comments[i].LikedStatus);
       }
     },
 

@@ -316,4 +316,29 @@ router.get('/CheckUserLikedComment/:userId/:commentId', async function (req, res
     }
 });
 
+router.delete('/DeleteCommentLike/:userId/:commentId', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const userId = req.params.userId; // Get the UserID from the URL parameter
+        const commentId = req.params.commentId; // Get the CommentID from the URL parameter
+
+        const sql = `DELETE FROM CommentLikes WHERE UserID = ? AND CommentID = ?`;
+
+        connection.query(sql, [userId, commentId], (err, results) => {
+            if (err) {
+                console.error('Error deleting like:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json({ message: 'Like deleted successfully' });
+        });
+
+        // Close the connection
+        connection.end();
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 module.exports = router;
