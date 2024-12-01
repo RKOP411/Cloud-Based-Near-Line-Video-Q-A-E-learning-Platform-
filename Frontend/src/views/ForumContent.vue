@@ -56,54 +56,64 @@
                   <br />
                   <br />
                   <!-- Comment Part -->
-                  <div
-                    v-for="comment in comments"
-                    :key="comment.id"
-                    class="card-body comment_border"
-                  >
-                    <img
-                      src="../assets/img/team-0.webp"
-                      alt="profile_image"
-                      class="comment_userImg"
-                    /><b style="text-decoration: underline">{{
-                      comment.UserName
-                    }}</b>
 
-                    . {{ comment.SendTime }}
-                    <span
-                      :class="
-                        comment.Role === 'Teacher'
-                          ? 'badge badge-sm badge badge-sm bg-gradient-warning'
-                          : 'badge badge-sm badge badge-sm bg-gradient-success'
-                      "
-                    >
-                      {{ comment.Role }}
-                    </span>
-                    <p
-                      class="card-text"
-                      v-html="sanitizeComment(comment.Text)"
-                    ></p>
-                    <span class="oval-border">
-                      <i
-                        class="fa fa-thumbs-up LikeCommentIcon"
-                        aria-hidden="true"
-                        @click="
-                          comment.LikedStatus
-                            ? DeleteCommentLike(
-                                comment.CommentID,
-                                comment.LikedStatus
-                              )
-                            : AddCommentLike(
-                                comment.CommentID,
-                                comment.LikedStatus
-                              )
-                        "
-                        >&nbsp; {{ comment.LikeNum }}</i
+                  <div>
+                    <div v-if="comments.length > 0">
+                      <div
+                        v-for="comment in comments"
+                        :key="comment.id"
+                        class="card-body comment_border"
                       >
-                      <i class="fa fa-share ShareCommentIcon" aria-hidden="true"
-                        >&nbsp;Share</i
-                      >
-                    </span>
+                        <img
+                          src="../assets/img/team-0.webp"
+                          alt="profile_image"
+                          class="comment_userImg"
+                        />
+                        <b style="text-decoration: underline">{{
+                          comment.UserName
+                        }}</b>
+                        . {{ comment.SendTime }}
+                        <span
+                          :class="
+                            comment.Role === 'Teacher'
+                              ? 'badge badge-sm badge badge-sm bg-gradient-warning'
+                              : 'badge badge-sm badge badge-sm bg-gradient-success'
+                          "
+                        >
+                          {{ comment.Role }}
+                        </span>
+                        <p
+                          class="card-text"
+                          v-html="sanitizeComment(comment.Text)"
+                        ></p>
+                        <span class="oval-border">
+                          <i
+                            class="fa fa-thumbs-up LikeCommentIcon"
+                            aria-hidden="true"
+                            @click="
+                              comment.LikedStatus
+                                ? DeleteCommentLike(
+                                    comment.CommentID,
+                                    comment.LikedStatus
+                                  )
+                                : AddCommentLike(
+                                    comment.CommentID,
+                                    comment.LikedStatus
+                                  )
+                            "
+                            >&nbsp; {{ comment.LikeNum }}</i
+                          >
+                          <i
+                            class="fa fa-share ShareCommentIcon"
+                            aria-hidden="true"
+                            >&nbsp;Share</i
+                          >
+                        </span>
+                      </div>
+                    </div>
+                    <div v-else style="text-align: center;">
+                      <p>No comments</p>
+                    </div>
                   </div>
                   <!-- Comment Part -->
                 </div>
