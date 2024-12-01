@@ -68,7 +68,7 @@ router.get('/GetCommentByForumID/:forumId', async function (req, res, next) {
         const forumId = req.params.forumId; // Get the ForumID from the URL parameter
 
         const sql = `
-            SELECT f.*, u.UserName 
+            SELECT f.*, u.UserName, u.Role
             FROM ForumComment f 
             LEFT JOIN User u ON f.UserID = u.UserID 
             WHERE f.ForumID = ?`;
@@ -83,7 +83,7 @@ router.get('/GetCommentByForumID/:forumId', async function (req, res, next) {
                 return res.status(404).json({ error: 'Forum not found' });
             }
 
-            res.status(200).json(results[0]); // Return the first result
+            res.status(200).json(results); 
         });
 
         // Close the connection

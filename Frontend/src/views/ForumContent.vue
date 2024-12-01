@@ -16,7 +16,7 @@
                     ><i class="fa fa-arrow-left backArr" aria-hidden="true"></i
                   ></a>
                   <img
-                    src="../assets/img/team-1.jpg"
+                    src="../assets/img/team-0.webp"
                     alt="profile_image"
                     class="userImg"
                   />{{ items.UserName }} . {{ items.UpdatedTime }}
@@ -27,29 +27,61 @@
                     {{ items.Description }}
                   </p>
                   <br />
-                  <i class="fa fa-thumbs-o-up LikeIcon" aria-hidden="true">{{
-                    items.LikeNum
-                  }}</i>
-                  <i class="fa fa-comment-o CommentIcon" aria-hidden="true"></i>
-                  <i class="fa fa-share ShareIcon" aria-hidden="true">Share</i>
+                  <i class="fa fa-thumbs-up LikeIcon" aria-hidden="true">
+                    &nbsp;{{ items.LikeNum }}</i
+                  >
+                  <i class="fa fa-comment CommentIcon" aria-hidden="true"></i>
+                  <i class="fa fa-share ShareIcon" aria-hidden="true"
+                    >&nbsp;Share</i
+                  >
                   <br />
                   <br />
-                  <textarea
-                    class="form-control"
-                    id="exampleFormControlTextarea1"
-                    rows="3"
-                  ></textarea>
+                  <!--Text Editor-->
+                
+ 
+                  <!--Text Editor-->
                   <br />
                   <br />
-               
-                    <div class="card-body">
-                      <h5 class="card-title">User</h5>
-                      <p class="card-text">
-                        Some quick example text to build on the card title and
-                        make up the bulk of the card's content.
-                      </p>
-                      <i class="fa fa-thumbs-o-up LikeCommentIcon" aria-hidden="true"></i>
+                  <!-- Comment Part -->
+                  <div
+                    v-for="comment in comments"
+                    :key="comment.id"
+                    class="card-body comment_border"
+                  >
+                    <img
+                      src="../assets/img/team-0.webp"
+                      alt="profile_image"
+                      class="comment_userImg"
+                    /><b style="text-decoration: underline">{{
+                      comment.UserName
+                    }}</b>
+
+                    . {{ comment.SendTime }}
+                    <span
+                      :class="
+                        comment.Role === 'Teacher'
+                          ? 'badge badge-sm badge badge-sm bg-gradient-warning'
+                          : 'badge badge-sm badge badge-sm bg-gradient-success'
+                      "
+                    >
+                      {{ comment.Role }}
+                    </span>
+
+                    <p class="card-text">
+                      {{ comment.Text }}
+                    </p>
+                    <span class="oval-border">
+                      <i
+                        class="fa fa-thumbs-up LikeCommentIcon"
+                        aria-hidden="true"
+                        >&nbsp; {{ comment.LikeNum }}</i
+                      >
+                      <i class="fa fa-share ShareCommentIcon" aria-hidden="true"
+                        >&nbsp;Share</i
+                      >
+                    </span>
                   </div>
+                  <!-- Comment Part -->
                 </div>
               </div>
             </div>
@@ -59,6 +91,7 @@
     </div>
   </main>
 </template>
+
 
 <script>
 import { GetForumContentByID, GetCommentByForumID } from "../assets/Domain.js";
@@ -70,7 +103,7 @@ export default {
   data() {
     return {
       items: [],
-      comment: [],
+      comments: [],
     };
   },
   methods: {
@@ -83,7 +116,30 @@ export default {
       });
       const data = await response.json();
       this.items = data;
-      let date = new Date(this.items.UpdatedTime);
+
+      // Update the item with the formatted time
+      this.items.UpdatedTime = this.Calculate_LastUpdate(
+        this.items.UpdatedTime
+      );
+    },
+    async getComment() {
+      const response = await fetch(GetCommentByForumID + ForumID, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+      this.comments = data;
+      for (let i = 0; i < this.comments.length; i++) {
+        this.comments[i].SendTime = this.Calculate_LastUpdate(
+          this.comments[i].SendTime
+        );
+      }
+    },
+    Calculate_LastUpdate(time) {
+      let date = new Date(time);
       let currentDate = new Date();
       let timeDifference = currentDate - date;
 
@@ -95,7 +151,6 @@ export default {
       let weeks = Math.floor(days / 7);
       let months = Math.floor(days / 30); // Approximation
       let years = Math.floor(days / 365); // Approximation
-
       // Determine the appropriate time unit to display
       let lastUpdatedTime;
       if (years > 0) {
@@ -116,23 +171,12 @@ export default {
         lastUpdatedTime = "Just now";
       }
 
-      // Update the item with the formatted time
-      this.items.UpdatedTime = lastUpdatedTime;
-      console.log(this.items.UpdatedTime);
-    },
-    async getComment() {
-      const response = await fetch(GetCommentByForumID + ForumID, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      this.comment = data;
+      return lastUpdatedTime;
     },
   },
   mounted() {
     this.getForumContent();
+    this.getComment();
   },
 };
 </script>
@@ -144,6 +188,22 @@ export default {
   border-radius: 50%;
   margin: 10px;
 }
+.comment_userImg {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  margin: 10px;
+}
+.comment_border {
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-radius: 2%;
+}
+.comment_border:hover {
+  background-color: #f8f9fe;
+}
+
 .backArr {
   font-size: 20px;
   margin: 5px;
@@ -161,9 +221,9 @@ export default {
   font-weight: bold;
 }
 
-.LikeCommentIcon{
-    font-size: 15px;
-    margin: 5px;
+.LikeCommentIcon {
+  font-size: 15px;
+  margin: 5px;
 }
 .LikeCommentIcon:hover {
   cursor: pointer;
@@ -197,6 +257,17 @@ export default {
   margin-left: 40px;
 }
 .ShareIcon:hover {
+  cursor: pointer;
+  color: #e9ecef;
+}
+
+.ShareCommentIcon {
+  font-size: 15px;
+  margin: 5px;
+  margin-left: 30px;
+}
+
+.ShareCommentIcon:hover {
   cursor: pointer;
   color: #e9ecef;
 }

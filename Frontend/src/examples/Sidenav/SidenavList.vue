@@ -31,7 +31,7 @@ const getRoute = () => {
           :navText="'Analytic Dashboard'"
         >
           <template v-slot:icon>
-            <i class="fa fa-area-chart text-primary text-sm opacity-10"></i>
+            <i class="ni ni-chart-bar-32 text-primary text-sm opacity-10" aria-hidden="true"></i>
           </template>
         </sidenav-item>
       </li>
