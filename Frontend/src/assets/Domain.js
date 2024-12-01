@@ -14,9 +14,10 @@ const AddCommentLike = DomainName + "forum/AddCommentLike/";
 const AddCommentLike_Num = DomainName + "forum/updateLike/";
 const CheckUserLikedComment = DomainName + "forum/CheckUserLikedComment/";
 const DeleteCommentLike = DomainName + "forum/DeleteCommentLike/";
+const DeleteCommentLike_Num = DomainName + "forum/updateLike_delete/";
 export {
     registerDomain, verifyEmailDomain,
     GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment,      //Forum
     ForumLikes, AddLike, CheckUserLiked,DeleteLike,                         //ForumLikes
-    AddCommentLike, AddCommentLike_Num, CheckUserLikedComment,DeleteCommentLike
+    AddCommentLike, AddCommentLike_Num, CheckUserLikedComment,DeleteCommentLike, DeleteCommentLike_Num
 };

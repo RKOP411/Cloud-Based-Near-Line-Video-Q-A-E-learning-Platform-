@@ -129,6 +129,7 @@ import {
   AddCommentLike_Num,
   CheckUserLikedComment,
   DeleteCommentLike,
+  DeleteCommentLike_Num,
 } from "../assets/Domain.js";
 import Quill from "quill";
 import "quill/dist/quill.snow.css"; // Import Quill's CSS
@@ -310,6 +311,18 @@ export default {
             this.getComment();
           }
         });
+
+        fetch(DeleteCommentLike_Num + CommentID, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }).then((response) => {
+          if (response.status === 200) {
+            this.getComment();
+          }
+        });
+        document.querySelector(".LikeCommentIcon").style.color = "";
       }
     },
 

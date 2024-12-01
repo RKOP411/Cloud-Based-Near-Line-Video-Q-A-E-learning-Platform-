@@ -341,4 +341,28 @@ router.delete('/DeleteCommentLike/:userId/:commentId', async function (req, res,
     }
 });
 
+router.put('/updateLike_delete/:commentId', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const commentId = req.params.commentId; // Get the CommentID from the URL parameter
+
+        const sql = `UPDATE ForumComment SET LikeNum = LikeNum - 1 WHERE CommentID = ?`;
+
+        connection.query(sql, [commentId], (err, results) => {
+            if (err) {
+                console.error('Error updating like:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json({ message: 'Like updated successfully' });
+        });
+
+        // Close the connection
+        connection.end();
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 module.exports = router;
