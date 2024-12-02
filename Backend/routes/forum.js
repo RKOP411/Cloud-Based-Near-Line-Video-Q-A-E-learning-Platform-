@@ -2,6 +2,58 @@ var express = require('express');
 var router = express.Router();
 const { connectToDB } = require('../util/db');
 
+router.get('/GetAllCourses', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+
+        const sql = `SELECT * FROM Course`;
+
+        connection.query(sql, (err, results) => {
+            if (err) {
+                console.error('Error getting courses:', err);
+                console.log("Database error");
+            }
+            console.log(results);
+            res.status(200).json(results);
+        });
+
+        // Close the connection
+        connection.end();
+
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.get('/GetForumByCourseID/:courseId', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const courseId = req.params.courseId; // Get the CourseID from the URL parameter
+
+        const sql = `SELECT  f.*, u.UserName FROM Forum f LEFT JOIN User u  ON f.UserID = u.UserID WHERE CourseID = ?`;
+
+        connection.query(sql, [courseId], (err, results) => {
+            if (err) {
+                console.error('Error retrieving forum:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            if (results.length === 0) {
+                return res.status(404).json({ error: 'Forum not found' });
+            }
+
+            res.status(200).json(results);
+        });
+
+        // Close the connection
+        connection.end();
+
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
 
 router.get('/GetAllforum', async function (req, res, next) {
     try {
@@ -209,6 +261,27 @@ router.post('/AddComment', async function (req, res, next) {
             res.status(200).json({ message: 'Comment added successfully' });
         });
 
+        const sql2 = `UPDATE Forum SET Replies = Replies + 1 WHERE ForumID = ?`;
+
+        connection.query(sql2, [ForumID], (err, results) => {
+            if (err) {
+                console.error('Error updating forum:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json({ message: 'Forum updated successfully' });
+        });
+
+        const sql3 = `UPDATE Forum SET LastUpdated = NOW() WHERE ForumID = ?`;
+
+        connection.query(sql3, [ForumID], (err, results) => {
+            if (err) {
+                console.error('Error updating forum:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json({ message: 'Forum updated successfully' });
+        });
 
         // Close the connection
         connection.end();
@@ -355,6 +428,31 @@ router.put('/updateLike_delete/:commentId', async function (req, res, next) {
             }
 
             res.status(200).json({ message: 'Like updated successfully' });
+        });
+
+        // Close the connection
+        connection.end();
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
+router.post('/CreateForum', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const { UserID, Title, Text, SendTime } = req.body;
+
+        const sql = `INSERT INTO Forum (UserID, CourseID, ForumTitle, Description, UpdatedTime, LastUpdated) VALUES (?, ?, ?, ?, NOW(), NOW())`;
+
+        connection.query(sql, [UserID, Title, Text, SendTime], (err, results) => {
+            if (err) {
+                console.error('Error adding forum:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json({ message: 'Forum added successfully' });
         });
 
         // Close the connection

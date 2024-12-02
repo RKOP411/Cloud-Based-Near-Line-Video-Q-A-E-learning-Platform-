@@ -23,9 +23,11 @@
                   <h5 class="card-title ContentTitle">
                     {{ items.ForumTitle }}
                   </h5>
-                  <p class="card-text">
-                    {{ items.Description }}
-                  </p>
+                  <p
+                    class="card-text"
+                    v-html="sanitizeComment(items.Description)"
+                  ></p>
+
                   <br />
                   <i
                     class="fa fa-thumbs-up LikeIcon"
@@ -111,7 +113,7 @@
                         </span>
                       </div>
                     </div>
-                    <div v-else style="text-align: center;">
+                    <div v-else style="text-align: center">
                       <p>No comments</p>
                     </div>
                   </div>

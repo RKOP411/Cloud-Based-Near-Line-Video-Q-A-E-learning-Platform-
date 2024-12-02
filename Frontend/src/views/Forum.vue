@@ -3,7 +3,7 @@
     <div class="card-header pb-0">
       <div class="d-flex align-items-center">
         <h6>Forum</h6>
-        <argon-button type="button" class="btn btn-success mb-3 ms-auto">
+        <argon-button type="button" class="btn btn-success mb-3 ms-auto" @click="redirectToCreateForum()">
           <i class="fa fa-plus" aria-hidden="true"></i>
         </argon-button>
       </div>
@@ -90,7 +90,9 @@
   <br />
 </template>
 <script>
-import { GetAllForum } from "../assets/Domain.js";
+import { GetForumByCourseID } from "../assets/Domain.js";
+const params = new URLSearchParams(window.location.search);
+const CourseID = params.get("CourseID");
 
 export default {
   data() {
@@ -100,14 +102,14 @@ export default {
   },
   methods: {
     async getForum() {
-      const response = await fetch(GetAllForum, {
+      const response = await fetch(GetForumByCourseID + CourseID, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
       });
       const data = await response.json();
-      this.items = data;
+      this.items = Array.isArray(data) ? data : [];
 
       this.items.forEach((item) => {
         let date = new Date(item.UpdatedTime);
@@ -125,6 +127,9 @@ export default {
         item.LastUpdated = formattedDate;
       });
     },
+    redirectToCreateForum() {
+        this.$router.push(`/tables/forum/createforum?CourseID=${CourseID}`);
+    }
   },
   mounted() {
     this.getForum();

@@ -14,7 +14,7 @@
               <div class="row">
                 <div class="col-md-9 mb-3">
                   <label for="example-text-input" class="form-control-label"
-                    >Chat Name *</label
+                    >Course Name *</label
                   >
                   <input class="form-control" type="text" value="" placeholder="Input your Chat Gruop Name..."/>
                 </div>

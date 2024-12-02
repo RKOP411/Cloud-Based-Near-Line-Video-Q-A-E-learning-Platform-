@@ -11,11 +11,11 @@ import ForgetPassword from "../views/ForgetPassword.vue";
 import UserList from "../views/Admin/UserList.vue";
 import MediaList from "../views/Admin/MediaList.vue";
 import Manage_Queue from "../views/Teacher/ManageQueue.vue";
-import CreateChat from "../views/CreateChatCroup.vue";
 import UploadQuestion from "../views/Student/Upload_Question.vue";
 import JoinQuestion from "../views/JoinQuestion.vue";
 import Forum from "../views/Forum.vue";
 import ForumContent from "../views/ForumContent.vue";
+import CreateForum from "../views/CreateForum.vue";
 
 
 
@@ -48,8 +48,6 @@ const routes = [
     name: "Forum Content",
     component: ForumContent,
   },
-
-  
 
   {
     path: "/virtual-reality",
@@ -103,11 +101,6 @@ const routes = [
     component: Manage_Queue,
   },
   {
-    path: "/createchat",
-    name: "Create Chat",
-    component: CreateChat,
-  },
-  {
     path: "/uploadquestion",
     name: "Upload Question",
     component: UploadQuestion,
@@ -116,6 +109,11 @@ const routes = [
     path: "/JoinQuestion",
     name: "Join Chat Group",
     component: JoinQuestion,
+  },
+  {
+    path: "/tables/forum/createforum",
+    name: "Create Forum",
+    component: CreateForum,
   }
 ];
 

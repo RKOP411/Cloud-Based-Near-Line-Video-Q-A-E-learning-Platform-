@@ -43,7 +43,7 @@
                     ></i>
                   </div>
                   <div class="d-flex flex-column justify-content-center">
-                    <a href="tables/forum" class="text-decoration-none">
+                    <a :href="`tables/forum?CourseID= ${item.CourseID}`" class="text-decoration-none">
                       <h6 class="mb-0 text-sm">{{ item.CourseName }}</h6>
                       <p class="text-xs text-secondary mb-0">
                         {{ item.TeacherName }}
@@ -80,18 +80,25 @@
   <br />
 </template>
 <script>
+import { GetAllCourses } from "../../assets/Domain.js";
+
 export default {
   data() {
     return {
-      items: [
-        {
-          CourseName: "COMP4117 Information Systems: Design and Integration",
-          TeacherName: "Dr Lee Sau Ling",
-          Semester: "2024 S1",
-          ForumNum: 3,
-        },
-      ],
+      items: [],
     };
+  },
+  methods: {
+    async getCourse() {
+      fetch(GetAllCourses)
+        .then((response) => response.json())
+        .then((data) => {
+          this.items = data;
+        });
+    },
+  },
+  mounted() {
+    this.getCourse();
   },
 };
 </script>
