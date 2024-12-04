@@ -442,11 +442,11 @@ router.put('/updateLike_delete/:commentId', async function (req, res, next) {
 router.post('/CreateForum', async function (req, res, next) {
     try {
         const connection = await connectToDB();
-        const { UserID, Title, Text, SendTime } = req.body;
+        const { UserID, CourseID, ForumTitle, Description } = req.body;
 
         const sql = `INSERT INTO Forum (UserID, CourseID, ForumTitle, Description, UpdatedTime, LastUpdated) VALUES (?, ?, ?, ?, NOW(), NOW())`;
 
-        connection.query(sql, [UserID, Title, Text, SendTime], (err, results) => {
+        connection.query(sql, [UserID, CourseID, ForumTitle, Description], (err, results) => {
             if (err) {
                 console.error('Error adding forum:', err);
                 return res.status(500).json({ error: 'Database error' });

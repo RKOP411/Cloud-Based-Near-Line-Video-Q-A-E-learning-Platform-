@@ -1,66 +1,3 @@
-<script setup>
-import { useRouter } from "vue-router";
-import { ref, onMounted } from "vue";
-import Quill from "quill";
-import { CreateForum as createForumAPI } from "../assets/Domain.js";
-
-const router = useRouter();
-let Email = localStorage.getItem("Email");
-
-if (Email === null || Email === "") {
-  router.push("/signin");
-}
-
-const editor = ref(null);
-const ForumTitle = ref("");
-const params = new URLSearchParams(window.location.search);
-const CourseID = params.get("CourseID");
-let quill;
-
-const initQuill = () => {
-  quill = new Quill(editor.value, {
-    theme: "snow",
-    modules: {
-      toolbar: [
-        ["bold", "italic", "underline"],
-        ["link", "image"],
-        [{ list: "ordered" }, { list: "bullet" }],
-      ],
-    },
-  });
-};
-
-const CreateForum = () => {
-  if (quill.root.innerHTML === "" || ForumTitle.value === "") {
-    alert("Please fill all the fields");
-    return;
-  }
-  fetch(createForumAPI, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      UserID: localStorage.getItem("UserID"),
-      CourseID: CourseID.value,
-      ForumTitle: ForumTitle.value,
-      Description: quill.root.innerHTML,
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.status === "success") {
-        alert("Forum Created");
-      } else {
-        alert("Forum Creation Failed");
-      }
-    });
-};
-
-onMounted(() => {
-  initQuill();
-});
-</script>
 <template>
   <main>
     <div class="py-4 container-fluid">
@@ -90,30 +27,26 @@ onMounted(() => {
               <!-- Select Bar End-->
               <div class="row">
                 <div class="col-md-9 mb-4">
-                  <label for="example-text-input" class="form-control-label"
-                    >Forum Title</label
-                  >
+                  <label class="form-control-label">Question Title</label>
                   <input
                     class="form-control"
                     type="text"
-                    v-model="ForumTitle"
                     placeholder="Title *"
+                    v-model="ForumTitle"
                   />
                 </div>
                 <br />
-                <!-- Contant Input-->
+                <!-- Content Input-->
                 <div class="col-md-9 mb-3">
-                  <label for="example-text-input" class="form-control-label"
-                    >Description</label
-                  >
-                  <!--Text Editor-->
+                  <label class="form-control-label">Description</label>
+                  <!-- Text Editor -->
                   <div>
                     <div ref="editor" class="quill-editor"></div>
                     <br />
                   </div>
-                  <!--Text Editor-->
+                  <!-- Text Editor End -->
                 </div>
-                <!-- Contant Input End-->
+                <!-- Content Input End -->
               </div>
               <hr class="horizontal dark" />
               <button
@@ -131,3 +64,82 @@ onMounted(() => {
     </div>
   </main>
 </template>
+
+<script>
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import Quill from "quill";
+import "quill/dist/quill.snow.css"; // Import Quill's CSS
+import { CreateForum as CreateForumEndpoint } from "../assets/Domain.js";
+
+export default {
+  setup() {
+    const router = useRouter();
+    const params = new URLSearchParams(window.location.search);
+    const CourseID = params.get("CourseID");
+    const userId = localStorage.getItem("UserID");
+    const Email = localStorage.getItem("Email");
+    const ForumTitle = ref("");
+    const quill = ref(null);
+
+    const initQuill = () => {
+      quill.value = new Quill(document.querySelector(".quill-editor"), {
+        theme: "snow",
+        modules: {
+          toolbar: [
+            ["bold", "italic", "underline"],
+            ["link", "image"],
+            [{ list: "ordered" }, { list: "bullet" }],
+          ],
+        },
+      });
+    };
+
+    const CreateForum = async () => {
+      console.log("Title:", ForumTitle.value); // Log the title
+
+      if (ForumTitle.value === "") {
+        alert("Please fill all the fields");
+        return;
+      }
+
+      try {
+        const response = await fetch(CreateForumEndpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            UserID: userId,
+            CourseID: CourseID,
+            ForumTitle: ForumTitle.value,
+            Description: quill.value.root.innerHTML, // Use the quill ref's value
+          }),
+        });
+
+        const data = await response.json();
+        console.log("Data:", data);
+        ForumTitle.value = ""; // Clear the title
+        quill.value.root.innerHTML = ""; // Clear the quill editor
+      } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred while creating the forum.");
+      }
+    };
+
+    // Check for user authentication and initialize Quill on mount
+    onMounted(() => {
+      if (!Email) {
+        router.push("/signin");
+      }
+      initQuill();
+    });
+
+    return {
+      ForumTitle,
+      CreateForum,
+      initQuill,
+    };
+  },
+};
+</script>
