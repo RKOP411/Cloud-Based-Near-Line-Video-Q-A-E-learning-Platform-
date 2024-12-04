@@ -37,6 +37,11 @@
             </tr>
           </thead>
           <tbody>
+
+            <tr v-if="items.length === 0">
+              <td colspan="5" class="text-center">No Forum</td>
+            </tr>
+            
             <tr v-for="(item, index) in items" :key="index">
               <td>
                 <div class="d-flex px-2 py-1">
@@ -47,7 +52,7 @@
                       style="font-size: 20px"
                     ></i>
                   </div>
-                  <a :href="'/tables/forum/forumcontent?ForumID=' + item.ForumID">
+                  <a :href="`/tables/forum/forumcontent?ForumID=${item.ForumID}`">
                     <div class="d-flex flex-column justify-content-center">
                       <h6 class="mb-0 text-sm">{{ item.ForumTitle }}</h6>
                       <p class="text-xs text-secondary mb-0">
@@ -91,8 +96,9 @@
 </template>
 <script>
 import { GetForumByCourseID } from "../assets/Domain.js";
+import { ref } from 'vue';
 const params = new URLSearchParams(window.location.search);
-const CourseID = params.get("CourseID");
+const CourseID = ref(params.get("CourseID"));
 
 export default {
   data() {
@@ -102,7 +108,7 @@ export default {
   },
   methods: {
     async getForum() {
-      const response = await fetch(GetForumByCourseID + CourseID, {
+      const response = await fetch(GetForumByCourseID + CourseID.value, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -128,7 +134,7 @@ export default {
       });
     },
     redirectToCreateForum() {
-        this.$router.push(`/tables/forum/createforum?CourseID=${CourseID}`);
+        this.$router.push(`/tables/forum/createforum?CourseID=${CourseID.value}`);
     }
   },
   mounted() {

@@ -12,10 +12,10 @@
             <div class="card-body">
               <div class="card">
                 <div class="card-body">
-                  <a href="/tables/forum"
+                    <a :href="'/tables/forum?CourseID=' + items.CourseID"
                     ><i class="fa fa-arrow-left backArr" aria-hidden="true"></i
-                  ></a>
-                  <img
+                    ></a>
+                    <img
                     src="../assets/img/team-0.webp"
                     alt="profile_image"
                     class="userImg"

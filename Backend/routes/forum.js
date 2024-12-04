@@ -268,8 +268,6 @@ router.post('/AddComment', async function (req, res, next) {
                 console.error('Error updating forum:', err);
                 return res.status(500).json({ error: 'Database error' });
             }
-
-            res.status(200).json({ message: 'Forum updated successfully' });
         });
 
         const sql3 = `UPDATE Forum SET LastUpdated = NOW() WHERE ForumID = ?`;
@@ -279,8 +277,6 @@ router.post('/AddComment', async function (req, res, next) {
                 console.error('Error updating forum:', err);
                 return res.status(500).json({ error: 'Database error' });
             }
-
-            res.status(200).json({ message: 'Forum updated successfully' });
         });
 
         // Close the connection
@@ -463,4 +459,51 @@ router.post('/CreateForum', async function (req, res, next) {
     }
 });
 
+router.put('/CourseNumQuesstion/:CourseID', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const CourseID = req.params.CourseID; // Get the CourseID from the URL parameter
+
+        const sql = `UPDATE Course SET ForumNum = ForumNum + 1 WHERE CourseID = ?`;
+
+        connection.query(sql, [CourseID], (err, results) => {
+            if (err) {
+                console.error('Error updating course:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json({ message: 'Course updated successfully' });
+        });
+
+        // Close the connection
+        connection.end();
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.post('/CreateCourse', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const { CourseName, TeacherName, Semester } = req.body;
+
+        const sql = `INSERT INTO Course (CourseName, TeacherName, Semester) VALUES (?, ?, ?)`;
+
+        connection.query(sql, [CourseName, TeacherName, Semester], (err, results) => {
+            if (err) {
+                console.error('Error adding course:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json({ message: 'Course added successfully' });
+        });
+
+        // Close the connection
+        connection.end();
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
 module.exports = router;

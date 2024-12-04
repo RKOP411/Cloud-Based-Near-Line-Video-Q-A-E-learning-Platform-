@@ -258,6 +258,7 @@ export default {
         localStorage.setItem("Email", this.form.Email);
         const Userdata = await VerifyEmail(this.form.Email);
         localStorage.setItem("UserID", Userdata[0].UserID);
+        localStorage.setItem("UserName", Userdata[0].UserName);
         this.$router.push("/"); // Ensure this is accessible in the setup context
       } catch (error) {
         console.error("Error:", error);

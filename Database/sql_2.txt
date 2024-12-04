@@ -110,7 +110,7 @@ CREATE TABLE Course(
   CourseName varchar(150) NOT NULL,
   TeacherName varchar(20),
   Semester varchar(20),
-  NumQuestion int,
+  ForumNum int,
   PRIMARY KEY (CourseID)
 );
 

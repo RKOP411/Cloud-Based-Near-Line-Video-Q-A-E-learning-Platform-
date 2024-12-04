@@ -3,7 +3,11 @@
     <div class="card-header pb-0">
       <div class="d-flex align-items-center">
         <h6>Forum</h6>
-        <argon-button type="button" class="btn btn-success mb-3 ms-auto">
+        <argon-button
+          type="button"
+          class="btn btn-success mb-3 ms-auto"
+          @click="goToCreateCourse"
+        >
           <i class="fa fa-plus" aria-hidden="true"></i>
         </argon-button>
       </div>
@@ -43,7 +47,10 @@
                     ></i>
                   </div>
                   <div class="d-flex flex-column justify-content-center">
-                    <a :href="`tables/forum?CourseID= ${item.CourseID}`" class="text-decoration-none">
+                    <a
+                      :href="`tables/forum?CourseID= ${item.CourseID}`"
+                      class="text-decoration-none"
+                    >
                       <h6 class="mb-0 text-sm">{{ item.CourseName }}</h6>
                       <p class="text-xs text-secondary mb-0">
                         {{ item.TeacherName }}
@@ -95,6 +102,9 @@ export default {
         .then((data) => {
           this.items = data;
         });
+    },
+    goToCreateCourse() {
+      this.$router.push("/tables/createcourse");
     },
   },
   mounted() {

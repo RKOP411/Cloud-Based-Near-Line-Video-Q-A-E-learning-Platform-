@@ -70,7 +70,10 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Quill from "quill";
 import "quill/dist/quill.snow.css"; // Import Quill's CSS
-import { CreateForum as CreateForumEndpoint } from "../assets/Domain.js";
+import {
+  CreateForum as CreateForumEndpoint,
+  CourseNumQuesstion,
+} from "../assets/Domain.js";
 
 export default {
   setup() {
@@ -121,10 +124,19 @@ export default {
         console.log("Data:", data);
         ForumTitle.value = ""; // Clear the title
         quill.value.root.innerHTML = ""; // Clear the quill editor
+        router.push(`/tables/forum?CourseID=${CourseID}`);
       } catch (error) {
         console.error("Error:", error);
         alert("An error occurred while creating the forum.");
       }
+
+      // Update the number of questions in the course
+      fetch(CourseNumQuesstion + CourseID, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
     };
 
     // Check for user authentication and initialize Quill on mount

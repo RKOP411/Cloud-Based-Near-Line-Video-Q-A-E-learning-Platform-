@@ -16,7 +16,7 @@ import JoinQuestion from "../views/JoinQuestion.vue";
 import Forum from "../views/Forum.vue";
 import ForumContent from "../views/ForumContent.vue";
 import CreateForum from "../views/CreateForum.vue";
-
+import CreateCoure from "../views/CreateCourse.vue";
 
 
 
@@ -114,6 +114,11 @@ const routes = [
     path: "/tables/forum/createforum",
     name: "Create Forum",
     component: CreateForum,
+  },
+  {
+    path: "/tables/createcourse",
+    name: "Create Course",
+    component: CreateCoure,
   }
 ];
 
