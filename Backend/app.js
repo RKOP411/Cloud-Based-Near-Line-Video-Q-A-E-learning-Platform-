@@ -10,6 +10,7 @@ var accountRouter = require('./routes/account');
 var forumRouter = require('./routes/forum');
 var cors = require('cors');
 
+
 var app = express();
 
 // view engine setup
@@ -22,6 +23,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
+// Serve static files from the 'uploads' directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

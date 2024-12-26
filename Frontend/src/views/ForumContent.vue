@@ -26,11 +26,8 @@
                   <!-- Forum Content-->
                   <div>
                     <div v-if="items.Path !== null">
-                      <video width="400" controls>
-                        <source
-                          :src="'\..\..\..\Backend' + items.Path"
-                          :type="items.type"
-                        />
+                      <video v-if="items.Path" width="400" controls id="ForumVideo">
+                        <source :src="items.Path" :type="items.type" />
                         Your browser does not support the video tag.
                       </video>
                     </div>
@@ -286,6 +283,11 @@ export default {
       });
       const data = await response.json();
       this.items = data;
+      // Replace backslashes with forward slashes
+      this.items.Path = this.items.Path.replace(/\\/g, "/");
+      const basePath = "http://localhost:3000/";
+      this.items.Path = basePath + this.items.Path; //The full path
+      console.log(this.items.Path);
       // Update the item with the formatted time
       this.items.UpdatedTime = this.Calculate_LastUpdate(
         this.items.UpdatedTime
@@ -465,6 +467,10 @@ export default {
     this.getForumContent();
     this.getComment();
     this.initQuill();
+
+  },
+  created() {
+    this.getForumContent();
   },
 };
 </script>
