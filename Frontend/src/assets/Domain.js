@@ -20,9 +20,11 @@ const GetForumByCourseID = DomainName + "forum/GetForumByCourseID/";
 const CreateForum = DomainName + "forum/CreateForum";
 const CourseNumQuesstion = DomainName + "forum/CourseNumQuesstion/";
 const CreateCourse = DomainName + "forum/CreateCourse";
+const CreateForumWithVideo = DomainName + "forum/CreateForumWithVideo";
 export {
     registerDomain, verifyEmailDomain,
-    GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment, GetAllCourses, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse,      
+    GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment, 
+    GetAllCourses, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse,CreateForumWithVideo, 
     ForumLikes, AddLike, CheckUserLiked, DeleteLike,
     AddCommentLike, AddCommentLike_Num, CheckUserLikedComment, DeleteCommentLike, DeleteCommentLike_Num
 };

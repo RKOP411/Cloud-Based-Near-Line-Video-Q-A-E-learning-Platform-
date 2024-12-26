@@ -49,10 +49,11 @@
                 </div>
                 <!-- Text Content Input End -->
                 <!-- Video Content Input-->
-                <div class="col-md-9 mb-3" v-if="IsVedio">
+                <div class="col-md-9 mb-3" v-if="IsVideo">
                   <label class="form-control-label">Video</label>
                   <div>
                     <input
+                      id="video"
                       type="file"
                       accept="video/*"
                       @change="handleFileUpload"
@@ -66,7 +67,7 @@
               <button
                 type="button"
                 class="btn btn-success"
-                @click="CreateForum"
+                @click="IsText ? CreateForum() : CreateForumVideo()"
               >
                 Send
               </button>
@@ -87,16 +88,10 @@ import "quill/dist/quill.snow.css"; // Import Quill's CSS
 import {
   CreateForum as CreateForumEndpoint,
   CourseNumQuesstion,
+  CreateForumWithVideo as CreateForumWithVideo,
 } from "../assets/Domain.js";
 
 export default {
-  data() {
-    return {
-      IsVedio: false,
-      IsText: true,
-      videoFile: null,
-    };
-  },
   setup() {
     const router = useRouter();
     const params = new URLSearchParams(window.location.search);
@@ -105,7 +100,9 @@ export default {
     const Email = localStorage.getItem("Email");
     const ForumTitle = ref("");
     const quill = ref(null);
-
+    const IsVideo = ref(false);
+    const IsText = ref(true);
+    let videoFile = null;
     const initQuill = () => {
       quill.value = new Quill(document.querySelector(".quill-editor"), {
         theme: "snow",
@@ -119,9 +116,13 @@ export default {
       });
     };
 
-    const CreateForum = async () => {
-      console.log("Title:", ForumTitle.value); // Log the title
+    const handleFileUpload = () => {
+      videoFile = document.getElementById("video").files[0];
+      IsVideo.value = true;
+      console.log(videoFile);
+    };
 
+    const CreateForum = async () => {
       if (ForumTitle.value === "") {
         alert("Please fill all the fields");
         return;
@@ -160,6 +161,46 @@ export default {
       });
     };
 
+    const CreateForumVideo = async () => {
+      if (ForumTitle.value === "") {
+        alert("Please fill all the fields");
+        return;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append("UserID", userId);
+        formData.append("CourseID", CourseID);
+        formData.append("ForumTitle", ForumTitle.value);
+        formData.append("Description", null); // You can omit this or set an actual value
+        if (videoFile) {
+          formData.append("video", videoFile); // Ensure videoFile is defined
+        }
+
+        const response = await fetch(CreateForumWithVideo, {
+          method: "POST",
+          body: formData, // Use FormData here
+        });
+
+        const data = await response.json();
+        console.log("Data:", data);
+        ForumTitle.value = ""; // Clear the title
+        quill.value.root.innerHTML = ""; // Clear the quill editor
+        //router.push(`/tables/forum?CourseID=${CourseID}`);
+      } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred while creating the forum.");
+      }
+
+      // Update the number of questions in the course
+      //   fetch(CourseNumQuesstion + CourseID, {
+      //     method: "PUT",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      // });
+    };
+
     // Check for user authentication and initialize Quill on mount
     onMounted(() => {
       if (!Email) {
@@ -170,26 +211,26 @@ export default {
 
     return {
       ForumTitle,
+      videoFile,
+      IsVideo,
+      IsText,
+      handleFileUpload,
       CreateForum,
       initQuill,
+      CreateForumVideo,
     };
   },
   methods: {
-    handleFileUpload(event) {
-      this.videoFile = event.target.files[0];
-      this.IsVedio = true;
-      console.log(this.videoFile);
-    },
     CheangeToVideo() {
-      this.IsVedio = true;
+      this.IsVideo = true;
       this.IsText = false;
     },
     CheangeToText() {
-      this.IsVedio = false;
+      this.IsVideo = false;
       this.IsText = true;
     },
   },
-    // Initialize Quill when IsText becomes true
+  // Initialize Quill when IsText becomes true
   watch: {
     IsText(newVal) {
       if (newVal) {

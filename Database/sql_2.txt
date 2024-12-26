@@ -100,7 +100,7 @@ CREATE TABLE Media(
   Type varchar(10),
   Title varchar(100),
   UploadDate datetime,
-  Content varchar(255),
+  Path varchar(255),
   FOREIGN KEY (UserID) REFERENCES User(UserID),
   PRIMARY KEY (MediaID)
 );
