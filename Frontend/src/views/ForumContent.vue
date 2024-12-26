@@ -25,8 +25,8 @@
                   </h5>
                   <!-- Forum Content-->
                   <div>
-                    <div v-if="items.Path !== null">
-                      <video v-if="items.Path" width="400" controls id="ForumVideo">
+                    <div class="row justify-content-center" v-if="items.Path !== null">
+                      <video v-if="items.Path" controls id="ForumVideo">
                         <source :src="items.Path" :type="items.type" />
                         Your browser does not support the video tag.
                       </video>
@@ -154,6 +154,7 @@ import {
   CheckUserLikedComment,
   DeleteCommentLike,
   DeleteCommentLike_Num,
+  DomainName,
 } from "../assets/Domain.js";
 import Quill from "quill";
 import "quill/dist/quill.snow.css"; // Import Quill's CSS
@@ -285,9 +286,8 @@ export default {
       this.items = data;
       // Replace backslashes with forward slashes
       this.items.Path = this.items.Path.replace(/\\/g, "/");
-      const basePath = "http://localhost:3000/";
+      const basePath = DomainName;
       this.items.Path = basePath + this.items.Path; //The full path
-      console.log(this.items.Path);
       // Update the item with the formatted time
       this.items.UpdatedTime = this.Calculate_LastUpdate(
         this.items.UpdatedTime

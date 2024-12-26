@@ -22,6 +22,7 @@ const CourseNumQuesstion = DomainName + "forum/CourseNumQuesstion/";
 const CreateCourse = DomainName + "forum/CreateCourse";
 const CreateForumWithVideo = DomainName + "forum/CreateForumWithVideo";
 export {
+    DomainName,
     registerDomain, verifyEmailDomain,
     GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment, 
     GetAllCourses, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse,CreateForumWithVideo, 
