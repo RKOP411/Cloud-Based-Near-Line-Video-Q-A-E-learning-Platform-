@@ -172,9 +172,9 @@ export default {
         formData.append("UserID", userId);
         formData.append("CourseID", CourseID);
         formData.append("ForumTitle", ForumTitle.value);
-        formData.append("Description", null); // You can omit this or set an actual value
+        formData.append("Description", null); 
         if (videoFile) {
-          formData.append("video", videoFile); // Ensure videoFile is defined
+          formData.append("video", videoFile);
         }
 
         const response = await fetch(CreateForumWithVideo, {
@@ -189,16 +189,15 @@ export default {
         //router.push(`/tables/forum?CourseID=${CourseID}`);
       } catch (error) {
         console.error("Error:", error);
-        alert("An error occurred while creating the forum.");
       }
 
       // Update the number of questions in the course
-      //   fetch(CourseNumQuesstion + CourseID, {
-      //     method: "PUT",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      // });
+        fetch(CourseNumQuesstion + CourseID, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+      });
     };
 
     // Check for user authentication and initialize Quill on mount

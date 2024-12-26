@@ -3,6 +3,10 @@ var router = express.Router();
 const { connectToDB } = require('../util/db');
 const multer = require('multer');
 const path = require('path');
+const cors = require('cors')
+const app = express();
+app.use(cors()); // Enable CORS
+
 
 router.get('/GetAllCourses', async function (req, res, next) {
     try {
@@ -461,67 +465,70 @@ router.post('/CreateForum', async function (req, res, next) {
     }
 });
 
-// Set up storage for uploaded files
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Specify the uploads directory
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Rename file to avoid conflicts
-    }
-});
 
-const upload = multer({ storage: storage });
+
+
 
 router.post('/CreateForumWithVideo', async function (req, res, next) {
 
-    try {
+    let VideoTitle = req.file ? req.file.filename : null;
+    // Set up storage for uploaded files
+    const storage = multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, 'uploads/'); // Specify the uploads directory
+        },
+        filename: (req, file, cb) => {
+            VideoTitle = file.originalname;
+            cb(null, Date.now() + path.extname(file.originalname)); // Rename file to avoid conflicts
+        }
+    });
 
-        // const VideoTitle = req.file.name;
-        // const VideoType = req.file.type;
 
-        console.log(req.file);
-        console.log(req.body);
+    const upload = multer({ storage: storage }).single('video');
 
-        // Upload the file
-        upload.single('video')(req, res, (err) => {
-            if (err) {
-                console.error('Error uploading file:', err);
-                return res.status(500).json({ error: 'File upload error' });
-            }
-        });
+    upload(req, res, async (err) => {
+        if (err) {
+            console.error('Error uploading video:', err);
+            return res.status(500).json({ error: 'Error uploading video' });
+        }
 
-        // const VideoContent = req.file.path;
-        // console.log(VideoContent);
-        // console.log(VideoTitle);
-        // console.log(VideoType);
+        try {
+            const { UserID, CourseID, ForumTitle, Description } = req.body;
+            const VideoPath = req.file ? req.file.path : null;
+            const ForumType = 'video';
 
-        // const connection = await connectToDB();
-        // const { UserID, CourseID, ForumTitle, Description } = req.body;
+            console.log('UserID:', UserID);
+            console.log('CourseID:', CourseID);
+            console.log('ForumTitle:', ForumTitle);
+            console.log('Description:', Description);
+            console.log('VideoTitle:', VideoTitle);
+            console.log('VideoPath:', VideoPath);
 
-        // // Step 1: Insert media details into the Media table
-        // const sql1 = `INSERT INTO Media (UserID, Type, Title, UploadDate, Path) VALUES (?, 'video', ?, NOW(), ?)`;
-        // await connection.query(sql1, [UserID, VideoType, VideoTitle, VideoContent]);
 
-        // // Step 2: Retrieve the latest MediaID for the user and title
-        // const sql2 = `SELECT MediaID FROM Media WHERE UserID = ? AND Title = ? ORDER BY UploadDate DESC LIMIT 1`;
-        // const [mediaResult] = await connection.query(sql2, [UserID, VideoTitle]);
-        // const mediaId = mediaResult[0].MediaID;
+            const connection = await connectToDB();
 
-        // // Step 3: Insert the Forum
-        // const sql3 = `INSERT INTO Forum (MediaID, UserID, CourseID, ForumTitle, Description, ForumType, UpdatedTime, LastUpdated) VALUES (?, ?, ?, ?, ?, 'video', NOW(), NOW())`;
-        // await connection.query(sql3, [mediaId, UserID, CourseID, ForumTitle, Description]);
+            // Step 1: Insert media details into the Media table
+            const sql1 = `INSERT INTO Media (UserID, Type, Title, UploadDate, Path) VALUES (?, 'video', ?, NOW(), ?)`;
+            connection.query(sql1, [UserID, VideoTitle, VideoTitle, VideoPath]);
 
-        // res.status(200).json({ message: 'Forum with video created successfully' });
+            //Step 2: Retrieve the latest MediaID for the user and title
+            const sql2 = `SELECT MediaID FROM Media WHERE UserID = ? AND Title = ? ORDER BY UploadDate DESC LIMIT 1`;
+            const [mediaResult] = await connection.promise().query(sql2, [UserID, VideoTitle]);
+            const mediaId = mediaResult[0];
 
-        // // Close the connection
-        // connection.end();
+            // Step 3: Insert the Forum
+            const sql3 = `INSERT INTO Forum (MediaID, UserID, CourseID, ForumTitle, Description, ForumType, UpdatedTime, LastUpdated) VALUES (?, ?, ?, ?, ?, NOW(), NOW())`;
+            connection.query(sql3, [mediaId, UserID, CourseID, ForumTitle, Description, ForumType]);
 
-    } catch (error) {
-        console.error('Error creating forum with video:', error);
-        res.status(500).send('Server error');
-    }
+            res.status(200).json({ message: 'Forum with video created successfully' });
 
+            // Close the connection
+            connection.end();
+        } catch (error) {
+            console.error('Error creating forum with video:', error);
+            res.status(500).send('Server error');
+        }
+    });
 });
 
 router.put('/CourseNumQuesstion/:CourseID', async function (req, res, next) {
