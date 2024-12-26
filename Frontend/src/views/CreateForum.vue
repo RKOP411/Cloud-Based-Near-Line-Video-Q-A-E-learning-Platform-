@@ -44,6 +44,19 @@
                   <!-- Text Editor End -->
                 </div>
                 <!-- Text Content Input End -->
+                <!-- Video Content Input-->
+                <div class="col-md-9 mb-3">
+                  <label class="form-control-label">Video</label>
+                  <div>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      @change="handleFileUpload"
+                      required
+                    />
+                  </div>
+                </div>
+                <!-- Video Content Input End -->
               </div>
               <hr class="horizontal dark" />
               <button
@@ -76,6 +89,7 @@ export default {
   data() {
     return {
       IsVedio: false,
+      videoFile: null,
     };
   },
   setup() {
@@ -154,6 +168,13 @@ export default {
       CreateForum,
       initQuill,
     };
+  },
+  methods: {
+    handleFileUpload(event) {
+      this.videoFile = event.target.files[0];
+      this.IsVedio = true;
+      console.log(this.videoFile);
+    },
   },
 };
 </script>
