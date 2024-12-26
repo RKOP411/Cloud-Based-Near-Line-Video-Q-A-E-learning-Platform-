@@ -12,10 +12,10 @@
             <div class="card-body">
               <div class="card">
                 <div class="card-body">
-                    <a :href="'/tables/forum?CourseID=' + items.CourseID"
+                  <a :href="'/tables/forum?CourseID=' + items.CourseID"
                     ><i class="fa fa-arrow-left backArr" aria-hidden="true"></i
-                    ></a>
-                    <img
+                  ></a>
+                  <img
                     src="../assets/img/team-0.webp"
                     alt="profile_image"
                     class="userImg"
@@ -23,11 +23,26 @@
                   <h5 class="card-title ContentTitle">
                     {{ items.ForumTitle }}
                   </h5>
-                  <p
-                    class="card-text"
-                    v-html="sanitizeComment(items.Description)"
-                  ></p>
+                  <!-- Forum Content-->
+                  <div>
+                    <div v-if="items.Path !== null">
+                      <video width="400" controls>
+                        <source
+                          :src="'\..\..\..\Backend' + items.Path"
+                          :type="items.type"
+                        />
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                    <div v-else>
+                      <p
+                        class="card-text"
+                        v-html="sanitizeComment(items.Description)"
+                      ></p>
+                    </div>
+                  </div>
 
+                  <!-- Forum Content End-->
                   <br />
                   <i
                     class="fa fa-thumbs-up LikeIcon"

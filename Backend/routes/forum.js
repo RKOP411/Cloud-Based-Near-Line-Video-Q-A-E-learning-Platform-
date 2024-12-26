@@ -91,10 +91,11 @@ router.get('/GetforumByID/:forumId', async function (req, res, next) {
         const forumId = req.params.forumId; // Get the ForumID from the URL parameter
 
         const sql = `
-            SELECT f.*, u.UserName 
-            FROM Forum f 
-            LEFT JOIN User u ON f.UserID = u.UserID 
-            WHERE f.ForumID = ?`;
+        SELECT f.*, m.*, u.UserName 
+        FROM Forum f 
+        LEFT JOIN User u ON f.UserID = u.UserID 
+        LEFT JOIN Media m ON f.MediaID = m.MediaID 
+        WHERE f.ForumID = ?`;
 
         connection.query(sql, [forumId], (err, results) => {
             if (err) {
@@ -515,8 +516,6 @@ router.post('/CreateForumWithVideo', async function (req, res, next) {
             const sql2 = `SELECT MediaID FROM Media WHERE UserID = ? AND Title = ? ORDER BY UploadDate DESC LIMIT 1`;
             const [mediaResult] = await connection.promise().query(sql2, [UserID, VideoTitle]);
             const mediaId = mediaResult[0].MediaID;
-
-            console.log('MediaID:',  mediaResult[0].MediaID);
 
             // Step 3: Insert the Forum
             const sql3 = `INSERT INTO Forum (MediaID, UserID, CourseID, ForumTitle, Description, UpdatedTime, LastUpdated) VALUES (?, ?, ?, ?, ?, NOW(), NOW())`;
