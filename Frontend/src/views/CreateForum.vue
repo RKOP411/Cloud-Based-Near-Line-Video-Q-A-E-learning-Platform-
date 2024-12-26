@@ -13,12 +13,16 @@
               <!-- Select Bar-->
               <ul class="nav nav-tabs mb-3">
                 <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="#"
+                  <a
+                    class="nav-link active"
+                    aria-current="page"
+                    href="#"
+                    @click="CheangeToText"
                     >Text</a
                   >
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#">Video</a>
+                  <a class="nav-link" href="#" @click="CheangeToVideo">Video</a>
                 </li>
               </ul>
               <!-- Select Bar End-->
@@ -34,7 +38,7 @@
                 </div>
                 <br />
                 <!-- Text Content Input-->
-                <div class="col-md-9 mb-3">
+                <div class="col-md-9 mb-3" v-if="IsText">
                   <label class="form-control-label">Description</label>
                   <!-- Text Editor -->
                   <div>
@@ -45,7 +49,7 @@
                 </div>
                 <!-- Text Content Input End -->
                 <!-- Video Content Input-->
-                <div class="col-md-9 mb-3">
+                <div class="col-md-9 mb-3" v-if="IsVedio">
                   <label class="form-control-label">Video</label>
                   <div>
                     <input
@@ -89,6 +93,7 @@ export default {
   data() {
     return {
       IsVedio: false,
+      IsText: true,
       videoFile: null,
     };
   },
@@ -174,6 +179,24 @@ export default {
       this.videoFile = event.target.files[0];
       this.IsVedio = true;
       console.log(this.videoFile);
+    },
+    CheangeToVideo() {
+      this.IsVedio = true;
+      this.IsText = false;
+    },
+    CheangeToText() {
+      this.IsVedio = false;
+      this.IsText = true;
+    },
+  },
+    // Initialize Quill when IsText becomes true
+  watch: {
+    IsText(newVal) {
+      if (newVal) {
+        this.$nextTick(() => {
+          this.initQuill();
+        });
+      }
     },
   },
 };
