@@ -14,7 +14,7 @@
               <ul class="nav nav-tabs mb-3">
                 <li class="nav-item">
                   <a
-                    class="nav-link active"
+                    :class="['nav-link', IsText ? 'active' : '']"
                     aria-current="page"
                     href="#"
                     @click="CheangeToText"
@@ -22,7 +22,7 @@
                   >
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#" @click="CheangeToVideo">Video</a>
+                  <a :class="['nav-link', IsVideo ? 'active' : '']" href="#" @click="CheangeToVideo">Video</a>
                 </li>
               </ul>
               <!-- Select Bar End-->
@@ -186,7 +186,7 @@ export default {
         console.log("Data:", data);
         ForumTitle.value = ""; // Clear the title
         quill.value.root.innerHTML = ""; // Clear the quill editor
-        //router.push(`/tables/forum?CourseID=${CourseID}`);
+        router.push(`/tables/forum?CourseID=${CourseID}`);
       } catch (error) {
         console.error("Error:", error);
       }

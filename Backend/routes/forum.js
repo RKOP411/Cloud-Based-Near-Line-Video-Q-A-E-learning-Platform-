@@ -495,7 +495,7 @@ router.post('/CreateForumWithVideo', async function (req, res, next) {
         try {
             const { UserID, CourseID, ForumTitle, Description } = req.body;
             const VideoPath = req.file ? req.file.path : null;
-            const ForumType = 'video';
+            const VidoType = req.file ? req.file.mimetype : null;
 
             console.log('UserID:', UserID);
             console.log('CourseID:', CourseID);
@@ -508,17 +508,19 @@ router.post('/CreateForumWithVideo', async function (req, res, next) {
             const connection = await connectToDB();
 
             // Step 1: Insert media details into the Media table
-            const sql1 = `INSERT INTO Media (UserID, Type, Title, UploadDate, Path) VALUES (?, 'video', ?, NOW(), ?)`;
-            connection.query(sql1, [UserID, VideoTitle, VideoTitle, VideoPath]);
+            const sql1 = `INSERT INTO Media (UserID, Type, Title, UploadDate, Path) VALUES (?, ?, ?, NOW(), ?)`;
+            connection.query(sql1, [UserID, VidoType, VideoTitle, VideoPath]);
 
             //Step 2: Retrieve the latest MediaID for the user and title
             const sql2 = `SELECT MediaID FROM Media WHERE UserID = ? AND Title = ? ORDER BY UploadDate DESC LIMIT 1`;
             const [mediaResult] = await connection.promise().query(sql2, [UserID, VideoTitle]);
-            const mediaId = mediaResult[0];
+            const mediaId = mediaResult[0].MediaID;
+
+            console.log('MediaID:',  mediaResult[0].MediaID);
 
             // Step 3: Insert the Forum
-            const sql3 = `INSERT INTO Forum (MediaID, UserID, CourseID, ForumTitle, Description, ForumType, UpdatedTime, LastUpdated) VALUES (?, ?, ?, ?, ?, NOW(), NOW())`;
-            connection.query(sql3, [mediaId, UserID, CourseID, ForumTitle, Description, ForumType]);
+            const sql3 = `INSERT INTO Forum (MediaID, UserID, CourseID, ForumTitle, Description, UpdatedTime, LastUpdated) VALUES (?, ?, ?, ?, ?, NOW(), NOW())`;
+            connection.query(sql3, [mediaId, UserID, CourseID, ForumTitle, Description]);
 
             res.status(200).json({ message: 'Forum with video created successfully' });
 
