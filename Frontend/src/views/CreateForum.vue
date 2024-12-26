@@ -20,9 +20,6 @@
                 <li class="nav-item">
                   <a class="nav-link" href="#">Video</a>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">Link</a>
-                </li>
               </ul>
               <!-- Select Bar End-->
               <div class="row">
@@ -36,7 +33,7 @@
                   />
                 </div>
                 <br />
-                <!-- Content Input-->
+                <!-- Text Content Input-->
                 <div class="col-md-9 mb-3">
                   <label class="form-control-label">Description</label>
                   <!-- Text Editor -->
@@ -46,7 +43,7 @@
                   </div>
                   <!-- Text Editor End -->
                 </div>
-                <!-- Content Input End -->
+                <!-- Text Content Input End -->
               </div>
               <hr class="horizontal dark" />
               <button
@@ -76,6 +73,11 @@ import {
 } from "../assets/Domain.js";
 
 export default {
+  data() {
+    return {
+      IsVedio: false,
+    };
+  },
   setup() {
     const router = useRouter();
     const params = new URLSearchParams(window.location.search);
