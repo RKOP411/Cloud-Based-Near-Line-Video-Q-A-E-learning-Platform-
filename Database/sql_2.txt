@@ -14,7 +14,8 @@ CREATE TABLE User (
     AboutMe varchar(255),
     LastLogin datetime,
     Role varchar(10),
-    gender VARCHAR(10) DEFAULT NULL;
+    Gender VARCHAR(10) DEFAULT NULL,
+    T_role ENUM('Dr', 'Prof')  DEFAULT NULL,
     PRIMARY KEY (UserID)
 );
 
@@ -26,13 +27,36 @@ CREATE TABLE Question(
   CourseTitle varchar(255),
   Week int,
   QuestionTitle varchar(255) NOT NULL,
-  Text varchar(255) NOT NULL,
+  Description varchar(255) NOT NULL,
   UploadTime datetime,
   PRIMARY KEY (QAID),
   FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
   FOREIGN KEY (MediaID) REFERENCES Media(MediaID),
   FOREIGN KEY (UserID) REFERENCES User(UserID)
 );
+
+
+CREATE TABLE Queue (
+  QueueID INT AUTO_INCREMENT PRIMARY KEY,
+  QueueType VARCHAR(1) NOT NULL,
+  CurrentQueue INT DEFAULT 0 
+);
+
+
+
+CREATE TABLE Customer_queue (
+  CusID INT AUTO_INCREMENT PRIMARY KEY,
+  UserID INT,
+  QAID INT,
+  QueueID INT,
+  Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+  Status ENUM('waiting', 'solved') NOT NULL,
+  Position INT,
+  FOREIGN KEY (UserID) REFERENCES User(UserID),
+  FOREIGN KEY (QAID) REFERENCES Question(QAID),
+  FOREIGN KEY (QueueID) REFERENCES Queue(QueueID)
+);
+
 
 CREATE TABLE Answer(
   ASID int AUTO_INCREMENT,

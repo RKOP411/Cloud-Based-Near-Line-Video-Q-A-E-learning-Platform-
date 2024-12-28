@@ -14,8 +14,6 @@ if (Email === null || Email === "") {
   router.push("/signin");
 }
 
-
-
 const body = document.getElementsByTagName("body")[0];
 
 const store = useStore();
@@ -40,8 +38,6 @@ onBeforeUnmount(() => {
   store.state.hideConfigButton = false;
   body.classList.remove("profile-overview");
 });
-
-
 </script>
 <template>
   <main>
@@ -49,7 +45,7 @@ onBeforeUnmount(() => {
       <div
         class="page-header min-height-300"
         style="
-          background-image: url('https://images.unsplash.com/photo-1531512073830-ba890ca4eba2?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+          background-image: url(&quot;https://images.unsplash.com/photo-1531512073830-ba890ca4eba2?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80&quot;);
           margin-right: -24px;
           margin-left: -34%;
         "
@@ -74,9 +70,14 @@ onBeforeUnmount(() => {
                 <p class="mb-0 font-weight-bold text-sm">Public Relations</p>
               </div>
             </div>
-            <div class="mx-auto mt-3 col-lg-4 col-md-6 my-sm-auto ms-sm-auto me-sm-0">
+            <div
+              class="mx-auto mt-3 col-lg-4 col-md-6 my-sm-auto ms-sm-auto me-sm-0"
+            >
               <div class="nav-wrapper position-relative end-0">
-                <ul class="p-1 bg-transparent nav nav-pills nav-fill" role="tablist">
+                <ul
+                  class="p-1 bg-transparent nav nav-pills nav-fill"
+                  role="tablist"
+                >
                   <li class="nav-item">
                     <a
                       class="px-0 py-1 mb-0 nav-link active"
@@ -94,7 +95,12 @@ onBeforeUnmount(() => {
                         xmlns="http://www.w3.org/2000/svg"
                         xmlns:xlink="http://www.w3.org/1999/xlink"
                       >
-                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g
+                          stroke="none"
+                          stroke-width="1"
+                          fill="none"
+                          fill-rule="evenodd"
+                        >
                           <g
                             transform="translate(-2319.000000, -291.000000)"
                             fill="#FFFFFF"
@@ -142,7 +148,12 @@ onBeforeUnmount(() => {
                         xmlns:xlink="http://www.w3.org/1999/xlink"
                       >
                         <title>document</title>
-                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g
+                          stroke="none"
+                          stroke-width="1"
+                          fill="none"
+                          fill-rule="evenodd"
+                        >
                           <g
                             transform="translate(-1870.000000, -591.000000)"
                             fill="#FFFFFF"
@@ -185,7 +196,12 @@ onBeforeUnmount(() => {
                         xmlns:xlink="http://www.w3.org/1999/xlink"
                       >
                         <title>settings</title>
-                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g
+                          stroke="none"
+                          stroke-width="1"
+                          fill="none"
+                          fill-rule="evenodd"
+                        >
                           <g
                             transform="translate(-2020.000000, -442.000000)"
                             fill="#FFFFFF"
@@ -234,34 +250,50 @@ onBeforeUnmount(() => {
                 >
               </div>
             </div>
+            <!-- User Information -->
             <div class="card-body">
               <p class="text-uppercase text-sm">User Information</p>
               <div class="row">
                 <div class="col-md-6">
-                  <label for="example-text-input" class="form-control-label"
+                    <label for="example-text-input" class="form-control-label"
                     >Username</label
-                  >
-                  <argon-input type="text" value="lucky.jesse" />
+                    >
+                    <argon-input type="text" v-model="username" />
                 </div>
                 <div class="col-md-6">
                   <label for="example-text-input" class="form-control-label"
                     >Email address</label
                   >
-                  <argon-input type="email" value="jesse@example.com" />
+                  <argon-input type="email" />
                 </div>
                 <div class="col-md-6">
                   <label for="example-text-input" class="form-control-label"
                     >First name</label
                   >
-                  <input class="form-control" type="text" value="Jesse" />
+                  <input class="form-control" type="text" />
                 </div>
                 <div class="col-md-6">
                   <label for="example-text-input" class="form-control-label"
                     >Last name</label
                   >
-                  <argon-input type="text" value="Lucky" />
+                  <argon-input type="text" />
+                </div>
+                <div class="col-md-6">
+                  <label for="example-text-input" class="form-control-label"
+                    >Gender</label
+                  >
+                  <select
+                    class="form-select"
+                    aria-label="Default select example"
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Prefer not to say</option>
+                  </select>
                 </div>
               </div>
+
+              <!-- Contact Information-->
               <hr class="horizontal dark" />
               <p class="text-uppercase text-sm">Contact Information</p>
               <div class="row">
@@ -275,7 +307,9 @@ onBeforeUnmount(() => {
                   />
                 </div>
                 <div class="col-md-4">
-                  <label for="example-text-input" class="form-control-label">City</label>
+                  <label for="example-text-input" class="form-control-label"
+                    >City</label
+                  >
                   <argon-input type="text" value="New York" />
                 </div>
                 <div class="col-md-4">
@@ -291,6 +325,7 @@ onBeforeUnmount(() => {
                   <argon-input type="text" value="437300" />
                 </div>
               </div>
+              <!-- About me-->
               <hr class="horizontal dark" />
               <p class="text-uppercase text-sm">About me</p>
               <div class="row">

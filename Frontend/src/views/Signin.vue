@@ -66,6 +66,7 @@ onBeforeUnmount(() => {
                       class="mb-3"
                       id="rememberMe"
                       name="remember-me"
+                      checked
                       >Remember me</argon-switch
                     >
                     <a href="javascript:;" class="text-primary text-gradient"

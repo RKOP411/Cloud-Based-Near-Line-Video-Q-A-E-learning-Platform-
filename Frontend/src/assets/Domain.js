@@ -1,7 +1,11 @@
 const DomainName = "http://localhost:3000/";
 
+
+//Account
 const registerDomain = DomainName + "account/register";
 const verifyEmailDomain = DomainName + "account/verifyEmail";
+
+//Forum
 const GetAllForum = DomainName + "forum/GetAllforum";
 const GetForumContentByID = DomainName + "forum/GetforumByID/";
 const GetCommentByForumID = DomainName + "forum/GetCommentByForumID/";
@@ -21,11 +25,17 @@ const CreateForum = DomainName + "forum/CreateForum";
 const CourseNumQuesstion = DomainName + "forum/CourseNumQuesstion/";
 const CreateCourse = DomainName + "forum/CreateCourse";
 const CreateForumWithVideo = DomainName + "forum/CreateForumWithVideo";
+//User
+const GetUserByEmail = DomainName + "users/GetUserByEmail/";
+
+
+
 export {
     DomainName,
     registerDomain, verifyEmailDomain,
     GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment, 
     GetAllCourses, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse,CreateForumWithVideo, 
     ForumLikes, AddLike, CheckUserLiked, DeleteLike,
-    AddCommentLike, AddCommentLike_Num, CheckUserLikedComment, DeleteCommentLike, DeleteCommentLike_Num
+    AddCommentLike, AddCommentLike_Num, CheckUserLikedComment, DeleteCommentLike, DeleteCommentLike_Num,
+    GetUserByEmail,
 };

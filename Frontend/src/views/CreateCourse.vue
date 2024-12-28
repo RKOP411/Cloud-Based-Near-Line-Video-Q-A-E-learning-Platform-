@@ -5,6 +5,9 @@
         <div class="col-md-12">
           <div class="card">
             <div class="card-header pb-0">
+              <div class="alert alert-danger" role="alert" v-if="errmsg">
+                {{ errmsg }}
+              </div>
               <div class="d-flex align-items-center">
                 <p class="mb-0">Create Chat</p>
               </div>
@@ -63,7 +66,13 @@
                 </div>
               </div>
               <hr class="horizontal dark" />
-              <button type="button" class="btn btn-success" @click="CreateCourse">Create</button>
+              <button
+                type="button"
+                class="btn btn-success"
+                @click="CreateCourse"
+              >
+                Create
+              </button>
             </div>
             <hr class="horizontal dark" />
           </div>
@@ -74,15 +83,19 @@
 </template>
 <script>
 import { ref } from "vue";
-import {
-  CreateCourse,
-} from "../assets/Domain.js";
+import { CreateCourse, GetUserByEmail } from "../assets/Domain.js";
 export default {
+  data() {
+    return {
+      errmsg: "",
+    };
+  },
   setup() {
     // Reactive variables for year and semester selection
     const selectedYear = ref("");
     const selectedSemester = ref("");
     const CourseName = ref("");
+    const email = localStorage.getItem("Email");
 
     // Array of semesters
     const semesters = ["S1", "S2", "S3", "S4", "S5"];
@@ -102,19 +115,53 @@ export default {
       selectedSemester,
       years,
       semesters,
+      email,
     };
   },
   methods: {
+    async GetUserByEmail() {
+      const response = await fetch(GetUserByEmail + this.email, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const UserData = await response.json();
+      return UserData[0];
+    },
+
     async CreateCourse() {
-      const UserName = localStorage.getItem("UserName");
+      if (
+        this.CourseName == "" ||
+        this.selectedYear == "" ||
+        this.selectedSemester == ""
+      ) {
+        this.errmsg = "Please fill all fields";
+        return;
+      }
+      const Data = await this.GetUserByEmail();
+      const UserName = Data.UserName;
+      let TeacherRank = "";
+
+      if (Data.T_rank == null) {
+        TeacherRank = "Inst";
+      } else {
+        TeacherRank = Data.T_rank;
+      }
+
       fetch(CreateCourse, {
-        method: "POST", 
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           CourseName: this.CourseName,
-          TeacherName: UserName,
+          TeacherName: TeacherRank + " " + UserName,
           Semester: this.selectedYear + " " + this.selectedSemester,
         }),
       })

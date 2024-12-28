@@ -22,8 +22,8 @@
     </div>
 
     <!-- Search Bar -->
-    <div class="d-flex p-3 mb-2">
-      <span class="input-group-text text-body ">
+    <div class="d-flex p-2 mb-1">
+      <span class="input-group-text text-body">
         <i class="fas fa-search" aria-hidden="true"></i>
       </span>
       <input type="text" class="form-control" :placeholder="'Type here...'" />
@@ -31,18 +31,39 @@
     <!-- Search Bar End-->
 
     <!-- Queue -->
-    <div class="row d-flex px-4 justify-content-between">
-      <div class="card col-5 text-center bg-success me-1">
-        <div class="card-body">
-          <h5 class="card-title">Queue</h5>
-          <p class="bg-light" style="padding: 10px">3</p>
+    <div class="container mt-1">
+      <div class="row mt-2">
+        <div class="col-md-3">
+          <div class="card queue-a text-white">
+            <div class="card-body text-center">
+              <h5 class="card-title">Lab Work</h5>
+              <p class="card-text" id="currentSizeA">Current: 5</p>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div class="card col-5 text-center bg-success me-1">
-        <div class="card-body ">
-          <h5 class="card-title">Waiting Time</h5>
-          <p class="bg-light" style="padding: 10px">03m 12s</p>
+        <div class="col-md-3">
+          <div class="card queue-b text-white">
+            <div class="card-body text-center">
+              <h5 class="card-title">Theory</h5>
+              <p class="card-text" id="currentSizeB">Current: 3</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card queue-c text-white">
+            <div class="card-body text-center">
+              <h5 class="card-title">Assessments</h5>
+              <p class="card-text" id="currentSizeC">Current: 8</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card queue-d text-white">
+            <div class="card-body text-center">
+              <h5 class="card-title">Debugging</h5>
+              <p class="card-text" id="currentSizeD">Current: 2</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -126,3 +147,17 @@
     </div>
   </div>
 </template>
+<style>
+.queue-a {
+  background-color: #28a745;
+} /* Green */
+.queue-b {
+  background-color: #17a2b8;
+} /* Teal */
+.queue-c {
+  background-color: #ffc107;
+} /* Yellow */
+.queue-d {
+  background-color: #dc3545;
+} /* Red */
+</style>
