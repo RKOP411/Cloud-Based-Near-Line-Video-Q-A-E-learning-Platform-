@@ -285,9 +285,11 @@ export default {
       const data = await response.json();
       this.items = data;
       // Replace backslashes with forward slashes
-      this.items.Path = this.items.Path.replace(/\\/g, "/");
-      const basePath = DomainName;
-      this.items.Path = basePath + this.items.Path; //The full path
+      if (this.items.Path) {
+        this.items.Path = this.items.Path.replace(/\\/g, "/");
+        const basePath = DomainName;
+        this.items.Path = basePath + this.items.Path; // The full path
+      }
       // Update the item with the formatted time
       this.items.UpdatedTime = this.Calculate_LastUpdate(
         this.items.UpdatedTime

@@ -1,8 +1,8 @@
 <template>
   <div class="card">
     <div class="card-header pb-0 px-3">
-      <h6 class="mb-0">Questions Information</h6>
-      <div class="row">
+      <!-- <h6 class="mb-0">Questions Information</h6> -->
+      <div class="row" style="background-color: #F8F8F8;">
         <div class="col-auto">
           <div class="avatar avatar-xl position-relative">
             <img
@@ -21,6 +21,51 @@
       </div>
     </div>
 
+    <!-- Queue -->
+    <div class="container mt-2">
+      <div class="row mt-4 justify-content-between">
+        <div class="col-6 col-md-3">
+          <div class="card queue-a text-white">
+            <div class="card-body text-center">
+              <h5 class="card-title">Theory</h5>
+              <p class="card-text" id="currentSizeA">Current Size: 5</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card queue-b text-white">
+            <div class="card-body text-center">
+              <h5 class="card-title">Lab Work</h5>
+              <p class="card-text" id="currentSizeB">Current Size: 3</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card queue-c text-white">
+            <div class="card-body text-center">
+              <h5 class="card-title">Debugging</h5>
+              <p class="card-text" id="currentSizeC">Current Size: 8</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card queue-d text-white">
+            <div class="card-body text-center">
+              <h5 class="card-title">Assignments</h5>
+              <p class="card-text" id="currentSizeD">Current Size: 2</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Queue End -->
+
+    <!-- Timer-->
+    <div class="mt-4 text-center" id="timerDisplay">
+      <h3>Time Remaining: <span id="timeRemaining">1:00</span> minutes</h3>
+    </div>
+    <!-- Timer End -->
+
     <!-- Search Bar -->
     <div class="d-flex p-2 mb-1">
       <span class="input-group-text text-body">
@@ -29,46 +74,16 @@
       <input type="text" class="form-control" :placeholder="'Type here...'" />
     </div>
     <!-- Search Bar End-->
-
-    <!-- Queue -->
-    <div class="container mt-5">
-      <div class="row mt-4 justify-content-between">
-      <div class="col-6 col-md-3">
-        <div class="card queue-a text-white">
-        <div class="card-body text-center">
-          <h5 class="card-title">Queue A</h5>
-          <p class="card-text" id="currentSizeA">Current Size: 5</p>
-        </div>
-        </div>
+    <div class="card-body pt-1 p-3">
+      <div class="d-flex justify-content-end">
+        <argon-button
+          type="button"
+          class="btn btn-success mb-3"
+          title="Ask Question"
+        >
+          <i class="fa fa-plus" aria-hidden="true"></i>
+        </argon-button>
       </div>
-      <div class="col-6 col-md-3">
-        <div class="card queue-b text-white">
-        <div class="card-body text-center">
-          <h5 class="card-title">Queue B</h5>
-          <p class="card-text" id="currentSizeB">Current Size: 3</p>
-        </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="card queue-c text-white">
-        <div class="card-body text-center">
-          <h5 class="card-title">Queue C</h5>
-          <p class="card-text" id="currentSizeC">Current Size: 8</p>
-        </div>
-        </div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="card queue-d text-white">
-        <div class="card-body text-center">
-          <h5 class="card-title">Queue D</h5>
-          <p class="card-text" id="currentSizeD">Current Size: 2</p>
-        </div>
-        </div>
-      </div>
-      </div>
-    </div>
-    <!-- Queue End -->
-    <div class="card-body pt-4 p-3">
       <ul class="list-group">
         <!-- List Card -->
         <li
@@ -148,8 +163,24 @@
   </div>
 </template>
 <style setup>
-.queue-a { background-color: #28a745; padding: 1px; margin-bottom: 5px;} /* Green */
-.queue-b { background-color: #17a2b8; padding: 1px; margin-bottom: 5px;} /* Teal */
-.queue-c { background-color: #ffc107; padding: 1px; margin-bottom: 5px;} /* Yellow */
-.queue-d { background-color: #dc3545; padding: 1px; margin-bottom: 5px;} /* Red */
+.queue-a {
+  background-color: #28a745 !important;
+  padding: 1px;
+  margin-bottom: 5px;
+} /* Green */
+.queue-b {
+  background-color: #17a2b8 !important;
+  padding: 1px;
+  margin-bottom: 5px;
+} /* Teal */
+.queue-c {
+  background-color: #ffc107 !important;
+  padding: 1px;
+  margin-bottom: 5px;
+} /* Yellow */
+.queue-d {
+  background-color: #dc3545 !important;
+  padding: 1px;
+  margin-bottom: 5px;
+} /* Red */
 </style>

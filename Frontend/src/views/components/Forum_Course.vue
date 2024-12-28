@@ -4,9 +4,11 @@
       <div class="d-flex align-items-center">
         <h6>Forum</h6>
         <argon-button
+          v-if="role !== 'Student'"
           type="button"
           class="btn btn-success mb-3 ms-auto"
-          @click="goToCreateCourse"
+          title="Create Course"
+            :role="role" @click="goToCreateCourse"
         >
           <i class="fa fa-plus" aria-hidden="true"></i>
         </argon-button>
@@ -87,13 +89,22 @@
   <br />
 </template>
 <script>
-import { GetAllCourses } from "../../assets/Domain.js";
+import { ref } from 'vue';
+import { GetAllCourses, GetUserByEmail } from "../../assets/Domain.js";
 
 export default {
   data() {
     return {
       items: [],
+      role: ref(""),
     };
+  },
+  setup() {
+    let Email = localStorage.getItem("Email");
+    if (Email === null || Email === "") {
+      this.$router.push("/signin");
+    }
+    return { Email };
   },
   methods: {
     async getCourse() {
@@ -106,9 +117,26 @@ export default {
     goToCreateCourse() {
       this.$router.push("/tables/createcourse");
     },
+    async GetUserRoleByEmail() {
+      const response = await fetch(GetUserByEmail + this.Email, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const UserData = await response.json();
+      return UserData[0].Role;  //Only get the Role here
+      
+    },
   },
-  mounted() {
+  async mounted() {
     this.getCourse();
+    this.role = await this.GetUserRoleByEmail();
   },
 };
 </script>
