@@ -31,40 +31,40 @@
     <!-- Search Bar End-->
 
     <!-- Queue -->
-    <div class="container mt-1">
-      <div class="row mt-2">
-        <div class="col-md-3">
-          <div class="card queue-a text-white">
-            <div class="card-body text-center">
-              <h5 class="card-title">Lab Work</h5>
-              <p class="card-text" id="currentSizeA">Current: 5</p>
-            </div>
-          </div>
+    <div class="container mt-5">
+      <div class="row mt-4 justify-content-between">
+      <div class="col-6 col-md-3">
+        <div class="card queue-a text-white">
+        <div class="card-body text-center">
+          <h5 class="card-title">Queue A</h5>
+          <p class="card-text" id="currentSizeA">Current Size: 5</p>
         </div>
-        <div class="col-md-3">
-          <div class="card queue-b text-white">
-            <div class="card-body text-center">
-              <h5 class="card-title">Theory</h5>
-              <p class="card-text" id="currentSizeB">Current: 3</p>
-            </div>
-          </div>
         </div>
-        <div class="col-md-3">
-          <div class="card queue-c text-white">
-            <div class="card-body text-center">
-              <h5 class="card-title">Assessments</h5>
-              <p class="card-text" id="currentSizeC">Current: 8</p>
-            </div>
-          </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card queue-b text-white">
+        <div class="card-body text-center">
+          <h5 class="card-title">Queue B</h5>
+          <p class="card-text" id="currentSizeB">Current Size: 3</p>
         </div>
-        <div class="col-md-3">
-          <div class="card queue-d text-white">
-            <div class="card-body text-center">
-              <h5 class="card-title">Debugging</h5>
-              <p class="card-text" id="currentSizeD">Current: 2</p>
-            </div>
-          </div>
         </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card queue-c text-white">
+        <div class="card-body text-center">
+          <h5 class="card-title">Queue C</h5>
+          <p class="card-text" id="currentSizeC">Current Size: 8</p>
+        </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card queue-d text-white">
+        <div class="card-body text-center">
+          <h5 class="card-title">Queue D</h5>
+          <p class="card-text" id="currentSizeD">Current Size: 2</p>
+        </div>
+        </div>
+      </div>
       </div>
     </div>
     <!-- Queue End -->
@@ -147,17 +147,9 @@
     </div>
   </div>
 </template>
-<style>
-.queue-a {
-  background-color: #28a745;
-} /* Green */
-.queue-b {
-  background-color: #17a2b8;
-} /* Teal */
-.queue-c {
-  background-color: #ffc107;
-} /* Yellow */
-.queue-d {
-  background-color: #dc3545;
-} /* Red */
+<style setup>
+.queue-a { background-color: #28a745; padding: 1px; margin-bottom: 5px;} /* Green */
+.queue-b { background-color: #17a2b8; padding: 1px; margin-bottom: 5px;} /* Teal */
+.queue-c { background-color: #ffc107; padding: 1px; margin-bottom: 5px;} /* Yellow */
+.queue-d { background-color: #dc3545; padding: 1px; margin-bottom: 5px;} /* Red */
 </style>
