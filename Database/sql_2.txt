@@ -24,7 +24,6 @@ CREATE TABLE Question(
   UserID int,
   MediaID int,
   CourseID int,
-  CourseTitle varchar(255),
   Week int,
   QuestionTitle varchar(255) NOT NULL,
   Description varchar(255) NOT NULL,

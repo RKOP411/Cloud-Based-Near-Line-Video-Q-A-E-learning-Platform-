@@ -1,8 +1,22 @@
 <template>
   <div class="card">
+    <!-- Course Information-->
+    <div class="row align-items-center">
+      <div class="col">
+        <h5 style="margin-left: 20px; font-size: x-large">Course Name</h5>
+      </div>
+      <div class="col-auto" style="margin-right: 20px">
+        <select class="form-select" aria-label="Select Week">
+          <option selected>Select Week</option>
+          <option value="1">Week 1</option>
+          <option value="2">Week 2</option>
+          <option value="3">Week 3</option>
+        </select>
+      </div>
+    </div>
+    <!-- Course Information End-->
     <div class="card-header pb-0 px-3">
-      <!-- <h6 class="mb-0">Questions Information</h6> -->
-      <div class="row" style="background-color: #F8F8F8;">
+      <div class="row" style="background-color: #f8f8f8">
         <div class="col-auto">
           <div class="avatar avatar-xl position-relative">
             <img
@@ -86,20 +100,21 @@
       </div>
       <ul class="list-group">
         <!-- List Card -->
+
         <li
+          v-for="question in questions"
+          :key="question.id"
           class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
         >
           <div class="d-flex flex-column">
-            <h6 class="mb-3 text-sm">You</h6>
+            <h6 class="mb-3 text-sm">{{ question.UserName }}</h6>
             <span class="mb-2 text-xs">
               Type:
-              <span class="text-dark font-weight-bold ms-sm-2">Theory</span>
+              <span class="text-dark font-weight-bold ms-sm-2">{{ question.type }}</span>
             </span>
             <span class="mb-2 text-xs">
               Description:
-              <span class="text-dark ms-sm-2 font-weight-bold"
-                >Why is the vertex cover problem classified as NP-hard?</span
-              >
+              <span class="text-dark ms-sm-2 font-weight-bold">{{ question.QuestionTitle }}</span>
             </span>
           </div>
           <div class="ms-auto text-end d-flex">
@@ -109,59 +124,36 @@
           </div>
         </li>
         <!--End of List Card -->
-
-        <li
-          class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg"
-        >
-          <div class="d-flex flex-column">
-            <h6 class="mb-3 text-sm">Lucas Harper</h6>
-            <span class="mb-2 text-xs">
-              Type:
-              <span class="text-dark font-weight-bold ms-sm-2">Theory</span>
-            </span>
-            <span class="mb-2 text-xs">
-              Description:
-              <span class="text-dark ms-sm-2 font-weight-bold"
-                >How can the Max-Flow Min-Cut Theorem be applied to solve
-                real-world problems?</span
-              >
-            </span>
-          </div>
-          <div class="ms-auto text-end d-flex">
-            <br />
-            <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;">
-              <i class="fa fa-eye text-dark me-2" aria-hidden="true"></i>
-            </a>
-          </div>
-        </li>
-        <li
-          class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg"
-        >
-          <div class="d-flex flex-column">
-            <h6 class="mb-3 text-sm">Ethan James</h6>
-            <span class="mb-2 text-xs">
-              Type:
-              <span class="text-dark font-weight-bold ms-sm-2">Debug</span>
-            </span>
-            <span class="mb-2 text-xs">
-              Description:
-              <span class="text-dark ms-sm-2 font-weight-bold"
-                >When implementing a depth-first search (DFS) algorithm, the
-                graph is disconnected, and the algorithm won't visit all
-                nodes</span
-              >
-            </span>
-          </div>
-          <div class="ms-auto text-end d-flex">
-            <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;">
-              <i class="fa fa-eye text-dark me-2" aria-hidden="true"></i>
-            </a>
-          </div>
-        </li>
       </ul>
     </div>
   </div>
 </template>
+<script>
+import { GetAllQuestion } from "../../assets/Domain.js";
+
+export default {
+  data() {
+    return {
+      questions: [],
+    };
+  },
+  methods: {
+    async getQuestions() {
+      fetch(GetAllQuestion)
+        .then((response) => response.json())
+        .then((data) => {
+          this.questions = data;
+          console.log(this.questions);
+          console.log(data);
+        });
+    },
+  },
+  mounted() {
+    this.getQuestions();
+  },
+};
+</script>
+
 <style setup>
 .queue-a {
   background-color: #28a745 !important;

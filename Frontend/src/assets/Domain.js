@@ -28,6 +28,10 @@ const CreateForumWithVideo = DomainName + "forum/CreateForumWithVideo";
 //User
 const GetUserByEmail = DomainName + "users/GetUserByEmail/";
 
+//Question
+const GetAllQuestion = DomainName + "qa/GetAllQuestion/";
+
+
 
 
 export {
@@ -37,5 +41,5 @@ export {
     GetAllCourses, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse,CreateForumWithVideo, 
     ForumLikes, AddLike, CheckUserLiked, DeleteLike,
     AddCommentLike, AddCommentLike_Num, CheckUserLikedComment, DeleteCommentLike, DeleteCommentLike_Num,
-    GetUserByEmail,
+    GetUserByEmail, GetAllQuestion,
 };

@@ -20,7 +20,6 @@ import Configurator from "@/examples/Configurator.vue";
 import Navbar from "@/examples/Navbars/Navbar.vue";
 import AppFooter from "@/examples/Footer.vue";
 
-
 const store = useStore();
 const isNavFixed = computed(() => store.state.isNavFixed);
 const darkMode = computed(() => store.state.darkMode);
@@ -45,19 +44,34 @@ const navClasses = computed(() => {
 });
 </script>
 <template>
-  <div v-show="layout === 'landing'" class="landing-bg h-100 bg-gradient-primary position-fixed w-100"></div>
+  <div class="progress" id="loadingBar">  </div>
+    <div
+      v-show="layout === 'landing'"
+      class="landing-bg h-100 bg-gradient-primary position-fixed w-100"
+    ></div>
 
-  <sidenav v-if="showSidenav" />
+    <sidenav v-if="showSidenav" />
 
-  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
-    <!-- nav -->
+    <main
+      class="main-content position-relative max-height-vh-100 h-100 border-radius-lg"
+    >
+      <!-- nav -->
 
-    <navbar :class="[navClasses]" v-if="showNavbar" />
+      <navbar :class="[navClasses]" v-if="showNavbar" />
 
-    <router-view />
+      <router-view />
 
-    <app-footer v-show="showFooter" />
+      <app-footer v-show="showFooter" />
 
-    <configurator :toggle="toggleConfigurator" :class="[showConfig ? 'show' : '', hideConfigButton ? 'd-none' : '']" />
-  </main>
+      <configurator
+        :toggle="toggleConfigurator"
+        :class="[showConfig ? 'show' : '', hideConfigButton ? 'd-none' : '']"
+      />
+    </main>
 </template>
+<style setup>
+#loadingBar {
+  height: 1px; /* Height of the loading bar */
+
+}
+</style>
