@@ -25,9 +25,12 @@ CREATE TABLE Question(
   MediaID int,
   CourseID int,
   Week int,
+  Total_week INT DEFAULT 12;
   QuestionTitle varchar(255) NOT NULL,
   Description varchar(255) NOT NULL,
   UploadTime datetime,
+  Replied TINYINT NOT NULL,
+  Checking TINYINT NOT NULL,
   PRIMARY KEY (QAID),
   FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
   FOREIGN KEY (MediaID) REFERENCES Media(MediaID),

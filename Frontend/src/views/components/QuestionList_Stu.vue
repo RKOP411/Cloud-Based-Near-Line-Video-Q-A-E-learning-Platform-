@@ -1,17 +1,12 @@
 <template>
   <div class="card">
     <!-- Course Information-->
-    <div class="row align-items-center">
+    <div class="row align-items-center" style="margin-top: 10px">
       <div class="col">
         <h5 style="margin-left: 20px; font-size: x-large">Course Name</h5>
       </div>
       <div class="col-auto" style="margin-right: 20px">
-        <select class="form-select" aria-label="Select Week">
-          <option selected>Select Week</option>
-          <option value="1">Week 1</option>
-          <option value="2">Week 2</option>
-          <option value="3">Week 3</option>
-        </select>
+        Week
       </div>
     </div>
     <!-- Course Information End-->
@@ -94,27 +89,36 @@
           type="button"
           class="btn btn-success mb-3"
           title="Ask Question"
+          @click="redirectToCreateQuestion()"
         >
           <i class="fa fa-plus" aria-hidden="true"></i>
         </argon-button>
       </div>
       <ul class="list-group">
         <!-- List Card -->
-
+         
         <li
           v-for="question in questions"
           :key="question.id"
           class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
         >
           <div class="d-flex flex-column">
-            <h6 class="mb-3 text-sm">{{ question.UserName }}</h6>
-            <span class="mb-2 text-xs">
+            <h6 class="mb-3 text-sm question-header">
+              {{ question.UserName }} . {{ question.UploadTime }}
+            </h6>
+            <h5 class="mb-1 question-title">
+              {{ question.QuestionTitle }}
+            </h5>
+            <span class="mb-3 text-xs">
               Type:
-              <span class="text-dark font-weight-bold ms-sm-2">{{ question.type }}</span>
+              <span class="text-dark font-weight-bold ms-sm-2 question-type">{{
+                question.Type
+              }}</span>
             </span>
-            <span class="mb-2 text-xs">
-              Description:
-              <span class="text-dark ms-sm-2 font-weight-bold">{{ question.QuestionTitle }}</span>
+            <span class="mb-2 text-xs question-description">
+              <span class="text-dark ms-sm-1 font-weight-bold">{{
+                question.Description
+              }}</span>
             </span>
           </div>
           <div class="ms-auto text-end d-flex">
@@ -123,6 +127,7 @@
             </a>
           </div>
         </li>
+
         <!--End of List Card -->
       </ul>
     </div>
@@ -138,14 +143,54 @@ export default {
     };
   },
   methods: {
+    redirectToCreateQuestion() {
+      this.$router.push("/questionlist/createquestion");
+    },
     async getQuestions() {
       fetch(GetAllQuestion)
         .then((response) => response.json())
         .then((data) => {
+          for (let i = 0; i < data.length; i++) {
+            data[i].UploadTime = this.Calculate_LastUpdate(data[i].UploadTime);
+          }
           this.questions = data;
-          console.log(this.questions);
           console.log(data);
         });
+    },
+    Calculate_LastUpdate(time) {
+      let date = new Date(time);
+      let currentDate = new Date();
+      let timeDifference = currentDate - date;
+
+      // Calculate the time differences in various units
+      let seconds = Math.floor(timeDifference / 1000);
+      let minutes = Math.floor(seconds / 60);
+      let hours = Math.floor(minutes / 60);
+      let days = Math.floor(hours / 24);
+      let weeks = Math.floor(days / 7);
+      let months = Math.floor(days / 30); // Approximation
+      let years = Math.floor(days / 365); // Approximation
+      // Determine the appropriate time unit to display
+      let lastUpdatedTime;
+      if (years > 0) {
+        lastUpdatedTime = years + " year" + (years === 1 ? "" : "s") + " ago";
+      } else if (months > 0) {
+        lastUpdatedTime =
+          months + " month" + (months === 1 ? "" : "s") + " ago";
+      } else if (weeks > 0) {
+        lastUpdatedTime = weeks + " week" + (weeks === 1 ? "" : "s") + " ago";
+      } else if (days > 0) {
+        lastUpdatedTime = days + " day" + (days === 1 ? "" : "s") + " ago";
+      } else if (hours > 0) {
+        lastUpdatedTime = hours + " hour" + (hours === 1 ? "" : "s") + " ago";
+      } else if (minutes > 0) {
+        lastUpdatedTime =
+          minutes + " minute" + (minutes === 1 ? "" : "s") + " ago";
+      } else {
+        lastUpdatedTime = "Just now";
+      }
+
+      return lastUpdatedTime;
     },
   },
   mounted() {

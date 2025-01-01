@@ -3,7 +3,7 @@
     <div class="card-header pb-0">
       <div class="d-flex align-items-center">
         <h6>Forum</h6>
-        <argon-button type="button" class="btn btn-success mb-3 ms-auto" @click="redirectToCreateForum()">
+        <argon-button title="Create Forum" type="button" class="btn btn-success mb-3 ms-auto" @click="redirectToCreateForum()">
           <i class="fa fa-plus" aria-hidden="true"></i>
         </argon-button>
       </div>

@@ -14,15 +14,18 @@ router.get('/GetAllQuestion', async function (req, res, next) {
         const connection = await connectToDB();
 
         const sql = `
-            SELECT 
-                q.*, 
-                u.UserName 
-            FROM 
-                Question q
-            JOIN 
-                User u ON q.UserID = u.UserID
-            `;
-
+        SELECT 
+            q.*, 
+            u.UserName 
+        FROM 
+            Question q
+        JOIN 
+            User u ON q.UserID = u.UserID
+        WHERE 
+            q.Replied = 0
+        ORDER BY 
+            q.UploadTime
+    `;
         connection.query(sql, (err, results) => {
             if (err) {
                 console.error('Error getting courses:', err);
