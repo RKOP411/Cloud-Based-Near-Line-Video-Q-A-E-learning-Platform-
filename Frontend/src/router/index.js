@@ -35,7 +35,7 @@ const routes = [
   },
   {
     path: "/tables",
-    name: "Forum Tables",
+    name: "Coruse Tables",
     component: Tables,
   },
   {

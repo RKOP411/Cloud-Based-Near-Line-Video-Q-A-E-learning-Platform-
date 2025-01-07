@@ -24,6 +24,7 @@ CREATE TABLE Question(
   UserID int,
   MediaID int,
   CourseID int,
+  CusID int,
   Week int,
   Total_week INT DEFAULT 12;
   QuestionTitle varchar(255) NOT NULL,
@@ -34,14 +35,8 @@ CREATE TABLE Question(
   PRIMARY KEY (QAID),
   FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
   FOREIGN KEY (MediaID) REFERENCES Media(MediaID),
-  FOREIGN KEY (UserID) REFERENCES User(UserID)
-);
-
-
-CREATE TABLE Queue (
-  QueueID INT AUTO_INCREMENT PRIMARY KEY,
-  QueueType VARCHAR(1) NOT NULL,
-  CurrentQueue INT DEFAULT 0 
+  FOREIGN KEY (UserID) REFERENCES User(UserID),
+  FOREIGN KEY (CusID) REFERENCES Customer_queue(CusID)
 );
 
 
@@ -57,6 +52,14 @@ CREATE TABLE Customer_queue (
   FOREIGN KEY (UserID) REFERENCES User(UserID),
   FOREIGN KEY (QAID) REFERENCES Question(QAID),
   FOREIGN KEY (QueueID) REFERENCES Queue(QueueID)
+);
+
+
+
+CREATE TABLE Queue (
+  QueueID INT AUTO_INCREMENT PRIMARY KEY,
+  QueueType VARCHAR(1) NOT NULL,
+  CurrentQueue INT DEFAULT 0 
 );
 
 

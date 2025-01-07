@@ -9,13 +9,23 @@
                 {{ errmsg }}
               </div>
               <div class="d-flex align-items-center">
-                <p class="mb-0">Create Chat</p>
+                <p class="mb-0">Create Course</p>
               </div>
             </div>
             <div class="card-body">
-              <p class="text-uppercase text-sm">Chat Information</p>
+              <p class="text-uppercase text-sm">Course Information</p>
               <div class="row">
                 <div class="col-md-9 mb-3">
+                  <label for="example-text-input" class="form-control-label"
+                    >Course ID *</label
+                  >
+                  <input
+                    class="form-control"
+                    type="text"
+                    value=""
+                    placeholder="eg  COMP1234"
+                    v-model="CourseID"
+                  />
                   <label for="example-text-input" class="form-control-label"
                     >Course Name *</label
                   >
@@ -23,7 +33,7 @@
                     class="form-control"
                     type="text"
                     value=""
-                    placeholder="Input your Chat Gruop Name..."
+                    placeholder="Input your Course Name..."
                     v-model="CourseName"
                   />
                 </div>
@@ -95,6 +105,7 @@ export default {
     const selectedYear = ref("");
     const selectedSemester = ref("");
     const CourseName = ref("");
+    const CourseID = ref("");
     const email = localStorage.getItem("Email");
 
     // Array of semesters
@@ -110,6 +121,7 @@ export default {
     const years = ref(getYears());
 
     return {
+      CourseID,
       CourseName,
       selectedYear,
       selectedSemester,
@@ -139,11 +151,18 @@ export default {
       if (
         this.CourseName == "" ||
         this.selectedYear == "" ||
-        this.selectedSemester == ""
+        this.selectedSemester == "" ||
+        this.CourseID == ""
       ) {
         this.errmsg = "Please fill all fields";
         return;
       }
+      const courseIdPattern = /^[A-Za-z]{1,6}\d{1,6}$/;
+      if (!courseIdPattern.test(this.CourseID)) {
+        this.errmsg = "Course ID must be 1-6 characters followed by 1-6 numbers, e.g., COMP4110";
+        return;
+      }
+      this.CourseID = this.CourseID.toUpperCase();
       const Data = await this.GetUserByEmail();
       const UserName = Data.UserName;
       let TeacherRank = "";
@@ -160,7 +179,7 @@ export default {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          CourseName: this.CourseName,
+          CourseName: this.CourseID +" "+this.CourseName,
           TeacherName: TeacherRank + " " + UserName,
           Semester: this.selectedYear + " " + this.selectedSemester,
         }),

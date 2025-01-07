@@ -51,27 +51,42 @@
         </div>
       </div>
       <!-- Queue End -->
+      <br />
 
       <ul class="list-group">
         <!-- List Card -->
+
         <li
+          v-for="question in questions"
+          :key="question.id"
           class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
         >
           <div class="d-flex flex-column">
-            <h6 class="mb-3 text-sm">Oliver Liam</h6>
-            <span class="mb-2 text-xs">
+            <h6 class="mb-3 text-sm question-header">
+              {{ question.UserName }} . {{ question.UploadTime }}
+            </h6>
+            <h5 class="mb-1 question-title">
+              {{ question.QuestionTitle }}
+            </h5>
+            <span class="mb-3 text-xs">
               Type:
-              <span class="text-dark font-weight-bold ms-sm-2">Theory</span>
+              <span class="text-dark font-weight-bold ms-sm-2 question-type">{{
+                question.Type
+              }}</span>
             </span>
-            <span class="mb-2 text-xs">
-              Description:
-              <span class="text-dark ms-sm-2 font-weight-bold"
-                >Why is the vertex cover problem classified as NP-hard?</span
-              >
-            </span>
-            <span class="mb-2 text-xs">
-              Question Time:
-              <span class="text-dark font-weight-bold ms-sm-2">3 min. ago</span>
+            <span class="mb-2 text-xs question-description">
+              <span class="text-dark ms-sm-1 font-weight-bold">{{
+                question.Description
+              }}</span>
+              <br/>
+              <br/>
+              <!-- CommentAnswer -->
+              <div class="oval-surround">
+                <a class="btn btn-link text-dark px-2 mb-1" href="javascript:;">
+                  <i class="fa fa-comment" aria-hidden="true"></i>
+                </a>
+              </div>
+              <!-- End of CommentAnswer -->
             </span>
           </div>
           <div class="ms-auto text-end d-flex">
@@ -81,92 +96,95 @@
             >
               <i class="far fa-trash-alt me-2" aria-hidden="true"></i>
             </a>
-            <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;">
-              <i class="fa fa-comment" aria-hidden="true"></i>
-            </a>
           </div>
         </li>
-        <!--End of List Card -->
 
-        <li
-          class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg"
-        >
-          <div class="d-flex flex-column">
-            <h6 class="mb-3 text-sm">Lucas Harper</h6>
-            <span class="mb-2 text-xs">
-              Type:
-              <span class="text-dark font-weight-bold ms-sm-2">Theory</span>
-            </span>
-            <span class="mb-2 text-xs">
-              Description:
-              <span class="text-dark ms-sm-2 font-weight-bold"
-                >How can the Max-Flow Min-Cut Theorem be applied to solve
-                real-world problems?</span
-              >
-            </span>
-            <span class="mb-2 text-xs">
-              Question Time:
-              <span class="text-dark font-weight-bold ms-sm-2"
-                >20 min. ago</span
-              >
-            </span>
-          </div>
-          <div class="ms-auto text-end d-flex">
-            <a
-              class="btn btn-link text-danger text-gradient px-3 mb-0"
-              href="javascript:;"
-            >
-              <i class="far fa-trash-alt me-2" aria-hidden="true"></i>
-            </a>
-            <br />
-            <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;">
-              <i class="fa fa-comment" aria-hidden="true"></i>
-            </a>
-          </div>
-        </li>
-        <li
-          class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg"
-        >
-          <div class="d-flex flex-column">
-            <h6 class="mb-3 text-sm">Ethan James</h6>
-            <span class="mb-2 text-xs">
-              Type:
-              <span class="text-dark font-weight-bold ms-sm-2">Debug</span>
-            </span>
-            <span class="mb-2 text-xs">
-              Description:
-              <span class="text-dark ms-sm-2 font-weight-bold"
-                >When implementing a depth-first search (DFS) algorithm, the
-                graph is disconnected, and the algorithm won't visit all
-                nodes</span
-              >
-            </span>
-            <span class="mb-2 text-xs">
-              Question Time:
-              <span class="text-dark font-weight-bold ms-sm-2">1 hr. ago</span>
-            </span>
-            <a href="#">
-              <span class="text-primary font-weight-bold ms-sm-2">View</span>
-            </a>
-          </div>
-          <div class="ms-auto text-end d-flex">
-            <a
-              class="btn btn-link text-danger text-gradient px-3 mb-0"
-              href="javascript:;"
-            >
-              <i class="far fa-trash-alt me-2" aria-hidden="true"></i>
-            </a>
-            <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;">
-              <i class="fa fa-comment" aria-hidden="true"></i>
-            </a>
-          </div>
-        </li>
+        <!--End of List Card -->
       </ul>
     </div>
   </div>
 </template>
 
+<script>
+import { GetAllQuestion } from "../../assets/Domain.js";
+
+export default {
+  data() {
+    return {
+      questions: [],
+    };
+  },
+  methods: {
+    redirectToCreateQuestion() {
+      this.$router.push("/questionlist/createquestion");
+    },
+    async getQuestions() {
+      fetch(GetAllQuestion)
+        .then((response) => response.json())
+        .then((data) => {
+          for (let i = 0; i < data.length; i++) {
+            data[i].UploadTime = this.Calculate_LastUpdate(data[i].UploadTime);
+          }
+          this.questions = data;
+          console.log(data);
+        });
+    },
+    Calculate_LastUpdate(time) {
+      let date = new Date(time);
+      let currentDate = new Date();
+      let timeDifference = currentDate - date;
+
+      // Calculate the time differences in various units
+      let seconds = Math.floor(timeDifference / 1000);
+      let minutes = Math.floor(seconds / 60);
+      let hours = Math.floor(minutes / 60);
+      let days = Math.floor(hours / 24);
+      let weeks = Math.floor(days / 7);
+      let months = Math.floor(days / 30); // Approximation
+      let years = Math.floor(days / 365); // Approximation
+      // Determine the appropriate time unit to display
+      let lastUpdatedTime;
+      if (years > 0) {
+        lastUpdatedTime = years + " year" + (years === 1 ? "" : "s") + " ago";
+      } else if (months > 0) {
+        lastUpdatedTime =
+          months + " month" + (months === 1 ? "" : "s") + " ago";
+      } else if (weeks > 0) {
+        lastUpdatedTime = weeks + " week" + (weeks === 1 ? "" : "s") + " ago";
+      } else if (days > 0) {
+        lastUpdatedTime = days + " day" + (days === 1 ? "" : "s") + " ago";
+      } else if (hours > 0) {
+        lastUpdatedTime = hours + " hour" + (hours === 1 ? "" : "s") + " ago";
+      } else if (minutes > 0) {
+        lastUpdatedTime =
+          minutes + " minute" + (minutes === 1 ? "" : "s") + " ago";
+      } else {
+        lastUpdatedTime = "Just now";
+      }
+
+      return lastUpdatedTime;
+    },
+  },
+  mounted() {
+    this.getQuestions();
+  },
+};
+</script>
+
 <style scoped>
+.oval-surround {
+  display: inline-flex; /* Allows for proper alignment */
+  align-items: center; /* Vertically centers the icon */
+  justify-content: center; /* Horizontally centers the icon */
+  width: 50px; /* Adjust width as needed */
+  height: 30px; /* Adjust height as needed */
+  border-radius: 50px; /* Creates the oval shape */
+  background-color: #f0f0f0; /* Background color of the oval */
+  padding: 5px; /* Add some padding */
+}
+.oval-surround i {
+  font-size: 22px; /* ICON font size */
+}
 .input-group {
   margin-left: 16px;
   width: auto;

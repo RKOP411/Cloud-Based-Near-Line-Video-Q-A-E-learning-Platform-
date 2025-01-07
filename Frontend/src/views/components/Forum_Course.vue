@@ -2,7 +2,7 @@
   <div class="card">
     <div class="card-header pb-0">
       <div class="d-flex align-items-center">
-        <h6>Forum</h6>
+        <h6>Course</h6>
         <argon-button
           v-if="role !== 'Student'"
           type="button"
