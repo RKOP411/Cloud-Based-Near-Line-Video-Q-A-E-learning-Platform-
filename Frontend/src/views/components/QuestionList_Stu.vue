@@ -131,8 +131,9 @@
                 ></p>
               </div>
             </div>
-            <!-- Question Content End -->
           </div>
+          <!-- Question Content End -->
+
           <div class="ms-auto text-end d-flex">
             <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;">
               <i class="fa fa-eye text-dark me-2" aria-hidden="true"></i>

@@ -75,11 +75,25 @@
               }}</span>
             </span>
             <span class="mb-2 text-xs question-description">
-              <span class="text-dark ms-sm-1 font-weight-bold">{{
-                question.Description
-              }}</span>
-              <br/>
-              <br/>
+              <!-- Question Content-->
+              <div
+                class="row justify-content-center"
+                v-if="question.Path !== null"
+              >
+                <video v-if="question.Path" controls id="QuestionVideo">
+                  <source :src="question.Path" :type="question.Video_Type" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <div v-else>
+                <p
+                  class="card-text"
+                  v-html="sanitize(question.Description)"
+                ></p>
+              </div>
+              <!-- Question Content End -->
+              <br />
+              <br />
               <!-- CommentAnswer -->
               <div class="oval-surround">
                 <a class="btn btn-link text-dark px-2 mb-1" href="javascript:;">
@@ -106,8 +120,9 @@
 </template>
 
 <script>
-import { GetAllQuestion } from "../../assets/Domain.js";
-
+import { GetAllQuestion, DomainName } from "../../assets/Domain.js";
+import DOMPurify from "dompurify";
+const userId = localStorage.getItem("UserID");
 export default {
   data() {
     return {
@@ -126,9 +141,28 @@ export default {
             data[i].UploadTime = this.Calculate_LastUpdate(data[i].UploadTime);
           }
           this.questions = data;
-          console.log(data);
+
+          for (let i = 0; i < this.questions.length; i++) {
+            console.log(this.questions[i].QAID);
+            if (this.questions[i].UserID == userId) {
+              this.questions[i].UserName = "You";
+            }
+            // Replace backslashes with forward slashes
+            if (this.questions[i].Path) {
+              this.questions[i].Path = this.questions[i].Path.replace(
+                /\\/g,
+                "/"
+              );
+              const basePath = DomainName;
+              this.questions[i].Path = basePath + this.questions[i].Path; // The full path
+            }
+          }
         });
     },
+    sanitize(commentHtml) {
+      return DOMPurify.sanitize(commentHtml);
+    },
+
     Calculate_LastUpdate(time) {
       let date = new Date(time);
       let currentDate = new Date();
