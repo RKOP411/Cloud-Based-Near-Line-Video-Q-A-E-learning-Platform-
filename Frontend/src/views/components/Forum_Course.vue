@@ -138,6 +138,7 @@ export default {
     this.getCourse();
     this.role = await this.GetUserRoleByEmail();
   },
+  
 };
 </script>
 <style>

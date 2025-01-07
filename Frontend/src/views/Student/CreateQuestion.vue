@@ -7,8 +7,13 @@
             <div class="card-header pb-0">
               <div class="d-flex align-items-center">
                 <a href="/questionlist"
-                    ><i class="fa fa-arrow-left backArr" aria-hidden="true" style="font-size:1.5ch;"></i
-                  ></a> <p class="mb-0">Create Question</p>
+                  ><i
+                    class="fa fa-arrow-left backArr"
+                    aria-hidden="true"
+                    style="font-size: 1.5ch"
+                  ></i
+                ></a>
+                <p class="mb-0">Create Question</p>
               </div>
             </div>
             <div class="card-body">
@@ -40,13 +45,17 @@
                     class="form-control"
                     type="text"
                     placeholder="Title *"
-                    v-model="ForumTitle"
+                    v-model="QuestionTitle"
                   />
                 </div>
                 <!-- Type Selete Bar-->
                 <div class="col-md-9 mb-4">
                   <label class="form-control-label">Question Type</label>
-                  <select class="form-select" aria-label="Select Week">
+                  <select
+                    class="form-select"
+                    aria-label="Select Week"
+                    v-model="type"
+                  >
                     <option value="theory" selected>Theory</option>
                     <option value="lab-work">Lab Work</option>
                     <option value="debugging">Debugging</option>
@@ -86,7 +95,7 @@
               <button
                 type="button"
                 class="btn btn-success"
-                @click="IsText ? CreateForum() : CreateForumVideo()"
+                @click="IsText ? AddQuestion() : AddQuestionVideo()"
               >
                 Send
               </button>
@@ -104,15 +113,18 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Quill from "quill";
 import "quill/dist/quill.snow.css"; // Import Quill's CSS
+import { CreateQuestion, CreateQuestionWithVideo } from "../../assets/Domain.js";
 
 export default {
   setup() {
     const router = useRouter();
     const Email = localStorage.getItem("Email");
-    const ForumTitle = ref("");
+    const QuestionTitle = ref("");
     const quill = ref(null);
     const IsVideo = ref(false);
     const IsText = ref(true);
+    const type = ref("theory");
+    const userId = localStorage.getItem("UserID");
     let videoFile = null;
     const initQuill = () => {
       quill.value = new Quill(document.querySelector(".quill-editor"), {
@@ -133,6 +145,54 @@ export default {
       console.log(videoFile);
     };
 
+    const AddQuestion = async () => {
+      const formData = new FormData();
+      console.log(formData);
+      const response = await fetch(CreateQuestion, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          QuestionTitle: QuestionTitle.value,
+          Description: quill.value.root.innerHTML,
+          Type: type.value,
+          UserID: userId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      console.log(data);
+      router.push("/questionlist");
+    };
+
+    const AddQuestionVideo = async () => {
+      const formData = new FormData();
+      formData.append("QuestionTitle", QuestionTitle.value);
+      formData.append("Type", type.value);
+      formData.append("UserID", userId);
+      formData.append("Description", null); // No description for video questions
+      if (videoFile) {
+          formData.append("video", videoFile);
+        }
+      const response = await fetch(CreateQuestionWithVideo, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      console.log(data);
+      router.push("/questionlist");
+    };
+
     // Check for user authentication and initialize Quill on mount
     onMounted(() => {
       if (!Email) {
@@ -142,12 +202,14 @@ export default {
     });
 
     return {
-      ForumTitle,
+      QuestionTitle,
       videoFile,
       IsVideo,
       IsText,
       handleFileUpload,
       initQuill,
+      AddQuestion,
+      AddQuestionVideo,
     };
   },
   methods: {
@@ -159,6 +221,7 @@ export default {
       this.IsVideo = false;
       this.IsText = true;
     },
+
   },
   // Initialize Quill when IsText becomes true
   watch: {

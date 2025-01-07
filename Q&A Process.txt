@@ -1,4 +1,2 @@
-1. Scan QR code / Input Code
-
-2. questionlist
-
+Debug
+If img too large, cannot create ,, error 413

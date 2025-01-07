@@ -5,9 +5,7 @@
       <div class="col">
         <h5 style="margin-left: 20px; font-size: x-large">Course Name</h5>
       </div>
-      <div class="col-auto" style="margin-right: 20px">
-        Week
-      </div>
+      <div class="col-auto" style="margin-right: 20px">Week</div>
     </div>
     <!-- Course Information End-->
     <div class="card-header pb-0 px-3">
@@ -96,7 +94,7 @@
       </div>
       <ul class="list-group">
         <!-- List Card -->
-         
+
         <li
           v-for="question in questions"
           :key="question.id"
@@ -115,11 +113,25 @@
                 question.Type
               }}</span>
             </span>
-            <span class="mb-2 text-xs question-description">
-              <span class="text-dark ms-sm-1 font-weight-bold">{{
-                question.Description
-              }}</span>
-            </span>
+            <!-- Question Content-->
+            <div>
+              <div
+                class="row justify-content-center"
+                v-if="question.Path !== null"
+              >
+                <video v-if="question.Path" controls id="QuestionVideo">
+                  <source :src="question.Path" :type="question.Video_Type" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <div v-else>
+                <p
+                  class="card-text"
+                  v-html="sanitize(question.Description)"
+                ></p>
+              </div>
+            </div>
+            <!-- Question Content End -->
           </div>
           <div class="ms-auto text-end d-flex">
             <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;">
@@ -134,8 +146,9 @@
   </div>
 </template>
 <script>
-import { GetAllQuestion } from "../../assets/Domain.js";
-
+import { GetAllQuestion, DomainName } from "../../assets/Domain.js";
+import DOMPurify from "dompurify";
+const userId = localStorage.getItem("UserID");
 export default {
   data() {
     return {
@@ -154,9 +167,28 @@ export default {
             data[i].UploadTime = this.Calculate_LastUpdate(data[i].UploadTime);
           }
           this.questions = data;
-          console.log(data);
+
+          for (let i = 0; i < this.questions.length; i++) {
+            console.log(this.questions[i].QAID);
+            if (this.questions[i].UserID == userId) {
+              this.questions[i].UserName = "You";
+            }
+            // Replace backslashes with forward slashes
+            if (this.questions[i].Path) {
+              this.questions[i].Path = this.questions[i].Path.replace(
+                /\\/g,
+                "/"
+              );
+              const basePath = DomainName;
+              this.questions[i].Path = basePath + this.questions[i].Path; // The full path
+            }
+          }
         });
     },
+    sanitize(commentHtml) {
+      return DOMPurify.sanitize(commentHtml);
+    },
+
     Calculate_LastUpdate(time) {
       let date = new Date(time);
       let currentDate = new Date();

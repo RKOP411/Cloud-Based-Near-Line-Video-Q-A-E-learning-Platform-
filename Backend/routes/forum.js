@@ -509,7 +509,7 @@ router.post('/CreateForumWithVideo', async function (req, res, next) {
             const connection = await connectToDB();
 
             // Step 1: Insert media details into the Media table
-            const sql1 = `INSERT INTO Media (UserID, Type, Title, UploadDate, Path) VALUES (?, ?, ?, NOW(), ?)`;
+            const sql1 = `INSERT INTO Media (UserID, Video_Type, Title, UploadDate, Path) VALUES (?, ?, ?, NOW(), ?)`;
             connection.query(sql1, [UserID, VidoType, VideoTitle, VideoPath]);
 
             //Step 2: Retrieve the latest MediaID for the user and title

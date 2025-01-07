@@ -28,8 +28,9 @@ CREATE TABLE Question(
   Week int,
   Total_week INT DEFAULT 12;
   QuestionTitle varchar(255) NOT NULL,
-  Description varchar(255) NOT NULL,
+  Description text NOT NULL,
   UploadTime datetime,
+  Type varchar(20) NOT NULL,
   Replied TINYINT NOT NULL,
   Checking TINYINT NOT NULL,
   PRIMARY KEY (QAID),
@@ -80,7 +81,7 @@ CREATE TABLE Forum (
     UserID int,
     CourseID int,
     ForumTitle varchar(100) NOT NULL,
-    Description varchar(255),
+    Description longtext,
     ForumType ENUM('Private', 'Group'),
     UpdatedTime datetime,
     LastUpdated datetime,
@@ -127,7 +128,7 @@ CREATE TABLE CommentLikes (
 CREATE TABLE Media(
   MediaID int AUTO_INCREMENT,
   UserID int,
-  Type varchar(10),
+  Video_Type varchar(10),
   Title varchar(100),
   UploadDate datetime,
   Path varchar(255),
