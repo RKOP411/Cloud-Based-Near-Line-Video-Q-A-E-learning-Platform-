@@ -32,6 +32,7 @@ const GetUserByEmail = DomainName + "users/GetUserByEmail/";
 const GetAllQuestion = DomainName + "qa/GetAllQuestion/";
 const CreateQuestion = DomainName + "qa/CreateQuestion";
 const CreateQuestionWithVideo = DomainName + "qa/CreateQuestionWithVideo";
+const AddAnswerByQuestionID = DomainName + "qa/AddAnswerByQuestionID";
 
 
 
@@ -45,5 +46,5 @@ export {
     ForumLikes, AddLike, CheckUserLiked, DeleteLike,
     AddCommentLike, AddCommentLike_Num, CheckUserLikedComment, DeleteCommentLike, DeleteCommentLike_Num,
     GetUserByEmail, GetAllQuestion,
-    CreateQuestion, CreateQuestionWithVideo,
+    CreateQuestion, CreateQuestionWithVideo,AddAnswerByQuestionID,
 };

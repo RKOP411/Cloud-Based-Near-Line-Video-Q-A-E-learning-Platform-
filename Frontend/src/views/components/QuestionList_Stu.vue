@@ -170,7 +170,6 @@ export default {
           this.questions = data;
 
           for (let i = 0; i < this.questions.length; i++) {
-            console.log(this.questions[i].QAID);
             if (this.questions[i].UserID == userId) {
               this.questions[i].UserName = "You";
             }

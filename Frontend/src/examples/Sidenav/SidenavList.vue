@@ -54,10 +54,23 @@ const getRoute = () => {
           v-if="Role == 'Student'"
           to="/questionlist"
           :class="getRoute() === 'billing' ? 'active' : ''"
-          :navText="'Question List'"
+          :navText="'Queue'"
         >
           <template v-slot:icon>
             <i class="fa fa-list text-warning text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
+      <li class="nav-item">
+        <sidenav-item
+          v-if="Role == 'Student'"
+          to="/viewanswer"
+          :class="getRoute() === 'viewanswer' ? 'active' : ''"
+          :navText="'Question List'"
+        >
+          <template v-slot:icon>
+            <i class="fa fa-history text-primary text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>

@@ -96,10 +96,33 @@
               <br />
               <!-- CommentAnswer -->
               <div class="oval-surround">
-                <a class="btn btn-link text-dark px-2 mb-1" href="javascript:;">
+                <a
+                  class="btn btn-link text-dark px-2 mb-1"
+                  href="javascript:;"
+                  @click="createQuill(question.QAID)"
+                >
                   <i class="fa fa-comment" aria-hidden="true"></i>
                 </a>
+                <br />
               </div>
+              <br />
+              <!-- Text Editor-->
+              <div
+                id="TextEditor"
+                v-if="activeQuill === question.QAID"
+                :ref="'quillEditor' + question.QAID"
+                style="height: 100px; width: 800px"
+              ></div>
+              <!-- End of Text Editor-->
+              <br />
+              <button
+                v-if="activeQuill === question.QAID"
+                type="button"
+                class="btn btn-primary"
+                @click="AnswerQuestion(question.QAID)"
+              >
+                Answer
+              </button>
               <!-- End of CommentAnswer -->
             </span>
           </div>
@@ -117,19 +140,93 @@
       </ul>
     </div>
   </div>
+  
 </template>
 
 <script>
-import { GetAllQuestion, DomainName } from "../../assets/Domain.js";
+import {
+  GetAllQuestion,
+  DomainName,
+  AddAnswerByQuestionID,
+} from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
+import Quill from "quill";
+
+import "quill/dist/quill.snow.css"; // Import Quill's CSS
 const userId = localStorage.getItem("UserID");
 export default {
   data() {
     return {
       questions: [],
+      activeQuill: null, // Track which Quill editor is active
+      quill: null, // Store the Quill instance
+      quillCreated: false,
     };
   },
   methods: {
+    AnswerQuestion(id) {
+      // Get the Quill editor content
+      const quillContent = this.quill.root.innerHTML;
+      // console.log("Quill Content: " + quillContent);
+      // console.log("Quill ID: " + id);
+      fetch(AddAnswerByQuestionID, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          QAID: id,
+          Answer: quillContent,
+          UserID: userId,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          this.getQuestions();
+        });
+    },
+    createQuill(id) {
+      if (this.quillCreated) {
+        this.quillCreated = false;
+        this.activeQuill = null;
+        this.quill = null; // Reset the Quill instance
+      }
+
+      // Check if there's an active Quill instance and disable it
+      if (this.quill) {
+        this.quill.enable(); // Optionally, you can enable it first if needed
+      }
+
+      // Set the active Quill ID
+      this.activeQuill = id;
+      // console.log("Active Quill ID: " + this.activeQuill);
+      // console.log("Quill ID: " + id);
+
+      // Use $nextTick to ensure the DOM is updated before creating a new Quill instance
+      this.$nextTick(() => {
+        const editorElement = this.$refs["quillEditor" + id];
+
+        // Create a new Quill instance
+        if (editorElement && editorElement[0]) {
+          this.quill = new Quill(editorElement[0], {
+            theme: "snow",
+            modules: {
+              toolbar: this.quillCreated
+                ? [
+                    ["bold", "italic", "underline"],
+                    ["link", "image"],
+                    [{ list: "ordered" }, { list: "bullet" }],
+                  ]
+                : false,
+            },
+          });
+        }
+      });
+
+      this.quillCreated = true;
+    },
+
     redirectToCreateQuestion() {
       this.$router.push("/questionlist/createquestion");
     },
@@ -143,7 +240,6 @@ export default {
           this.questions = data;
 
           for (let i = 0; i < this.questions.length; i++) {
-            console.log(this.questions[i].QAID);
             if (this.questions[i].UserID == userId) {
               this.questions[i].UserName = "You";
             }

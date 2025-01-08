@@ -7,6 +7,27 @@ const cors = require('cors')
 const app = express();
 app.use(cors());
 
+router.post('/AddAnswerByQuestionID', async function (req, res) {
+    try {
+        const { UserID, QAID, Answer } = req.body;
+
+        const connection = await connectToDB();
+
+        const sql = `INSERT INTO Answer (UserID, QAID, Text, UploadTime) VALUES (?, ?, ?, NOW())`;
+        connection.query(sql, [UserID, QAID, Answer])
+
+        const sql2 = `UPDATE Question SET Replied = 1 WHERE QAID = ?`;
+        connection.query(sql2, [QAID])
+
+        res.status(200).json({ message: 'Answer added successfully' });
+        // Close the connection after the query is executed
+        connection.end();
+    } catch (error) {
+        console.error('Error adding answer:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 
 router.get('/GetAllQuestion', async function (req, res, next) {
     try {

@@ -18,6 +18,7 @@ import ForumContent from "../views/ForumContent.vue";
 import CreateForum from "../views/CreateForum.vue";
 import CreateCoure from "../views/CreateCourse.vue";
 import CreateQuestion from "../views/Student/CreateQuestion.vue";
+import ViewAnswer from "../views/Student/ViewAnswer.vue";
 
 
 
@@ -77,7 +78,7 @@ const routes = [
   },
   {
     path: "/questionlist",
-    name: "Question List",
+    name: "Queue",
     component: Question_List_Stu,
   }
   ,
@@ -125,6 +126,12 @@ const routes = [
     path: "/questionlist/createquestion",
     name: "Create Question",
     component: CreateQuestion,
+  }
+  ,
+  {
+    path: "/viewanswer",
+    name: "View Answer",
+    component: ViewAnswer,
   }
 ];
 
