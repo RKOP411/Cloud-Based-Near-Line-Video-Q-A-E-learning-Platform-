@@ -28,6 +28,66 @@ router.post('/AddAnswerByQuestionID', async function (req, res) {
     }
 });
 
+router.get('/GetAnswerByQAID/:QAID', async function (req, res, next) {
+    try {
+        const { QAID } = req.params;
+        const connection = await connectToDB();
+
+        const sql = `SELECT 
+                    a.*, 
+                    u.UserName 
+                FROM 
+                    Answer a 
+                LEFT JOIN User u ON a.UserID = u.UserID 
+                WHERE 
+                    a.QAID = ?;`;
+        connection.query(sql, [QAID], (err, results) => {
+            if (err) {
+                console.error('Error getting Answer:', err);
+                console.log("Database error");
+            }
+            console.log(results);
+            res.status(200).json(results);
+        });
+        connection.end();
+
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.get('/GetQuestionByUserID/:UserID', async function (req, res, next) {
+    try {
+        const { UserID } = req.params;
+        const connection = await connectToDB();
+
+        const sql = `SELECT 
+                    q.*, 
+                    m.*,
+                    u.UserName 
+                FROM 
+                    Question q  
+                LEFT JOIN User u ON q.UserID = u.UserID 
+                LEFT JOIN Media m ON q.MediaID = m.MediaID 
+                WHERE 
+                    q.UserID = ?;`;
+        connection.query(sql, [UserID], (err, results) => {
+            if (err) {
+                console.error('Error getting Question:', err);
+                console.log("Database error");
+            }
+            console.log(results);
+            res.status(200).json(results);
+        });
+        connection.end();
+
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 
 router.get('/GetAllQuestion', async function (req, res, next) {
     try {

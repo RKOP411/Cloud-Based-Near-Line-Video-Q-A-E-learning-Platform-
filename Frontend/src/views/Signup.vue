@@ -241,7 +241,7 @@ export default {
 
       //console.log("(await VerifyEmail(this.form.Email)).length "+(await VerifyEmail(this.form.Email)).length); 
       if ((await VerifyEmail(this.form.Email)).length > 0) {
-        this.errmsg = "Invalid Email";
+        this.errmsg = "Email Used";
         return;
       }
       try {

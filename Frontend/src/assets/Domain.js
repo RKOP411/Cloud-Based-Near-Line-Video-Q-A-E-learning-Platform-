@@ -33,7 +33,8 @@ const GetAllQuestion = DomainName + "qa/GetAllQuestion/";
 const CreateQuestion = DomainName + "qa/CreateQuestion";
 const CreateQuestionWithVideo = DomainName + "qa/CreateQuestionWithVideo";
 const AddAnswerByQuestionID = DomainName + "qa/AddAnswerByQuestionID";
-
+const GetQuestionByUserID = DomainName + "qa/GetQuestionByUserID/";
+const GetAnswerByQAID = DomainName + "qa/GetAnswerByQAID/";
 
 
 
@@ -46,5 +47,5 @@ export {
     ForumLikes, AddLike, CheckUserLiked, DeleteLike,
     AddCommentLike, AddCommentLike_Num, CheckUserLikedComment, DeleteCommentLike, DeleteCommentLike_Num,
     GetUserByEmail, GetAllQuestion,
-    CreateQuestion, CreateQuestionWithVideo,AddAnswerByQuestionID,
+    CreateQuestion, CreateQuestionWithVideo,AddAnswerByQuestionID, GetQuestionByUserID,GetAnswerByQAID
 };

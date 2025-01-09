@@ -67,7 +67,7 @@ const getRoute = () => {
           v-if="Role == 'Student'"
           to="/viewanswer"
           :class="getRoute() === 'viewanswer' ? 'active' : ''"
-          :navText="'Question List'"
+          :navText="'Question History'"
         >
           <template v-slot:icon>
             <i class="fa fa-history text-primary text-sm opacity-10"></i>
