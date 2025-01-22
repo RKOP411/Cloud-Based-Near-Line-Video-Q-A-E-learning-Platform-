@@ -6,6 +6,16 @@ const path = require('path');
 const cors = require('cors')
 const app = express();
 app.use(cors()); // Enable CORS
+const bodyParser = require('body-parser');
+const multer = require('multer');
+
+const upload = multer({
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+});
+
+
+router.use(bodyParser.json({ limit: '10mb' }));
+router.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 
 router.get('/GetAllCourses', async function (req, res, next) {
@@ -443,10 +453,11 @@ router.put('/updateLike_delete/:commentId', async function (req, res, next) {
 });
 
 
-router.post('/CreateForum', async function (req, res, next) {
+router.post('/CreateForum', upload.single('image'), async function (req, res, next) {
     try {
         const connection = await connectToDB();
         const { UserID, CourseID, ForumTitle, Description } = req.body;
+        
 
         const sql = `INSERT INTO Forum (UserID, CourseID, ForumTitle, Description, UpdatedTime, LastUpdated) VALUES (?, ?, ?, ?, NOW(), NOW())`;
 
@@ -499,12 +510,12 @@ router.post('/CreateForumWithVideo', async function (req, res, next) {
             const VideoPath = req.file ? req.file.path : null;
             const VidoType = req.file ? req.file.mimetype : null;
 
-            console.log('UserID:', UserID);
-            console.log('CourseID:', CourseID);
-            console.log('ForumTitle:', ForumTitle);
-            console.log('Description:', Description);
-            console.log('VideoTitle:', VideoTitle);
-            console.log('VideoPath:', VideoPath);
+            // console.log('UserID:', UserID);
+            // console.log('CourseID:', CourseID);
+            // console.log('ForumTitle:', ForumTitle);
+            // console.log('Description:', Description);
+            // console.log('VideoTitle:', VideoTitle);
+            // console.log('VideoPath:', VideoPath);
 
 
             const connection = await connectToDB();

@@ -10,6 +10,7 @@ var accountRouter = require('./routes/account');
 var forumRouter = require('./routes/forum');
 var QuestionRouter = require('./routes/question');
 var cors = require('cors');
+const bodyParser = require('body-parser');
 
 
 var app = express();
@@ -27,6 +28,9 @@ app.use(cors());
 // Serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads/question', express.static(path.join(__dirname, 'uploads')));
+// Set limits to handle larger payloads
+app.use(bodyParser.json({ limit: '10mb' })); // Increase as needed
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
