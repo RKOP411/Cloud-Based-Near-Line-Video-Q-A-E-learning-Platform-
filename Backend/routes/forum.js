@@ -7,15 +7,6 @@ const cors = require('cors')
 const app = express();
 app.use(cors()); // Enable CORS
 const bodyParser = require('body-parser');
-const multer = require('multer');
-
-const upload = multer({
-    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
-});
-
-
-router.use(bodyParser.json({ limit: '10mb' }));
-router.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 
 router.get('/GetAllCourses', async function (req, res, next) {
@@ -453,11 +444,18 @@ router.put('/updateLike_delete/:commentId', async function (req, res, next) {
 });
 
 
+const upload = multer({
+    limits: { fileSize: 100 * 1024 * 1024 } // 10MB limit
+});
+
+router.use(bodyParser.json({ limit: '100mb' }));
+router.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
+
 router.post('/CreateForum', upload.single('image'), async function (req, res, next) {
+
     try {
         const connection = await connectToDB();
         const { UserID, CourseID, ForumTitle, Description } = req.body;
-        
 
         const sql = `INSERT INTO Forum (UserID, CourseID, ForumTitle, Description, UpdatedTime, LastUpdated) VALUES (?, ?, ?, ?, NOW(), NOW())`;
 
@@ -478,6 +476,13 @@ router.post('/CreateForum', upload.single('image'), async function (req, res, ne
     }
 });
 
+// Catch multer errors
+app.use((err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        return res.status(413).send({ error: err.message });
+    }
+    next(err);
+});
 
 
 

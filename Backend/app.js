@@ -29,8 +29,11 @@ app.use(cors());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads/question', express.static(path.join(__dirname, 'uploads')));
 // Set limits to handle larger payloads
-app.use(bodyParser.json({ limit: '10mb' })); // Increase as needed
-app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+app.use(bodyParser.json({ limit: '100mb' })); // Increase as needed
+app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
+app.use(express.json({limit: '100mb'}));
+app.use(express.urlencoded({extended: true, limit:'100mb'}));
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
