@@ -17,6 +17,9 @@
               </div>
             </div>
             <div class="card-body">
+              <div class="alert alert-danger" role="alert" v-if="errormsg">
+                {{ errormsg }}
+              </div>
               <!-- Select Bar-->
               <ul class="nav nav-tabs mb-3">
                 <li class="nav-item">
@@ -113,7 +116,12 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Quill from "quill";
 import "quill/dist/quill.snow.css"; // Import Quill's CSS
-import { CreateQuestion, CreateQuestionWithVideo } from "../../assets/Domain.js";
+import {
+  CreateQuestion,
+  CreateQuestionWithVideo,
+  AddQueue,
+  AddCustomrQueue,
+} from "../../assets/Domain.js";
 
 export default {
   setup() {
@@ -126,6 +134,7 @@ export default {
     const type = ref("theory");
     const userId = localStorage.getItem("UserID");
     let videoFile = null;
+    const errormsg = ref(""); // Error message
     const initQuill = () => {
       quill.value = new Quill(document.querySelector(".quill-editor"), {
         theme: "snow",
@@ -145,7 +154,45 @@ export default {
       console.log(videoFile);
     };
 
+    const AddIntoQueue = async () => {
+      const response = await fetch(AddQueue, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          QueueType: type.value,
+          UserID: userId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+    };
+
+    const AddIntoCustomerQueue = async () => {
+      const response = await fetch(AddCustomrQueue, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          UserID: userId,
+          Status: "waiting",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+    };
+
     const AddQuestion = async () => {
+      if (QuestionTitle.value === "" || !quill.value || quill.value.root.innerHTML === "<p><br></p>") {
+        errormsg.value = "Please fill all fields";
+        return;
+      }
       const formData = new FormData();
       console.log(formData);
       const response = await fetch(CreateQuestion, {
@@ -167,6 +214,9 @@ export default {
 
       const data = await response.json();
       console.log(data);
+      await AddIntoCustomerQueue();
+      await AddIntoQueue();
+
       router.push("/questionlist");
     };
 
@@ -177,8 +227,8 @@ export default {
       formData.append("UserID", userId);
       formData.append("Description", null); // No description for video questions
       if (videoFile) {
-          formData.append("video", videoFile);
-        }
+        formData.append("video", videoFile);
+      }
       const response = await fetch(CreateQuestionWithVideo, {
         method: "POST",
         body: formData,
@@ -206,6 +256,8 @@ export default {
       videoFile,
       IsVideo,
       IsText,
+      type,
+      errormsg,
       handleFileUpload,
       initQuill,
       AddQuestion,
@@ -221,7 +273,6 @@ export default {
       this.IsVideo = false;
       this.IsText = true;
     },
-
   },
   // Initialize Quill when IsText becomes true
   watch: {

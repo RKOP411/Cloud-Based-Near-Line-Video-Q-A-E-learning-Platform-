@@ -36,7 +36,10 @@ const AddAnswerByQuestionID = DomainName + "qa/AddAnswerByQuestionID";
 const GetQuestionByUserID = DomainName + "qa/GetQuestionByUserID/";
 const GetAnswerByQAID = DomainName + "qa/GetAnswerByQAID/";
 
-
+//Queue
+const AddQueue = DomainName + "queue/AddQueue";
+const AddCustomrQueue = DomainName + "queue/AddCustomrQueue";
+const GetQueue = DomainName + "queue/GetQueue";
 
 
 export {
@@ -47,5 +50,6 @@ export {
     ForumLikes, AddLike, CheckUserLiked, DeleteLike,
     AddCommentLike, AddCommentLike_Num, CheckUserLikedComment, DeleteCommentLike, DeleteCommentLike_Num,
     GetUserByEmail, GetAllQuestion,
-    CreateQuestion, CreateQuestionWithVideo,AddAnswerByQuestionID, GetQuestionByUserID,GetAnswerByQAID
+    CreateQuestion, CreateQuestionWithVideo,AddAnswerByQuestionID, GetQuestionByUserID,GetAnswerByQAID,
+    AddQueue,AddCustomrQueue, GetQueue
 };

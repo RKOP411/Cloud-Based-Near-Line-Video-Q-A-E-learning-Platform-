@@ -35,7 +35,7 @@
           <div class="card queue-a text-white">
             <div class="card-body text-center">
               <h5 class="card-title">Theory</h5>
-              <p class="card-text" id="currentSizeA">Current Size: 5</p>
+              <p class="card-text" id="currentSizeA">Current Size: {{ TheoryCount }}</p>
             </div>
           </div>
         </div>
@@ -43,7 +43,7 @@
           <div class="card queue-b text-white">
             <div class="card-body text-center">
               <h5 class="card-title">Lab Work</h5>
-              <p class="card-text" id="currentSizeB">Current Size: 3</p>
+              <p class="card-text" id="currentSizeB">Current Size: {{ LabWorkCount }}</p>
             </div>
           </div>
         </div>
@@ -51,7 +51,7 @@
           <div class="card queue-c text-white">
             <div class="card-body text-center">
               <h5 class="card-title">Debugging</h5>
-              <p class="card-text" id="currentSizeC">Current Size: 8</p>
+              <p class="card-text" id="currentSizeC">Current Size: {{ DebuggingCount }}</p>
             </div>
           </div>
         </div>
@@ -59,7 +59,7 @@
           <div class="card queue-d text-white">
             <div class="card-body text-center">
               <h5 class="card-title">Assignments</h5>
-              <p class="card-text" id="currentSizeD">Current Size: 2</p>
+              <p class="card-text" id="currentSizeD">Current Size: {{ AssignmentCount }}</p>
             </div>
           </div>
         </div>
@@ -147,18 +147,35 @@
   </div>
 </template>
 <script>
-import { GetAllQuestion, DomainName } from "../../assets/Domain.js";
+import { GetAllQuestion, DomainName,GetQueue } from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
 const userId = localStorage.getItem("UserID");
 export default {
   data() {
     return {
+
+      TheoryCount: 0,
+      LabWorkCount: 0,
+      DebuggingCount: 0,
+      AssignmentCount: 0,
       questions: [],
     };
   },
   methods: {
     redirectToCreateQuestion() {
       this.$router.push("/questionlist/createquestion");
+    },
+    async GetAllQueue() {
+      fetch(GetQueue)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          this.TheoryCount = data.Theory;
+          this.LabWorkCount = data["Lab Work"];
+          this.DebuggingCount = data.Debugging;
+          this.AssignmentCount = data.Assignments;
+          
+        });
     },
     async getQuestions() {
       fetch(GetAllQuestion)
@@ -226,6 +243,7 @@ export default {
     },
   },
   mounted() {
+    this.GetAllQueue();
     this.getQuestions();
   },
 };

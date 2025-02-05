@@ -9,6 +9,7 @@ var usersRouter = require('./routes/users');
 var accountRouter = require('./routes/account');
 var forumRouter = require('./routes/forum');
 var QuestionRouter = require('./routes/question');
+var QueueRouter = require('./routes/queue');
 var cors = require('cors');
 const bodyParser = require('body-parser');
 
@@ -40,6 +41,8 @@ app.use('/users', usersRouter);
 app.use('/account', accountRouter);
 app.use('/forum', forumRouter);
 app.use('/qa', QuestionRouter);
+app.use('/queue', QueueRouter);
+
 
 
 // catch 404 and forward to error handler
