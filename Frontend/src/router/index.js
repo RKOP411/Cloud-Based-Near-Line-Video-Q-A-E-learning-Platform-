@@ -19,6 +19,8 @@ import CreateForum from "../views/CreateForum.vue";
 import CreateCoure from "../views/CreateCourse.vue";
 import CreateQuestion from "../views/Student/CreateQuestion.vue";
 import ViewAnswer from "../views/Student/ViewAnswer.vue";
+import JoinQueue from "../views/Student/JoinQueue.vue";
+import CreateQueue from "../views/Teacher/CreateQueue.vue";
 
 
 
@@ -126,13 +128,23 @@ const routes = [
     path: "/questionlist/createquestion",
     name: "Create Question",
     component: CreateQuestion,
-  }
-  ,
+  },
   {
     path: "/viewanswer",
     name: "View Answer",
     component: ViewAnswer,
-  }
+  },
+  {
+    path: "/joinqueue",
+    name: "Join Queue",
+    component: JoinQueue,
+  },
+  {
+    path: "/createqueue",
+    name: "Create Queue",
+    component: CreateQueue,
+  },
+
 ];
 
 const router = createRouter({
