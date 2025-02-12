@@ -36,7 +36,6 @@
                             <td>
                                 <button class="btn btn-info btn-sm" style="margin-right: 6px;">Info</button>
                                 <button class="btn btn-danger btn-sm" style="margin-right: 6px;">Stop</button>
-                                <button class="btn btn-warning btn-sm" style="margin-right: 6px;">Directory</button>
                             </td>
                         </tr>
                     </tbody>
