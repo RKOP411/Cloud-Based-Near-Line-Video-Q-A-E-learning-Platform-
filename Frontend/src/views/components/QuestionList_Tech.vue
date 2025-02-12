@@ -20,7 +20,9 @@
             <div class="card queue-a text-white">
               <div class="card-body text-center">
                 <h5 class="card-title">Theory</h5>
-                <p class="card-text" id="currentSizeA">Current Size: {{ TheoryCount }}</p>
+                <p class="card-text" id="currentSizeA">
+                  Current Size: {{ TheoryCount }}
+                </p>
               </div>
             </div>
           </div>
@@ -28,7 +30,9 @@
             <div class="card queue-b text-white">
               <div class="card-body text-center">
                 <h5 class="card-title">Lab Work</h5>
-                <p class="card-text" id="currentSizeB">Current Size: {{ LabWorkCount }}</p>
+                <p class="card-text" id="currentSizeB">
+                  Current Size: {{ LabWorkCount }}
+                </p>
               </div>
             </div>
           </div>
@@ -36,7 +40,9 @@
             <div class="card queue-c text-white">
               <div class="card-body text-center">
                 <h5 class="card-title">Debugging</h5>
-                <p class="card-text" id="currentSizeC">Current Size: {{ DebuggingCount }}</p>
+                <p class="card-text" id="currentSizeC">
+                  Current Size: {{ DebuggingCount }}
+                </p>
               </div>
             </div>
           </div>
@@ -44,7 +50,9 @@
             <div class="card queue-d text-white">
               <div class="card-body text-center">
                 <h5 class="card-title">Assignments</h5>
-                <p class="card-text" id="currentSizeD">Current Size: {{ AssignmentCount }}</p>
+                <p class="card-text" id="currentSizeD">
+                  Current Size: {{ AssignmentCount }}
+                </p>
               </div>
             </div>
           </div>
@@ -55,9 +63,14 @@
 
       <ul class="list-group">
         <!-- List Card -->
-        <li v-if="questions.length === 0" class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
+        <li
+          v-if="questions.length === 0"
+          class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
+        >
           <div class="d-flex flex-column">
-            <h6 class="mb-3 text-sm">"The question queue is currently empty.</h6>
+            <h6 class="mb-3 text-sm">
+              "The question queue is currently empty.
+            </h6>
           </div>
         </li>
         <li
@@ -111,6 +124,17 @@
               </div>
               <br />
               <!-- Text Editor-->
+              <div id="toolbar">
+                <button class="ql-bold"></button>
+                <button class="ql-italic"></button>
+                <button class="ql-underline"></button>
+                <button class="ql-link"></button>
+                <button class="ql-image"></button>
+                <button class="ql-list" value="ordered"></button>
+                <!-- Ordered list button -->
+                <button class="ql-list" value="bullet"></button>
+                <!-- Bullet list button -->
+              </div>
               <div
                 id="TextEditor"
                 v-if="activeQuill === question.QAID"
@@ -144,7 +168,6 @@
       </ul>
     </div>
   </div>
-  
 </template>
 
 <script>
@@ -182,7 +205,6 @@ export default {
           this.LabWorkCount = data["Lab Work"];
           this.DebuggingCount = data.Debugging;
           this.AssignmentCount = data.Assignments;
-          
         });
     },
     AnswerQuestion(id) {
@@ -207,6 +229,11 @@ export default {
           this.getQuestions();
           this.GetAllQueue();
           this.quillCreated = true;
+          //remove the Quill editor and toolbar
+          var editorContainer = document.getElementById("TextEditor");
+          var toolbarContainer = document.getElementById("toolbar");
+          editorContainer.parentNode.removeChild(editorContainer); // Remove the editor
+          toolbarContainer.parentNode.removeChild(toolbarContainer); // Remove the toolbar
         });
     },
     createQuill(id) {
@@ -236,11 +263,7 @@ export default {
             theme: "snow",
             modules: {
               toolbar: this.quillCreated
-                ? [
-                    ["bold", "italic", "underline"],
-                    ["link", "image"],
-                    [{ list: "ordered" }, { list: "bullet" }],
-                  ]
+                ? { container: "#toolbar" } // Link the toolbar to the editor
                 : false,
             },
           });

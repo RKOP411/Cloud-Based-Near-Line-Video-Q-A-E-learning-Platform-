@@ -42,7 +42,7 @@
               <td colspan="5" class="text-center">No Forum</td>
             </tr>
             
-            <tr v-for="(item, index) in items" :key="index">
+            <tr v-for="(item, index) in items" :key="index" class="hover-row">
               <td>
                 <div class="d-flex px-2 py-1">
                   <div>
@@ -151,5 +151,8 @@ export default {
 }
 .star-clicked {
   color: #f0ad4e;
+}
+.hover-row:hover {
+    background-color: #f8f9fe;
 }
 </style>

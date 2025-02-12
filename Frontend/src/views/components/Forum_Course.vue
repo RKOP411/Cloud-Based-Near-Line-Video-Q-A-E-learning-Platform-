@@ -38,7 +38,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in items" :key="index">
+            <tr v-for="(item, index) in items" :key="index" class="hover-row">
               <td>
                 <div class="d-flex px-2 py-1">
                   <div>
@@ -91,6 +91,14 @@
 <script>
 import { ref } from 'vue';
 import { GetAllCourses, GetUserByEmail } from "../../assets/Domain.js";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+let Email = localStorage.getItem("Email");
+
+if (Email === null || Email === "") {
+  router.push("/signin");
+}
 
 export default {
   data() {
@@ -147,5 +155,8 @@ export default {
   justify-content: center;
   display: flex;
   padding-top: 8px;
+}
+.hover-row:hover {
+    background-color: #f8f9fe;
 }
 </style>
