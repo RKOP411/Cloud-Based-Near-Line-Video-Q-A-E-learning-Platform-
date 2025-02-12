@@ -55,7 +55,11 @@
 
       <ul class="list-group">
         <!-- List Card -->
-
+        <li v-if="questions.length === 0" class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
+          <div class="d-flex flex-column">
+            <h6 class="mb-3 text-sm">"The question queue is currently empty.</h6>
+          </div>
+        </li>
         <li
           v-for="question in questions"
           :key="question.id"

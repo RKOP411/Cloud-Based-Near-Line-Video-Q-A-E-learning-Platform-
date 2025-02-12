@@ -35,7 +35,9 @@
           <div class="card queue-a text-white">
             <div class="card-body text-center">
               <h5 class="card-title">Theory</h5>
-              <p class="card-text" id="currentSizeA">Current Size: {{ TheoryCount }}</p>
+              <p class="card-text" id="currentSizeA">
+                Current Size: {{ TheoryCount }}
+              </p>
             </div>
           </div>
         </div>
@@ -43,7 +45,9 @@
           <div class="card queue-b text-white">
             <div class="card-body text-center">
               <h5 class="card-title">Lab Work</h5>
-              <p class="card-text" id="currentSizeB">Current Size: {{ LabWorkCount }}</p>
+              <p class="card-text" id="currentSizeB">
+                Current Size: {{ LabWorkCount }}
+              </p>
             </div>
           </div>
         </div>
@@ -51,7 +55,9 @@
           <div class="card queue-c text-white">
             <div class="card-body text-center">
               <h5 class="card-title">Debugging</h5>
-              <p class="card-text" id="currentSizeC">Current Size: {{ DebuggingCount }}</p>
+              <p class="card-text" id="currentSizeC">
+                Current Size: {{ DebuggingCount }}
+              </p>
             </div>
           </div>
         </div>
@@ -59,7 +65,9 @@
           <div class="card queue-d text-white">
             <div class="card-body text-center">
               <h5 class="card-title">Assignments</h5>
-              <p class="card-text" id="currentSizeD">Current Size: {{ AssignmentCount }}</p>
+              <p class="card-text" id="currentSizeD">
+                Current Size: {{ AssignmentCount }}
+              </p>
             </div>
           </div>
         </div>
@@ -94,7 +102,16 @@
       </div>
       <ul class="list-group">
         <!-- List Card -->
-
+        <li
+          v-if="questions.length === 0"
+          class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
+        >
+          <div class="d-flex flex-column">
+            <h6 class="mb-3 text-sm">
+              "The question queue is currently empty.
+            </h6>
+          </div>
+        </li>
         <li
           v-for="question in questions"
           :key="question.id"
@@ -147,13 +164,12 @@
   </div>
 </template>
 <script>
-import { GetAllQuestion, DomainName,GetQueue } from "../../assets/Domain.js";
+import { GetAllQuestion, DomainName, GetQueue } from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
 const userId = localStorage.getItem("UserID");
 export default {
   data() {
     return {
-
       TheoryCount: 0,
       LabWorkCount: 0,
       DebuggingCount: 0,
@@ -174,7 +190,6 @@ export default {
           this.LabWorkCount = data["Lab Work"];
           this.DebuggingCount = data.Debugging;
           this.AssignmentCount = data.Assignments;
-          
         });
     },
     async getQuestions() {

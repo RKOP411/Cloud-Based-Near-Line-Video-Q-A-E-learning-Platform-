@@ -15,7 +15,7 @@ CREATE TABLE User (
     LastLogin datetime,
     Role varchar(10),
     Gender VARCHAR(10) DEFAULT NULL,
-    T_role ENUM('Dr', 'Prof')  DEFAULT NULL,
+    T_rank ENUM('Dr', 'Prof', 'TA')  DEFAULT NULL,
     PRIMARY KEY (UserID)
 );
 
@@ -24,7 +24,7 @@ CREATE TABLE Question(
   UserID int,
   MediaID int,
   CourseID int,
-  Week int,
+  QueueListID INT,
   Total_week INT DEFAULT 12;
   QuestionTitle varchar(255) NOT NULL,
   Description text NOT NULL,
@@ -33,6 +33,7 @@ CREATE TABLE Question(
   Replied TINYINT NOT NULL,
   Checking TINYINT NOT NULL,
   PRIMARY KEY (QAID),
+  FOREIGN KEY (QueueListID) REFERENCES Queue_list(QueueListID),
   FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
   FOREIGN KEY (MediaID) REFERENCES Media(MediaID),
   FOREIGN KEY (UserID) REFERENCES User(UserID),
@@ -60,6 +61,25 @@ CREATE TABLE Queue (
   FOREIGN KEY (CusID) REFERENCES Customer_queue(CusID)
 );
 
+CREATE TABLE Queue_list (
+  QueueListID INT AUTO_INCREMENT PRIMARY KEY,
+  UserID INT,
+  CreatorID INT NOT NULL,
+  Status ENUM('Open', 'Close') NOT NULL,
+  Created DATETIME NOT NULL,
+  CloseDate DATETIME DEFAULT NULL,
+  CourseWeek INT,
+  AccessCode VARCHAR(10) UNIQUE,
+  FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+
+CREATE TABLE Queue_Students (
+  QueueListID INT,
+  UserID INT,
+  PRIMARY KEY (QueueListID, UserID),
+  FOREIGN KEY (QueueListID) REFERENCES Queue_list(QueueListID),
+  FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
 
 CREATE TABLE Answer(
   ASID int AUTO_INCREMENT,
@@ -139,6 +159,7 @@ CREATE TABLE Course(
   TeacherName varchar(20),
   Semester varchar(20),
   ForumNum int,
+  TotalWeek INT DEFAULT 12;
   PRIMARY KEY (CourseID)
 );
 

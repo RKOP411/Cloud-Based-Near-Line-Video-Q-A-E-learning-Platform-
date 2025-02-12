@@ -4,6 +4,7 @@ const DomainName = "http://localhost:3000/";
 //Account
 const registerDomain = DomainName + "account/register";
 const verifyEmailDomain = DomainName + "account/verifyEmail";
+const UpdateRankByUserID = DomainName + "account/UpdateRankByUserID/";
 
 //Forum
 const GetAllForum = DomainName + "forum/GetAllforum";
@@ -44,7 +45,7 @@ const GetQueue = DomainName + "queue/GetQueue";
 
 export {
     DomainName,
-    registerDomain, verifyEmailDomain,
+    registerDomain, verifyEmailDomain, UpdateRankByUserID,
     GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment, 
     GetAllCourses, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse,CreateForumWithVideo, 
     ForumLikes, AddLike, CheckUserLiked, DeleteLike,

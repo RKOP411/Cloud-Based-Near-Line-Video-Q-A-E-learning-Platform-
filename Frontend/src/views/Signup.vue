@@ -27,7 +27,7 @@ onBeforeUnmount(() => {
     <div
       class="page-header align-items-start min-vh-50 pt-5 pb-11 m-3 border-radius-lg"
       style="
-        background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signup-cover.jpg');
+        background-image: url(&quot;https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signup-cover.jpg&quot;);
         background-position: top;
       "
     >
@@ -36,7 +36,9 @@ onBeforeUnmount(() => {
         <div class="row justify-content-center">
           <div class="col-lg-5 text-center mx-auto">
             <h1 class="text-white mb-2 mt-5">Welcome!</h1>
-            <p class="text-lead text-white">Join Our E-Learning Platform Today!</p>
+            <p class="text-lead text-white">
+              Join Our E-Learning Platform Today!
+            </p>
           </div>
         </div>
       </div>
@@ -51,9 +53,22 @@ onBeforeUnmount(() => {
             <div class="row px-xl-5 px-sm-4 px-3">
               <div class="col-3 ms-auto px-1">
                 <a class="btn btn-outline-light w-100" href="javascript:;">
-                  <svg width="24px" height="32px" viewBox="0 0 64 64" version="1.1">
-                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                      <g transform="translate(3.000000, 3.000000)" fill-rule="nonzero">
+                  <svg
+                    width="24px"
+                    height="32px"
+                    viewBox="0 0 64 64"
+                    version="1.1"
+                  >
+                    <g
+                      stroke="none"
+                      stroke-width="1"
+                      fill="none"
+                      fill-rule="evenodd"
+                    >
+                      <g
+                        transform="translate(3.000000, 3.000000)"
+                        fill-rule="nonzero"
+                      >
                         <circle
                           fill="#3C5A9A"
                           cx="29.5091719"
@@ -71,8 +86,18 @@ onBeforeUnmount(() => {
               </div>
               <div class="col-3 px-1">
                 <a class="btn btn-outline-light w-100" href="javascript:;">
-                  <svg width="24px" height="32px" viewBox="0 0 64 64" version="1.1">
-                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                  <svg
+                    width="24px"
+                    height="32px"
+                    viewBox="0 0 64 64"
+                    version="1.1"
+                  >
+                    <g
+                      stroke="none"
+                      stroke-width="1"
+                      fill="none"
+                      fill-rule="evenodd"
+                    >
                       <g
                         transform="translate(7.000000, 0.564551)"
                         fill="#000000"
@@ -88,9 +113,22 @@ onBeforeUnmount(() => {
               </div>
               <div class="col-3 me-auto px-1">
                 <a class="btn btn-outline-light w-100" href="javascript:;">
-                  <svg width="24px" height="32px" viewBox="0 0 64 64" version="1.1">
-                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                      <g transform="translate(3.000000, 2.000000)" fill-rule="nonzero">
+                  <svg
+                    width="24px"
+                    height="32px"
+                    viewBox="0 0 64 64"
+                    version="1.1"
+                  >
+                    <g
+                      stroke="none"
+                      stroke-width="1"
+                      fill="none"
+                      fill-rule="evenodd"
+                    >
+                      <g
+                        transform="translate(3.000000, 2.000000)"
+                        fill-rule="nonzero"
+                      >
                         <path
                           d="M57.8123233,30.1515267 C57.8123233,27.7263183 57.6155321,25.9565533 57.1896408,24.1212666 L29.4960833,24.1212666 L29.4960833,35.0674653 L45.7515771,35.0674653 C45.4239683,37.7877475 43.6542033,41.8844383 39.7213169,44.6372555 L39.6661883,45.0037254 L48.4223791,51.7870338 L49.0290201,51.8475849 C54.6004021,46.7020943 57.8123233,39.1313952 57.8123233,30.1515267"
                           fill="#4285F4"
@@ -178,7 +216,9 @@ onBeforeUnmount(() => {
                 </div>
                 <p class="text-sm mt-3 mb-0">
                   Already have an account?
-                  <a href="/signin" class="text-dark font-weight-bolder">Sign in</a>
+                  <a href="/signin" class="text-dark font-weight-bolder"
+                    >Sign in</a
+                  >
                 </p>
               </form>
             </div>
@@ -239,7 +279,7 @@ export default {
         this.form.Role = "Teacher";
       }
 
-      //console.log("(await VerifyEmail(this.form.Email)).length "+(await VerifyEmail(this.form.Email)).length); 
+      //console.log("(await VerifyEmail(this.form.Email)).length "+(await VerifyEmail(this.form.Email)).length);
       if ((await VerifyEmail(this.form.Email)).length > 0) {
         this.errmsg = "Email Used";
         return;
@@ -259,7 +299,11 @@ export default {
         const Userdata = await VerifyEmail(this.form.Email);
         localStorage.setItem("UserID", Userdata[0].UserID);
         localStorage.setItem("UserName", Userdata[0].UserName);
-        this.$router.push("/"); // Ensure this is accessible in the setup context
+        if (this.form.Role == "Teacher") {
+          this.$router.push("/askforrank");
+        } else {
+          this.$router.push("/");
+        }
       } catch (error) {
         console.error("Error:", error);
       }
