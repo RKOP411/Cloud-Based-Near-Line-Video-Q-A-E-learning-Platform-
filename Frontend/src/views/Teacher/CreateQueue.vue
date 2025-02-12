@@ -37,16 +37,15 @@
                 </select>
               </div>
               <!-- Course Selete Bar End-->
-              <br />
               <!--Queue Code-->
               <div class="row">
                 <div class="col-md-9 mb-4">
-                  <label class="form-control-label">Queue Code</label>
-                  <input
-                    class="form-control"
-                    type="text"
-                    placeholder="1234-4567 *"
-                  />
+                    <label class="form-control-label">Time Out</label>
+                    <select class="form-select" v-model="timeout">
+                    <option value="1">1 day</option>
+                    <option value="3">3 days</option>
+                    <option value="7">7 days</option>
+                    </select>
                 </div>
                 <!---->
               </div>
