@@ -24,8 +24,7 @@ CREATE TABLE Question(
   UserID int,
   MediaID int,
   CourseID int,
-  QueueListID INT,
-  Total_week INT DEFAULT 12;
+  Total_week INT DEFAULT 12,
   QuestionTitle varchar(255) NOT NULL,
   Description text NOT NULL,
   UploadTime datetime,
@@ -33,10 +32,9 @@ CREATE TABLE Question(
   Replied TINYINT NOT NULL,
   Checking TINYINT NOT NULL,
   PRIMARY KEY (QAID),
-  FOREIGN KEY (QueueListID) REFERENCES Queue_list(QueueListID),
   FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
   FOREIGN KEY (MediaID) REFERENCES Media(MediaID),
-  FOREIGN KEY (UserID) REFERENCES User(UserID),
+  FOREIGN KEY (UserID) REFERENCES User(UserID)
 );
 
 
@@ -63,14 +61,14 @@ CREATE TABLE Queue (
 
 CREATE TABLE Queue_list (
   QueueListID INT AUTO_INCREMENT PRIMARY KEY,
-  UserID INT,
+  QAID int,
   CreatorID INT NOT NULL,
   Status ENUM('Open', 'Close') NOT NULL,
   Created DATETIME NOT NULL,
   CloseDate DATETIME DEFAULT NULL,
   CourseWeek INT,
   AccessCode VARCHAR(10) UNIQUE,
-  FOREIGN KEY (UserID) REFERENCES User(UserID)
+  FOREIGN KEY (QAID) REFERENCES Question(QAID)
 );
 
 CREATE TABLE Queue_Students (
@@ -159,7 +157,7 @@ CREATE TABLE Course(
   TeacherName varchar(20),
   Semester varchar(20),
   ForumNum int,
-  TotalWeek INT DEFAULT 12;
+  TotalWeek INT DEFAULT 12,
   PRIMARY KEY (CourseID)
 );
 
