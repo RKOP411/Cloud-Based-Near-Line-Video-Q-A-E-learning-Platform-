@@ -71,7 +71,7 @@ CREATE TABLE Queue_list (
   CourseWeek INT,
   AccessCode VARCHAR(10) UNIQUE,
   TimeOut INT NOT NULL DEFAULT 86400 CHECK (TimeOut BETWEEN 86400 AND 604800),
-  FOREIGN KEY (CreatorID) REFERENCES Course(CreatorID),
+  FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
 );
 
 CREATE TABLE Queue_Students (

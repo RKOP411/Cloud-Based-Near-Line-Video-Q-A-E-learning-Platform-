@@ -28,7 +28,7 @@
                 <select
                   class="form-select"
                   aria-label="Select Week"
-                  v-model="type"
+                  v-model="course"
                 >
                   <option value="theory" selected>COMP4111</option>
                   <option value="lab-work">COMP2321</option>
@@ -59,4 +59,18 @@
     </div>
   </main>
 </template>
-<script></script>
+<script>
+export default {
+  data() {
+    return {
+      course: "",
+      timeout: "1",
+    };
+  },
+  methods: {
+    dayTosecond(day) {
+      return day * 24 * 60 * 60;
+    },
+  },
+};
+</script>
