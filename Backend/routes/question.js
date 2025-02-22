@@ -176,11 +176,11 @@ router.post('/CreateQuestionWithVideo', async function (req, res, next) {
             const VideoPath = req.file ? req.file.path : null;
             const VidoType = req.file ? req.file.mimetype : null;
 
-            console.log('UserID:', UserID);
-            console.log('QuestionTitle:', QuestionTitle);
-            console.log('Description:', Description);
-            console.log('VideoTitle:', VideoTitle);
-            console.log('VideoPath:', VideoPath);
+            // console.log('UserID:', UserID);
+            // console.log('QuestionTitle:', QuestionTitle);
+            // console.log('Description:', Description);
+            // console.log('VideoTitle:', VideoTitle);
+            // console.log('VideoPath:', VideoPath);
 
 
             const connection = await connectToDB();

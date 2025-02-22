@@ -107,6 +107,7 @@ export default {
     const CourseName = ref("");
     const CourseID = ref("");
     const email = localStorage.getItem("Email");
+    
 
     // Array of semesters
     const semesters = ["S1", "S2", "S3", "S4", "S5"];
@@ -148,6 +149,7 @@ export default {
     },
 
     async CreateCourse() {
+      const UserID = localStorage.getItem("UserID");
       if (
         this.CourseName == "" ||
         this.selectedYear == "" ||
@@ -182,6 +184,7 @@ export default {
           CourseName: this.CourseID +" "+this.CourseName,
           TeacherName: TeacherRank + " " + UserName,
           Semester: this.selectedYear + " " + this.selectedSemester,
+          UserID: UserID,
         }),
       })
         .then((response) => response.json())

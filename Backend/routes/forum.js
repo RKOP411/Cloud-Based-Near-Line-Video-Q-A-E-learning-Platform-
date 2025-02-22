@@ -32,6 +32,64 @@ router.get('/GetAllCourses', async function (req, res, next) {
         res.status(500).send('Server error');
     }
 });
+router.get('/GetCoursesByUserID/:userId', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const userId = req.params.userId; // Get the UserID from the URL parameter
+
+        const sql = `SELECT * FROM Course WHERE UserID = ?`;
+
+        connection.query(sql, [userId], (err, results) => {
+            if (err) {
+                console.error('Error retrieving courses:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json(results);
+        });
+
+        // Close the connection
+        connection.end();
+
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+router.delete('/RemoveCourseByCourseID/:courseId', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const courseId = req.params.courseId; // Get the CourseID from the URL parameter
+
+        const sql1 = `DELETE FROM CourseJoin WHERE CourseID = ?`;
+        connection.query(sql1, [courseId], (err, results) => {
+            if (err) {
+                console.error('Error deleting course:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+        });
+
+        const sql2 = `DELETE FROM Forum WHERE CourseID = ?`;
+        connection.query(sql2, [courseId], (err, results) => {
+            if (err) {
+                console.error('Error deleting forum:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+        });
+
+
+        //const sql = `DELETE FROM Course WHERE CourseID = ?`;
+
+
+        
+
+        // Close the connection
+        connection.end();
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
 
 router.get('/GetForumByCourseID/:courseId', async function (req, res, next) {
     try {
@@ -576,11 +634,11 @@ router.put('/CourseNumQuesstion/:CourseID', async function (req, res, next) {
 router.post('/CreateCourse', async function (req, res, next) {
     try {
         const connection = await connectToDB();
-        const { CourseName, TeacherName, Semester } = req.body;
+        const { CourseName, TeacherName, Semester, UserID } = req.body;
 
-        const sql = `INSERT INTO Course (CourseName, TeacherName, Semester) VALUES (?, ?, ?)`;
+        const sql = `INSERT INTO Course (CourseName, TeacherName, Semester, UserID) VALUES (?, ?, ?, ?)`;
 
-        connection.query(sql, [CourseName, TeacherName, Semester], (err, results) => {
+        connection.query(sql, [CourseName, TeacherName, Semester, UserID], (err, results) => {
             if (err) {
                 console.error('Error adding course:', err);
                 return res.status(500).json({ error: 'Database error' });

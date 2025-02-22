@@ -44,11 +44,12 @@ const getRoute = () => {
           :navText="'Queue Management'"
         >
           <template v-slot:icon>
-            <i class="fa fa-list text-warning text-sm opacity-10"></i>
+            <i class="fa fa-list-alt text-warning text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>
 
+  
       <li class="nav-item">
         <sidenav-item
           v-if="Role == 'Student'"
@@ -113,6 +114,19 @@ const getRoute = () => {
         </sidenav-item>
       </li>
 
+      <li class="nav-item">
+        <sidenav-item
+          v-if="Role == 'Teacher'"
+          to="/coursemanage"
+          :class="getRoute() === 'coursemanage' ? 'active' : ''"
+          :navText="'Your Course'"
+        >
+          <template v-slot:icon>
+            <i class="fa fa-users text-secondary text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
       <!-- <li class="nav-item">
         <sidenav-item
           to="/virtual-reality"
@@ -124,6 +138,10 @@ const getRoute = () => {
           </template>
         </sidenav-item>
       </li> -->
+
+
+
+      <!-- ACCOUNT PAGES -->
 
       <li class="mt-3 nav-item">
         <h6

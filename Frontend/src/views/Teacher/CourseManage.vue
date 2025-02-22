@@ -2,13 +2,14 @@
   <div class="card">
     <div class="card-header pb-0">
       <div class="d-flex align-items-center">
-        <h6>Course</h6>
+        <h6>Your Course</h6>
         <argon-button
           v-if="role !== 'Student'"
           type="button"
           class="btn btn-success mb-3 ms-auto"
           title="Create Course"
-            :role="role" @click="goToCreateCourse"
+          :role="role"
+          @click="goToCreateCourse"
         >
           <i class="fa fa-plus" aria-hidden="true"></i>
         </argon-button>
@@ -38,7 +39,15 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in items" :key="index" class="hover-row">
+            <tr v-if="items.length === 0">
+              <td
+                colspan="4"
+                class="text-center text-secondary text-xs font-weight-bold"
+              >
+                No courses available.
+              </td>
+            </tr>
+            <tr v-else v-for="(item, index) in items" :key="index">
               <td>
                 <div class="d-flex px-2 py-1">
                   <div>
@@ -49,15 +58,10 @@
                     ></i>
                   </div>
                   <div class="d-flex flex-column justify-content-center">
-                    <a
-                      :href="`tables/forum?CourseID= ${item.CourseID}`"
-                      class="text-decoration-none"
-                    >
-                      <h6 class="mb-0 text-sm">{{ item.CourseName }}</h6>
-                      <p class="text-xs text-secondary mb-0">
-                        {{ item.TeacherName }}
-                      </p>
-                    </a>
+                    <h6 class="mb-0 text-sm">{{ item.CourseName }}</h6>
+                    <p class="text-xs text-secondary mb-0">
+                      {{ item.TeacherName }}
+                    </p>
                   </div>
                 </div>
               </td>
@@ -72,13 +76,9 @@
                 }}</span>
               </td>
               <td class="align-middle">
-                <a
-                  href="javascript:;"
-                  class="text-secondary font-weight-bold text-xs"
-                  data-toggle="tooltip"
-                  data-original-title="Edit user"
-                  ><i class="fa fa-th-list" aria-hidden="true"></i
-                ></a>
+                <!-- <button class="btn btn-danger btn-sm" style="margin-right: 6px" @click="removeCourse(item.CourseID)">
+                  Remove
+                </button> -->
               </td>
             </tr>
           </tbody>
@@ -89,8 +89,8 @@
   <br />
 </template>
 <script>
-import { ref } from 'vue';
-import { GetAllCourses, GetUserByEmail } from "../../assets/Domain.js";
+import { ref } from "vue";
+import { GetCoursesByUserID, GetUserByEmail } from "../../assets/Domain.js";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -112,11 +112,13 @@ export default {
     if (Email === null || Email === "") {
       this.$router.push("/signin");
     }
-    return { Email };
+    const UserID = localStorage.getItem("UserID");
+    return { Email, UserID };
   },
   methods: {
+    
     async getCourse() {
-      fetch(GetAllCourses)
+      fetch(GetCoursesByUserID + this.UserID)
         .then((response) => response.json())
         .then((data) => {
           this.items = data;
@@ -138,15 +140,13 @@ export default {
       }
 
       const UserData = await response.json();
-      return UserData[0].Role;  //Only get the Role here
-      
+      return UserData[0].Role; //Only get the Role here
     },
   },
   async mounted() {
     this.getCourse();
     this.role = await this.GetUserRoleByEmail();
   },
-  
 };
 </script>
 <style>
@@ -155,8 +155,5 @@ export default {
   justify-content: center;
   display: flex;
   padding-top: 8px;
-}
-.hover-row:hover {
-    background-color: #f8f9fe;
 }
 </style>

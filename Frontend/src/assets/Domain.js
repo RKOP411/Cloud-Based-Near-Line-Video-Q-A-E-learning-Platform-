@@ -21,6 +21,7 @@ const CheckUserLikedComment = DomainName + "forum/CheckUserLikedComment/";
 const DeleteCommentLike = DomainName + "forum/DeleteCommentLike/";
 const DeleteCommentLike_Num = DomainName + "forum/updateLike_delete/";
 const GetAllCourses = DomainName + "forum/GetAllCourses";
+const GetCoursesByUserID = DomainName + "forum/GetCoursesByUserID/";
 const GetForumByCourseID = DomainName + "forum/GetForumByCourseID/";
 const CreateForum = DomainName + "forum/CreateForum";
 const CourseNumQuesstion = DomainName + "forum/CourseNumQuesstion/";
@@ -47,7 +48,7 @@ export {
     DomainName,
     registerDomain, verifyEmailDomain, UpdateRankByUserID,
     GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment, 
-    GetAllCourses, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse,CreateForumWithVideo, 
+    GetAllCourses, GetCoursesByUserID, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse,CreateForumWithVideo, 
     ForumLikes, AddLike, CheckUserLiked, DeleteLike,
     AddCommentLike, AddCommentLike_Num, CheckUserLikedComment, DeleteCommentLike, DeleteCommentLike_Num,
     GetUserByEmail, GetAllQuestion,

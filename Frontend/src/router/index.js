@@ -23,6 +23,7 @@ import JoinQueue from "../views/Student/JoinQueue.vue";
 import CreateQueue from "../views/Teacher/CreateQueue.vue";
 import AskForRank from "../views/Teacher/AskForRank.vue";
 import AnswerQuestion from "../views/Teacher/AnswerQuestion.vue";
+import CourseManage from "../views/Teacher/CourseManage.vue";
 
 
 const routes = [
@@ -125,9 +126,14 @@ const routes = [
     component: CreateForum,
   },
   {
-    path: "/tables/createcourse",
+    path: "/createcourse",
     name: "Create Course",
     component: CreateCoure,
+  },
+  {
+    path: "/coursemanage",
+    name: "Course Manage",
+    component: CourseManage,
   },
   {
     path: "/questionlist/createquestion",
