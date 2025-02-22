@@ -53,11 +53,11 @@
               <td style="padding-left: 25px">240 min</td>
               <td style="padding-left: 25px">5</td>
               <td>
-                <button class="btn btn-info btn-sm" style="margin-right: 6px">
-                  Info
+                <button class="btn btn-warning btn-sm" style="margin-right: 6px">
+                  Pause
                 </button>
                 <button class="btn btn-danger btn-sm" style="margin-right: 6px">
-                  Stop
+                  Close
                 </button>
               </td>
             </tr>

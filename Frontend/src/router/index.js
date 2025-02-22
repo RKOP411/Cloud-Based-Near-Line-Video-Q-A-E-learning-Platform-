@@ -22,8 +22,7 @@ import ViewAnswer from "../views/Student/ViewAnswer.vue";
 import JoinQueue from "../views/Student/JoinQueue.vue";
 import CreateQueue from "../views/Teacher/CreateQueue.vue";
 import AskForRank from "../views/Teacher/AskForRank.vue";
-
-
+import AnswerQuestion from "../views/Teacher/AnswerQuestion.vue";
 
 
 const routes = [
@@ -104,6 +103,11 @@ const routes = [
     path: "/managequeue",
     name: "Manage Queue",
     component: Manage_Queue,
+  },
+  {
+    path: "/managequeue/answerquestion",
+    name: "Answer Question",
+    component: AnswerQuestion,
   },
   {
     path: "/uploadquestion",

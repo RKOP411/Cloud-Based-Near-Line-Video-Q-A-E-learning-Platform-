@@ -41,7 +41,7 @@ const getRoute = () => {
           v-if="Role == 'Teacher'"
           to="/managequeue"
           :class="getRoute() === 'billing' ? 'active' : ''"
-          :navText="'Question List'"
+          :navText="'Queue Management'"
         >
           <template v-slot:icon>
             <i class="fa fa-list text-warning text-sm opacity-10"></i>
