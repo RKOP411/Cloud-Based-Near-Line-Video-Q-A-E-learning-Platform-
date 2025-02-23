@@ -133,7 +133,7 @@ router.get('/GetQueue', async (req, res) => {
 
         const countLabWorkQuery = 'SELECT COUNT(*) AS count FROM Question WHERE Type = "Lab Work" AND Replied = 0';
 
-        const countDebuggingQuery = 'SELECT COUNT(*) AS count FROM Question WHERE Type = "Debugging" AND Replied = 0'; 
+        const countDebuggingQuery = 'SELECT COUNT(*) AS count FROM Question WHERE Type = "Debugging" AND Replied = 0';
 
         const countAssignmentsQuery = 'SELECT COUNT(*) AS count FROM Question WHERE Type = "Assignments" AND Replied = 0';
 
@@ -179,7 +179,96 @@ router.get('/GetQueue', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+function generateAccessCode(length = 10) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let accessCode = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        accessCode += characters[randomIndex];
+    }
+    return accessCode;
+}
 
+router.post('/CreateQueue_list', async (req, res) => {
+    try {
+        const { CourseID, TimeOut, CreatorID } = req.body;
+
+        // Ensure required fields are provided
+        if (!CourseID || !TimeOut) {
+            return res.status(400).send('CourseID and TimeOut are required');
+        }
+
+        const connection = await connectToDB();
+
+        let CourseWeek = 1;
+
+        //Get the latest CourseWeek by CourseID and CreatorID
+        const queryCourseWeek = 'SELECT CourseWeek FROM Queue_list WHERE CourseID = ? AND CreatorID = ? ORDER BY CourseWeek DESC LIMIT 1';
+        await new Promise((resolve, reject) => {
+            connection.query(queryCourseWeek, [CourseID, CreatorID], (error, results) => {
+            if (error) return reject(error);
+            if (results.length > 0) {
+                CourseWeek = results[0].CourseWeek + 1;
+            }
+            resolve(results);
+            });
+        });
+
+        //generate AccessCode
+        let AccessCode = generateAccessCode();
+
+        // Insert into the Queue_list
+        const query = "INSERT INTO Queue_list (CourseID, CreatorID, Status, Created, CloseDate, CourseWeek, TimeOut, AccessCode) VALUES (?, ?, 'RUNNING', NOW(), NULL, ?, ?, ?)";
+        await new Promise((resolve, reject) => {
+            connection.query(query, [CourseID, CreatorID, CourseWeek, TimeOut, AccessCode], (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+
+
+
+
+        res.status(200).send('Queue_list added successfully');
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error adding to Queue_list:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
+router.get('/GetQueue_listByCreatorID/:CreatorID', async (req, res) => {
+    try {
+        const { CreatorID } = req.params;
+
+        if (!CreatorID) {
+            return res.status(400).send('CreatorID is required');
+        }
+
+        const connection = await connectToDB();
+
+        // Query to get Queue_list by CreatorID
+        const query = 'SELECT Queue_list.*, Course.CourseName FROM Queue_list JOIN Course ON Queue_list.CourseID = Course.CourseID WHERE Queue_list.CreatorID = ?';
+        const results = await new Promise((resolve, reject) => {
+            connection.query(query, [CreatorID], (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+        res.status(200).json(results);
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving Queue_list:', error);
+        res.status(500).send('Server error');
+    }
+});
 
 // Export the router
 module.exports = router;
