@@ -29,46 +29,42 @@
     </div>
 
     <!-- Queue -->
-    <div class="container mt-2">
+    <div class="container mt-5">
       <div class="row mt-4 justify-content-between">
         <div class="col-6 col-md-3">
-          <div class="card queue-a text-white">
-            <div class="card-body text-center">
-              <h5 class="card-title">Theory</h5>
-              <p class="card-text" id="currentSizeA">
-                Current Size: {{ TheoryCount }}
-              </p>
-            </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="status-description">Theory</h6>
+            <p class="status-text" style="color: #007bff">Next No</p>
+          </div>
+          <div class="status-box text-white" style="background-color: #007bff">
+            <h5 class="status-title">T {{ TheoryCount }}</h5>
           </div>
         </div>
         <div class="col-6 col-md-3">
-          <div class="card queue-b text-white">
-            <div class="card-body text-center">
-              <h5 class="card-title">Lab Work</h5>
-              <p class="card-text" id="currentSizeB">
-                Current Size: {{ LabWorkCount }}
-              </p>
-            </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="status-description">Lab Work</h6>
+            <p class="status-text" style="color: #28a745">Next No</p>
+          </div>
+          <div class="status-box text-white" style="background-color: #28a745">
+            <h5 class="status-title">L {{ LabWorkCount }}</h5>
           </div>
         </div>
         <div class="col-6 col-md-3">
-          <div class="card queue-c text-white">
-            <div class="card-body text-center">
-              <h5 class="card-title">Debugging</h5>
-              <p class="card-text" id="currentSizeC">
-                Current Size: {{ DebuggingCount }}
-              </p>
-            </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="status-description">Debugging</h6>
+            <p class="status-text" style="color: #6f42c1">Next No</p>
+          </div>
+          <div class="status-box text-white" style="background-color: #6f42c1">
+            <h5 class="status-title">D {{ DebuggingCount }}</h5>
           </div>
         </div>
         <div class="col-6 col-md-3">
-          <div class="card queue-d text-white">
-            <div class="card-body text-center">
-              <h5 class="card-title">Assignments</h5>
-              <p class="card-text" id="currentSizeD">
-                Current Size: {{ AssignmentCount }}
-              </p>
-            </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="status-description">Assignments</h6>
+            <p class="status-text" style="color: #dc3545">Next No</p>
+          </div>
+          <div class="status-box text-white" style="background-color: #dc3545">
+            <h5 class="status-title">A {{ AssignmentCount }}</h5>
           </div>
         </div>
       </div>
