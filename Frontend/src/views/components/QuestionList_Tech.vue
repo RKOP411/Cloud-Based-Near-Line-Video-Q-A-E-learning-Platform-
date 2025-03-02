@@ -132,7 +132,7 @@
               </div>
               <br />
               <!-- Text Editor-->
-              <div id="toolbar">
+              <div id="toolbar" v-if="activeQuill === question.QAID">
                 <button class="ql-bold"></button>
                 <button class="ql-italic"></button>
                 <button class="ql-underline"></button>
@@ -180,7 +180,7 @@
 
 <script>
 import {
-  GetAllQuestion,
+  GetAllQuestionByQueueListID,
   DomainName,
   AddAnswerByQuestionID,
   GetQueue,
@@ -205,7 +205,9 @@ export default {
   },
   methods: {
     async GetAllQueue() {
-      fetch(GetQueue)
+      const urlParams = new URLSearchParams(window.location.search);
+      const QueueListID=  urlParams.get("QueueListID");
+      fetch(`${GetQueue}/${QueueListID}`)
         .then((response) => response.json())
         .then((data) => {
           console.log(data);
@@ -213,6 +215,7 @@ export default {
           this.LabWorkCount = data["Lab Work"];
           this.DebuggingCount = data.Debugging;
           this.AssignmentCount = data.Assignments;
+          console.log(data);
         });
     },
     AnswerQuestion(id) {
@@ -238,10 +241,15 @@ export default {
           this.GetAllQueue();
           this.quillCreated = true;
           //remove the Quill editor and toolbar
-          var editorContainer = document.getElementById("TextEditor");
-          var toolbarContainer = document.getElementById("toolbar");
-          editorContainer.parentNode.removeChild(editorContainer); // Remove the editor
-          toolbarContainer.parentNode.removeChild(toolbarContainer); // Remove the toolbar
+          // this.$nextTick(() => {
+          //   var editorContainer = document.getElementById("TextEditor");
+          //   var toolbarContainer = document.getElementById("toolbar");
+          //   if (editorContainer && toolbarContainer) {
+          //     // editorContainer.parentNode.removeChild(editorContainer); // Remove the editor
+          //     // toolbarContainer.parentNode.removeChild(toolbarContainer); // Remove the toolbar
+          //   }
+          // });
+          
         });
     },
     createQuill(id) {
@@ -285,7 +293,9 @@ export default {
       this.$router.push("/questionlist/createquestion");
     },
     async getQuestions() {
-      fetch(GetAllQuestion)
+      const urlParams = new URLSearchParams(window.location.search);
+      const QueueListID=  urlParams.get("QueueListID");
+      fetch(`${GetAllQuestionByQueueListID}/${QueueListID}`)
         .then((response) => response.json())
         .then((data) => {
           for (let i = 0; i < data.length; i++) {
@@ -367,6 +377,11 @@ export default {
 .status-title {
   font-size: 44px;
   margin: 0;
+}
+.status-description {
+  font-size: 16px; /* Adjust size as needed */
+  margin: 0; /* Remove margin for better alignment */
+  font-weight: bold; /* Make it bold */
 }
 
 .status-text {

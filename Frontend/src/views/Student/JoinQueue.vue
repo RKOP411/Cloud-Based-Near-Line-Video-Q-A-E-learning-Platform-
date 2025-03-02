@@ -11,7 +11,7 @@
               </div>
             </div>
             <div class="card-body">
-              <div class="alert alert-danger" role="alert"></div>
+              <div v-if="errmsg" class="alert alert-danger" role="alert"> {{ errmsg }}</div>
               <!-- Select Bar-->
               <ul class="nav nav-tabs mb-3">
                 <li class="nav-item">
@@ -20,7 +20,7 @@
                     aria-current="page"
                     href="#"
                     @click="CheangeToLink"
-                    >Link</a
+                    >Access Code</a
                   >
                 </li>
                 <li class="nav-item">
@@ -35,10 +35,11 @@
               <!--Queue Code-->
               <div class="row">
                 <div class="col-md-9 mb-4" v-if="IsLink">
-                  <label class="form-control-label">Queue Code</label>
+                  <label class="form-control-label">Code</label>
                   <input
                     class="form-control"
                     type="text"
+                    v-model="AccessCode"
                     placeholder="1234-4567 *"
                   />
                 </div>
@@ -57,7 +58,7 @@
                 <!-- QR Code Inputtt End -->
               </div>
               <hr class="horizontal dark" />
-              <button type="button" class="btn btn-success">Join</button>
+              <button type="button" class="btn btn-success" @click="JoinQueue">Join</button>
             </div>
             <hr class="horizontal dark" />
           </div>
@@ -67,11 +68,15 @@
   </main>
 </template>
 <script>
+import { FindQueueByAccessCode } from "../../assets/Domain.js";
 export default {
   data() {
     return {
+      errmsg: "",
       IsQRcode: false,
       IsLink: true,
+      AccessCode: "",
+      RetrunQueueListID: "",
     };
   },
   methods: {
@@ -82,6 +87,23 @@ export default {
     CheangeToLink() {
       this.IsQRcode = false;
       this.IsLink = true;
+    },
+    async JoinQueue() {
+      if(this.AccessCode === ""){
+        this.errmsg = "Please enter Access code";
+        return;
+      }
+      const response = await fetch(
+          `${FindQueueByAccessCode}/${this.AccessCode}`
+        );
+
+      const data = await response.json();
+      this.RetrunQueueListID = data.QueueListID;
+      localStorage.setItem('QueueListID', this.RetrunQueueListID);
+      this.$router.push({
+        path: "/questionlist",
+      
+      });
     },
   },
 };

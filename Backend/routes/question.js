@@ -19,6 +19,9 @@ router.post('/AddAnswerByQuestionID', async function (req, res) {
         const sql2 = `UPDATE Question SET Replied = 1 WHERE QAID = ?`;
         connection.query(sql2, [QAID])
 
+        const sql3 = `UPDATE Customer_queue SET Status = 'solved' WHERE QAID = ?`;
+        connection.query(sql3, [QAID]);
+
         res.status(200).json({ message: 'Answer added successfully' });
         // Close the connection after the query is executed
         connection.end();
@@ -95,8 +98,23 @@ router.get('/GetAllQuestion', async function (req, res, next) {
 
         const sql = `
         SELECT 
-            q.*, 
-            m.*,
+            q.QAID, 
+            q.UserID as QuestionUserID, 
+            q.MediaID, 
+            q.CourseID, 
+            q.QuestionTitle, 
+            q.Description, 
+            q.UploadTime, 
+            q.Type, 
+            q.Replied, 
+            q.Checking, 
+            q.QueueListID, 
+            m.UserID as MediaUserID,
+            m.MediaID, 
+            m.Video_Type, 
+            m.Title, 
+            m.UploadDate, 
+            m.Path, 
             u.UserName 
         FROM 
             Question q
@@ -104,7 +122,7 @@ router.get('/GetAllQuestion', async function (req, res, next) {
         LEFT JOIN Media m ON q.MediaID = m.MediaID 
         WHERE 
             q.Replied = 0
-        Order by q.UploadTime
+        ORDER BY q.UploadTime
     `;
         connection.query(sql, (err, results) => {
             if (err) {
@@ -124,15 +142,68 @@ router.get('/GetAllQuestion', async function (req, res, next) {
     }
 });
 
+router.get('/GetAllQuestionByQueueListID/:QueueListID', async function (req, res, next) {
+    try {
+        const { QueueListID } = req.params;
+        const connection = await connectToDB();
+
+        const sql = `
+        SELECT 
+            q.QAID, 
+            q.UserID as QuestionUserID, 
+            q.MediaID, 
+            q.CourseID, 
+            q.QuestionTitle, 
+            q.Description, 
+            q.UploadTime, 
+            q.Type, 
+            q.Replied, 
+            q.Checking, 
+            q.QueueListID, 
+            m.UserID as MediaUserID,
+            m.MediaID, 
+            m.Video_Type, 
+            m.Title, 
+            m.UploadDate, 
+            m.Path, 
+            u.UserName 
+        FROM 
+            Question q
+        LEFT JOIN User u ON q.UserID = u.UserID       
+        LEFT JOIN Media m ON q.MediaID = m.MediaID 
+        WHERE 
+            q.QueueListID = ?
+        AND
+            q.Replied = 0
+        ORDER BY q.UploadTime
+    `;
+        connection.query(sql, [QueueListID], (err, results) => {
+            if (err) {
+                console.error('Error getting Question:', err);
+                console.log("Database error");
+            }
+            console.log(results);
+            res.status(200).json(results);
+        });
+
+        // Close the connection
+        connection.end();
+
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 router.post('/CreateQuestion', async function (req, res, next) {
     try {
-        const { UserID, QuestionTitle, Type, Description } = req.body;
+        const { UserID, QuestionTitle, Type, Description, QueueListID } = req.body;
 
 
         const connection = await connectToDB();
 
-        const sql = `INSERT INTO Question (UserID, QuestionTitle, Type, Description, UploadTime, Replied, Checking) VALUES (?, ?, ?, ?, NOW(), 0, 0)`;
-        connection.query(sql, [UserID, QuestionTitle, Type, Description], (error, results) => {
+        const sql = `INSERT INTO Question (UserID, QuestionTitle, Type, Description, UploadTime, Replied, Checking, QueueListID) VALUES (?, ?, ?, ?, NOW(), 0, 0, ?)`;
+        connection.query(sql, [UserID, QuestionTitle, Type, Description, QueueListID], (error, results) => {
             if (error) {
                 console.error('Database error:', error);
                 return res.status(500).send('Database error');
@@ -172,7 +243,7 @@ router.post('/CreateQuestionWithVideo', async function (req, res, next) {
         }
 
         try {
-            const { UserID, QuestionTitle, Type, Description } = req.body;
+            const { UserID, QuestionTitle, Type, Description, QueueListID } = req.body;
             const VideoPath = req.file ? req.file.path : null;
             const VidoType = req.file ? req.file.mimetype : null;
 
@@ -195,8 +266,8 @@ router.post('/CreateQuestionWithVideo', async function (req, res, next) {
             const mediaId = mediaResult[0].MediaID;
 
             // Step 3: Insert the Question
-            const sql3 = `INSERT INTO Question (UserID, QuestionTitle, Type, Description, MediaID, UploadTime, Replied, Checking) VALUES (?, ?, ?, ?, ?, NOW(), 0, 0)`;
-            connection.query(sql3, [UserID, QuestionTitle, Type, Description, mediaId]);
+            const sql3 = `INSERT INTO Question (UserID, QuestionTitle, Type, Description, MediaID, UploadTime, Replied, Checking, QueueListID) VALUES (?, ?, ?, ?, ?, NOW(), 0, 0, ?)`;
+            connection.query(sql3, [UserID, QuestionTitle, Type, Description, mediaId, QueueListID]);
 
 
 

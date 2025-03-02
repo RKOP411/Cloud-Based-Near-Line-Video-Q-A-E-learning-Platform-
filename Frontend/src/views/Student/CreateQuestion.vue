@@ -127,6 +127,7 @@ export default {
   setup() {
     const router = useRouter();
     const Email = localStorage.getItem("Email");
+    const QueueListID = localStorage.getItem("QueueListID");
     const QuestionTitle = ref("");
     const quill = ref(null);
     const IsVideo = ref(false);
@@ -193,8 +194,8 @@ export default {
         errormsg.value = "Please fill all fields";
         return;
       }
-      const formData = new FormData();
-      console.log(formData);
+      //const formData = new FormData();
+      //console.log(formData);
       const response = await fetch(CreateQuestion, {
         method: "POST",
         headers: {
@@ -205,6 +206,7 @@ export default {
           Description: quill.value.root.innerHTML,
           Type: type.value,
           UserID: userId,
+          QueueListID: QueueListID,
         }),
       });
 
@@ -229,6 +231,7 @@ export default {
       if (videoFile) {
         formData.append("video", videoFile);
       }
+      formData.append("QueueListID", QueueListID);
       const response = await fetch(CreateQuestionWithVideo, {
         method: "POST",
         body: formData,

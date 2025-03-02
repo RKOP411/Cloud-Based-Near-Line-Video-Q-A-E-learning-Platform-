@@ -55,7 +55,7 @@
             <tr v-if="items.length === 0">
               <td colspan="6" class="text-center">No data available</td>
             </tr>
-            <tr v-for="(queue, index) in items" :key="index" class="hover-row">
+            <tr v-for="(queue, index) in items" :key="index" class="hover-row" @click="goToAnswerQuestion(queue.QueueListID)">
               <td style="padding-left: 25px">{{ queue.QueueListID }}</td>
               <td style="padding-left: 25px">{{ queue.AccessCode }}</td>
               <td>
@@ -112,6 +112,12 @@ export default {
     return { Email, UserID };
   },
   methods: {
+    goToAnswerQuestion(QueueListID){
+      this.$router.push({
+        path: "/managequeue/answerquestion",
+        query: { QueueListID: QueueListID }
+      });
+    },
     goToCreateQueue() {
       this.$router.push("/createqueue");
     },

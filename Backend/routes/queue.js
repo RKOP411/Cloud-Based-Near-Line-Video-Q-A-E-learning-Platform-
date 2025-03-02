@@ -125,39 +125,40 @@ router.post('/AddQueue', async (req, res) => {
     }
 });
 
-router.get('/GetQueue', async (req, res) => {
+router.get('/GetQueue/:QueueListID', async (req, res) => {
     try {
+        const { QueueListID } = req.params;
 
         const connection = await connectToDB();
-        const countTheoryQuery = 'SELECT COUNT(*) AS count FROM Question WHERE Type = "Theory" AND Replied = 0';
+        const countTheoryQuery = 'SELECT COUNT(*) AS count FROM Question WHERE Type = "Theory" AND Replied = 0 AND QueueListID = ?';
 
-        const countLabWorkQuery = 'SELECT COUNT(*) AS count FROM Question WHERE Type = "Lab Work" AND Replied = 0';
+        const countLabWorkQuery = 'SELECT COUNT(*) AS count FROM Question WHERE Type = "lab-work" AND Replied = 0 AND QueueListID = ?';
 
-        const countDebuggingQuery = 'SELECT COUNT(*) AS count FROM Question WHERE Type = "Debugging" AND Replied = 0';
+        const countDebuggingQuery = 'SELECT COUNT(*) AS count FROM Question WHERE Type = "Debugging" AND Replied = 0 AND QueueListID = ?';
 
-        const countAssignmentsQuery = 'SELECT COUNT(*) AS count FROM Question WHERE Type = "Assignments" AND Replied = 0';
+        const countAssignmentsQuery = 'SELECT COUNT(*) AS count FROM Question WHERE Type = "Assignments" AND Replied = 0 AND QueueListID = ?';
 
         const results = await Promise.all([
             new Promise((resolve, reject) => {
-                connection.query(countTheoryQuery, (error, results) => {
+                connection.query(countTheoryQuery, [QueueListID], (error, results) => {
                     if (error) return reject(error);
                     resolve(results[0].count);
                 });
             }),
             new Promise((resolve, reject) => {
-                connection.query(countLabWorkQuery, (error, results) => {
+                connection.query(countLabWorkQuery, [QueueListID], (error, results) => {
                     if (error) return reject(error);
                     resolve(results[0].count);
                 });
             }),
             new Promise((resolve, reject) => {
-                connection.query(countDebuggingQuery, (error, results) => {
+                connection.query(countDebuggingQuery, [QueueListID], (error, results) => {
                     if (error) return reject(error);
                     resolve(results[0].count);
                 });
             }),
             new Promise((resolve, reject) => {
-                connection.query(countAssignmentsQuery, (error, results) => {
+                connection.query(countAssignmentsQuery, [QueueListID], (error, results) => {
                     if (error) return reject(error);
                     resolve(results[0].count);
                 });
@@ -269,6 +270,39 @@ router.get('/GetQueue_listByCreatorID/:CreatorID', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+router.get('/FindQueueByAccessCode/:AccessCode', async (req, res) => {
+    try {
+        const { AccessCode } = req.params;
+
+        if (!AccessCode) {
+            return res.status(400).send('AccessCode is required');
+        }
+
+        const connection = await connectToDB();
+
+        // Query to get QueueListID by AccessCode
+        const query = 'SELECT QueueListID FROM Queue_list WHERE AccessCode = ?';
+        const results = await new Promise((resolve, reject) => {
+            connection.query(query, [AccessCode], (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+        if (results.length === 0) {
+            return res.status(404).send('QueueListID not found');
+        }
+
+        res.status(200).json({ QueueListID: results[0].QueueListID });
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving QueueListID:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 
 // Export the router
 module.exports = router;

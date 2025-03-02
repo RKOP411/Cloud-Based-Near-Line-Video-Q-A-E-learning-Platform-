@@ -25,7 +25,7 @@ CREATE TABLE Question(
   MediaID int,
   CourseID int,
   QueueListID int,
-  Week INT DEFAULT 1 NOT NULL
+  Week INT DEFAULT 1 NOT NULL,
   QuestionTitle varchar(255) NOT NULL,
   Description text NOT NULL,
   UploadTime datetime,
@@ -65,10 +65,10 @@ CREATE TABLE Queue_list (
   QueueListID INT AUTO_INCREMENT PRIMARY KEY,
   CourseID int,
   CreatorID INT NOT NULL,
-  Status ENUM('RUNNING', 'PAUSED', 'CLOSED') NOT NULL;
+  Status ENUM('RUNNING', 'PAUSED', 'CLOSED') NOT NULL,
   Created DATETIME NOT NULL,
   CloseDate DATETIME DEFAULT NULL,
-  CourseWeek Week INT DEFAULT 1 NOT NULL
+  CourseWeek INT DEFAULT 1 NOT NULL,
   AccessCode VARCHAR(10) UNIQUE,
   TimeOut INT NOT NULL DEFAULT 86400 CHECK (TimeOut BETWEEN 86400 AND 604800),
   FOREIGN KEY (CourseID) REFERENCES Course(CourseID)

@@ -37,6 +37,7 @@ const CreateQuestionWithVideo = DomainName + "qa/CreateQuestionWithVideo";
 const AddAnswerByQuestionID = DomainName + "qa/AddAnswerByQuestionID";
 const GetQuestionByUserID = DomainName + "qa/GetQuestionByUserID/";
 const GetAnswerByQAID = DomainName + "qa/GetAnswerByQAID/";
+const GetAllQuestionByQueueListID = DomainName + "qa/GetAllQuestionByQueueListID";
 
 //Queue
 const AddQueue = DomainName + "queue/AddQueue";
@@ -44,6 +45,7 @@ const AddCustomrQueue = DomainName + "queue/AddCustomrQueue";
 const GetQueue = DomainName + "queue/GetQueue";
 const CreateQueue_list = DomainName + "queue/CreateQueue_list";
 const GetQueue_listByCreatorID = DomainName + "queue/GetQueue_listByCreatorID";
+const FindQueueByAccessCode = DomainName + "queue/FindQueueByAccessCode";
 
 export {
     DomainName,
@@ -52,7 +54,7 @@ export {
     GetAllCourses, GetCoursesByUserID, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse,CreateForumWithVideo, 
     ForumLikes, AddLike, CheckUserLiked, DeleteLike,
     AddCommentLike, AddCommentLike_Num, CheckUserLikedComment, DeleteCommentLike, DeleteCommentLike_Num,
-    GetUserByEmail, GetAllQuestion,
+    GetUserByEmail, GetAllQuestion, GetAllQuestionByQueueListID,
     CreateQuestion, CreateQuestionWithVideo,AddAnswerByQuestionID, GetQuestionByUserID,GetAnswerByQAID,
-    AddQueue,AddCustomrQueue, GetQueue, CreateQueue_list, GetQueue_listByCreatorID
+    AddQueue,AddCustomrQueue, GetQueue, CreateQueue_list, GetQueue_listByCreatorID, FindQueueByAccessCode
 };

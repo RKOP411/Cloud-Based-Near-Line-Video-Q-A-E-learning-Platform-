@@ -160,12 +160,13 @@
   </div>
 </template>
 <script>
-import { GetAllQuestion, DomainName, GetQueue } from "../../assets/Domain.js";
+import { GetAllQuestionByQueueListID, DomainName, GetQueue, } from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
 const userId = localStorage.getItem("UserID");
 export default {
   data() {
     return {
+      QueueListID: localStorage.getItem("QueueListID"),
       TheoryCount: 0,
       LabWorkCount: 0,
       DebuggingCount: 0,
@@ -178,7 +179,7 @@ export default {
       this.$router.push("/questionlist/createquestion");
     },
     async GetAllQueue() {
-      fetch(GetQueue)
+      fetch(`${GetQueue}/${this.QueueListID}`)
         .then((response) => response.json())
         .then((data) => {
           console.log(data);
@@ -189,7 +190,7 @@ export default {
         });
     },
     async getQuestions() {
-      fetch(GetAllQuestion)
+      fetch(`${GetAllQuestionByQueueListID}/${this.QueueListID}`)
         .then((response) => response.json())
         .then((data) => {
           for (let i = 0; i < data.length; i++) {
@@ -198,7 +199,8 @@ export default {
           this.questions = data;
 
           for (let i = 0; i < this.questions.length; i++) {
-            if (this.questions[i].UserID == userId) {
+            if (this.questions[i].QuestionUserID == userId) {
+              //console.log(this.questions[i].QuestionUserID+" to "+userId);
               this.questions[i].UserName = "You";
             }
             // Replace backslashes with forward slashes
@@ -261,6 +263,28 @@ export default {
 </script>
 
 <style setup>
+
+.status-box {
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.status-title {
+  font-size: 44px;
+  margin: 0;
+}
+.status-description {
+  font-size: 16px; /* Adjust size as needed */
+  margin: 0; /* Remove margin for better alignment */
+  font-weight: bold; /* Make it bold */
+}
+
+.status-text {
+  font-size: 14px;
+  margin: 0;
+}
 .queue-a {
   background-color: #28a745 !important;
   padding: 1px;
