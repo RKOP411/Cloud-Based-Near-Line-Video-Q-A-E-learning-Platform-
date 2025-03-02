@@ -207,11 +207,11 @@ router.post('/CreateQueue_list', async (req, res) => {
         const queryCourseWeek = 'SELECT CourseWeek FROM Queue_list WHERE CourseID = ? AND CreatorID = ? ORDER BY CourseWeek DESC LIMIT 1';
         await new Promise((resolve, reject) => {
             connection.query(queryCourseWeek, [CourseID, CreatorID], (error, results) => {
-            if (error) return reject(error);
-            if (results.length > 0) {
-                CourseWeek = results[0].CourseWeek + 1;
-            }
-            resolve(results);
+                if (error) return reject(error);
+                if (results.length > 0) {
+                    CourseWeek = results[0].CourseWeek + 1;
+                }
+                resolve(results);
             });
         });
 
@@ -302,6 +302,59 @@ router.get('/FindQueueByAccessCode/:AccessCode', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+router.get('/getAvgTakeTimeByUserID/:UserID', async (req, res) => {
+    try {
+        const { UserID } = req.params;
+        let avg_taketime = 0;
+        let Num_Waiting = 0;
+        if (!UserID) {
+            return res.status(400).send('UserID is required');
+        }
+
+        const connection = await connectToDB();
+
+        // Query to get the average TakeTime by UserID from Answer table
+        const query = 'SELECT AVG(TakeTime) AS avg_take_time FROM Answer WHERE UserID = ? GROUP BY UserID';
+        const results = await new Promise((resolve, reject) => {
+            connection.query(query, [UserID], (error, results) => {
+                if (error) return reject(error);
+                avg_taketime = results.length > 0 ? results[0].avg_take_time : 0;
+                resolve(results);
+            });
+        });
+
+        const waitingQuery = 'SELECT COUNT(*) AS WaitingCount FROM Customer_queue WHERE Status = "waiting"';
+        const waitingResults = await new Promise((resolve, reject) => {
+            connection.query(waitingQuery, (error, results) => {
+                if (error) return reject(error);
+                Num_Waiting = results[0].WaitingCount;
+                resolve(results);
+            });
+        });
+
+        const response = {
+            Estimated: avg_taketime * Num_Waiting,
+            Avg: avg_taketime,
+            Num_Waiting: Num_Waiting
+
+        };
+
+
+        if (results.length === 0) {
+            return res.status(404).send('No records found');
+        }
+
+        res.status(200).json(response);
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving TakeTime:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 
 
 // Export the router

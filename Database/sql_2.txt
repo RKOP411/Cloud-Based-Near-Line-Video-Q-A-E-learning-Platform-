@@ -89,6 +89,7 @@ CREATE TABLE Answer(
   UserID int,
   Text LONGTEXT,
   UploadTime datetime,
+    TakeTime INT DEFAULT 0,
   PRIMARY KEY (ASID),
   FOREIGN KEY (QAID) REFERENCES Question(QAID),
   FOREIGN KEY (UserID) REFERENCES User(UserID)

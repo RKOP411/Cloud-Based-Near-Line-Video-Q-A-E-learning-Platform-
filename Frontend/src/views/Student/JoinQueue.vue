@@ -6,12 +6,13 @@
           <div class="card">
             <div class="card-header pb-0">
               <div class="d-flex align-items-center">
-
                 <p class="mb-0">Join Queue</p>
               </div>
             </div>
             <div class="card-body">
-              <div v-if="errmsg" class="alert alert-danger" role="alert"> {{ errmsg }}</div>
+              <div v-if="errmsg" class="alert alert-danger" role="alert">
+                {{ errmsg }}
+              </div>
               <!-- Select Bar-->
               <ul class="nav nav-tabs mb-3">
                 <li class="nav-item">
@@ -58,7 +59,9 @@
                 <!-- QR Code Inputtt End -->
               </div>
               <hr class="horizontal dark" />
-              <button type="button" class="btn btn-success" @click="JoinQueue">Join</button>
+              <button type="button" class="btn btn-success" @click="JoinQueue">
+                Join
+              </button>
             </div>
             <hr class="horizontal dark" />
           </div>
@@ -89,23 +92,28 @@ export default {
       this.IsLink = true;
     },
     async JoinQueue() {
-      if(this.AccessCode === ""){
+      if (this.AccessCode === "") {
         this.errmsg = "Please enter Access code";
         return;
       }
       const response = await fetch(
-          `${FindQueueByAccessCode}/${this.AccessCode}`
-        );
-
+        `${FindQueueByAccessCode}/${this.AccessCode}`
+      );
+      if (response.status === 404) {
+        this.errmsg = "Invalid Access Code";
+        return;
+      }
       const data = await response.json();
       this.RetrunQueueListID = data.QueueListID;
-      localStorage.setItem('QueueListID', this.RetrunQueueListID);
-      setTimeout(() => {
-        localStorage.removeItem('QueueListID');
-      }, 8 * 60 * 60 * 1000); // 8 hours in milliseconds
+      localStorage.setItem("QueueListID", this.RetrunQueueListID);
+      setTimeout(
+        () => {
+          localStorage.removeItem("QueueListID");
+        },
+        8 * 60 * 60 * 1000
+      ); // 8 hours in milliseconds
       this.$router.push({
         path: "/questionlist",
-      
       });
     },
   },

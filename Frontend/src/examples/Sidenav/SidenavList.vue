@@ -1,9 +1,8 @@
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "vuex";
 import SidenavItem from "./SidenavItem.vue";
-
 
 const store = useStore();
 const isRTL = computed(() => store.state.isRTL);
@@ -19,9 +18,16 @@ const getRoute = () => {
   const routeArr = route.path.split("/");
   return routeArr[1];
 };
+let QueueListID = ref("");
+if (localStorage.getItem("QueueListID") != null) {
+  QueueListID.value = localStorage.getItem("QueueListID");
+}
 </script>
 <template>
-  <div class="collapse navbar-collapse w-auto h-auto h-100" id="sidenav-collapse-main">
+  <div
+    class="collapse navbar-collapse w-auto h-auto h-100"
+    id="sidenav-collapse-main"
+  >
     <ul class="navbar-nav">
       <li class="nav-item">
         <sidenav-item
@@ -31,7 +37,10 @@ const getRoute = () => {
           :navText="'Analytic Dashboard'"
         >
           <template v-slot:icon>
-            <i class="ni ni-chart-bar-32 text-primary text-sm opacity-10" aria-hidden="true"></i>
+            <i
+              class="ni ni-chart-bar-32 text-primary text-sm opacity-10"
+              aria-hidden="true"
+            ></i>
           </template>
         </sidenav-item>
       </li>
@@ -48,17 +57,27 @@ const getRoute = () => {
           </template>
         </sidenav-item>
       </li>
-
-  
       <li class="nav-item">
         <sidenav-item
-          v-if="Role == 'Student'"
+          v-if="Role == 'Student' && QueueListID"
+          to="/questionlist"
+          :class="getRoute() === 'questionlist' ? 'active' : ''"
+          :navText="'Question List'"
+        >
+          <template v-slot:icon>
+        <i class="fa fa-list text-warning text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+      <li class="nav-item">
+        <sidenav-item
+          v-if="Role == 'Student' && !QueueListID"
           to="/joinqueue"
           :class="getRoute() === 'billing' ? 'active' : ''"
           :navText="'Queue'"
         >
           <template v-slot:icon>
-            <i class="fa fa-list text-warning text-sm opacity-10"></i>
+        <i class="fa fa-list text-warning text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>
@@ -139,8 +158,6 @@ const getRoute = () => {
         </sidenav-item>
       </li> -->
 
-
-
       <!-- ACCOUNT PAGES -->
 
       <li class="mt-3 nav-item">
@@ -190,4 +207,3 @@ const getRoute = () => {
     </ul>
   </div>
 </template>
-

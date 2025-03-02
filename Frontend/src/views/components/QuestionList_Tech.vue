@@ -199,6 +199,7 @@ export default {
       LabWorkCount: 0,
       DebuggingCount: 0,
       AssignmentCount: 0,
+      AnswerTimer: 0,
       questions: [],
       activeQuill: null, // Track which Quill editor is active
       quill: null, // Store the Quill instance
@@ -208,6 +209,9 @@ export default {
     };
   },
   methods: {
+    beforeDestroy() {
+      clearInterval(this.timerInterval);
+    },
     sendStatus(isOnline) {
       fetch(SendStatus, {
         method: "POST",
@@ -217,7 +221,7 @@ export default {
         body: JSON.stringify({
           userId: userId,
           status: isOnline ? "online" : "idle",
-        }), 
+        }),
       })
         .then((response) => response.json())
         .then(() => {
@@ -275,6 +279,7 @@ export default {
           QAID: id,
           Answer: quillContent,
           UserID: userId,
+          Timer : this.AnswerTimer,
         }),
       })
         .then((response) => response.json())
@@ -292,9 +297,20 @@ export default {
           //     // toolbarContainer.parentNode.removeChild(toolbarContainer); // Remove the toolbar
           //   }
           // });
+          this.AnswerTimer = 0; // Reset the timer
+          this.beforeDestroy();
         });
     },
     createQuill(id) {
+      if (this.AnswerTimer != 0) {
+        clearInterval(this.AnswerTimer);
+      }
+      //Timer Counter
+      this.AnswerTimer = 0; // Reset the timer
+      this.timerInterval = setInterval(() => {
+        this.AnswerTimer++;
+        //console.log(this.AnswerTimer);
+      }, 1000);
       if (this.quillCreated) {
         this.quillCreated = false;
         this.activeQuill = null;
@@ -413,6 +429,7 @@ export default {
   mounted() {
     this.getQuestions();
     this.GetAllQueue();
+    this.beforeDestroy();
 
     // Event listeners for user activity
     window.addEventListener("mousemove", this.setUserOnline);

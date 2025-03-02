@@ -69,4 +69,31 @@ router.post('/status', async (req, res) => {
 });
 
 
+router.get('/GetStatus/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId) {
+    console.error("User ID is undefined");
+    return res.status(400).send('User ID is required');
+  }
+
+  const connection = await connectToDB();
+  const sql = `SELECT Status FROM User WHERE UserID = ?`;
+
+  connection.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching status:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+    if (results.length === 0) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    res.status(200).json({ status: results[0].Status });
+    connection.end(); // End the connection after the query
+  });
+});
+
 module.exports = router;

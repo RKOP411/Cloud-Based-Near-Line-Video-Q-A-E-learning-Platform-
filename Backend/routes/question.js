@@ -9,12 +9,12 @@ app.use(cors());
 
 router.post('/AddAnswerByQuestionID', async function (req, res) {
     try {
-        const { UserID, QAID, Answer } = req.body;
+        const { UserID, QAID, Answer, Timer } = req.body;
 
         const connection = await connectToDB();
 
-        const sql = `INSERT INTO Answer (UserID, QAID, Text, UploadTime) VALUES (?, ?, ?, NOW())`;
-        connection.query(sql, [UserID, QAID, Answer])
+        const sql = `INSERT INTO Answer (UserID, QAID, Text, UploadTime, TakeTime) VALUES (?, ?, ?, NOW(), ?)`;
+        connection.query(sql, [UserID, QAID, Answer, Timer]);
 
         const sql2 = `UPDATE Question SET Replied = 1 WHERE QAID = ?`;
         connection.query(sql2, [QAID])
@@ -99,7 +99,7 @@ router.get('/GetAllQuestion', async function (req, res, next) {
         const sql = `
         SELECT 
             q.QAID, 
-            q.UserID as QuestionUserID, 
+            q.UserID as StudentUserID, 
             q.MediaID, 
             q.CourseID, 
             q.QuestionTitle, 
@@ -150,7 +150,7 @@ router.get('/GetAllQuestionByQueueListID/:QueueListID', async function (req, res
         const sql = `
         SELECT 
             q.QAID, 
-            q.UserID as QuestionUserID, 
+            q.UserID as StudentUserID, 
             q.MediaID, 
             q.CourseID, 
             q.QuestionTitle, 
@@ -167,7 +167,7 @@ router.get('/GetAllQuestionByQueueListID/:QueueListID', async function (req, res
             m.UploadDate, 
             m.Path, 
             u.UserName, 
-            ql.AccessCode
+            ql.CreatorID as TeacherUserID
         FROM 
             Question q
         LEFT JOIN User u ON q.UserID = u.UserID       

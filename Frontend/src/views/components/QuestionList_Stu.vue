@@ -27,8 +27,19 @@
           <h5 class="mb-0" style="font-weight: 600;">Sayo Kravits</h5>
           <span class="badge" style="background-color: #488DCC; padding: 3px 8px; border-radius: 15px; font-size: 0.8rem; margin-left: 5px;">Teacher</span>
         </div>
-        <span class="badge bg-success ms-2" style="font-size: 0.8rem;">Online</span>
-        <div style="font-size: 0.9rem; color: #6c757d;">Course Name: <span style="color: #007bff;">Your Course Here</span></div>
+        <span 
+          :class="{
+            'badge': true,
+            'ms-2': true,
+            'bg-success': TeacherStatus === 'Online',
+            'bg-warning': TeacherStatus === 'Idle',
+            'bg-secondary': TeacherStatus === 'Offline'
+          }" 
+          style="font-size: 0.8rem;"
+        >
+          {{ TeacherStatus }}
+        </span>
+        <div style="font-size: 0.9rem; color: #6c757d;">Course Name: <span style="color: #007bff;">{{ CourseName }}</span></div>
       </div>
     </div>
   </div>
@@ -79,7 +90,7 @@
 
     <!-- Timer-->
     <div class="mt-4 text-center" id="timerDisplay">
-      <h3>Time Remaining: <span id="timeRemaining">1:00</span> minutes</h3>
+      <h3>Estimated Time: <span id="timeRemaining">{{ Waittime }}</span></h3>
     </div>
     <!-- Timer End -->
 
@@ -170,6 +181,8 @@ import {
   GetAllQuestionByQueueListID,
   DomainName,
   GetQueue,
+  GetStatus,
+  getAvgTakeTimeByUserID,
 } from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
 const userId = localStorage.getItem("UserID");
@@ -182,9 +195,21 @@ export default {
       DebuggingCount: 0,
       AssignmentCount: 0,
       questions: [],
+      CourseName: "",
+      TeacherUserID: "",
+      TeacherStatus: "",
+      Waittime: 0,
     };
   },
   methods: {
+    GetTeacherStatus(){
+      fetch(`${GetStatus}/${this.TeacherUserID}`)
+        .then((response) => response.json())
+        .then((data) => {
+         this.TeacherStatus = data.status;
+        // console.log(this.TeacherStatus);
+        });
+    },
     redirectToCreateQuestion() {
       this.$router.push("/questionlist/createquestion");
     },
@@ -207,6 +232,7 @@ export default {
             data[i].UploadTime = this.Calculate_LastUpdate(data[i].UploadTime);
           }
           this.questions = data;
+          this.TeacherUserID = data[0].TeacherUserID;
 
           for (let i = 0; i < this.questions.length; i++) {
             if (this.questions[i].QuestionUserID == userId) {
@@ -222,6 +248,7 @@ export default {
               const basePath = DomainName;
               this.questions[i].Path = basePath + this.questions[i].Path; // The full path
             }
+            this.getWaitTime(data[0].TeacherUserID);
           }
         });
     },
@@ -264,10 +291,37 @@ export default {
 
       return lastUpdatedTime;
     },
+    getWaitTime(TeacherUserID){
+      console.log("TeacherUserID"+TeacherUserID);
+      fetch(`${getAvgTakeTimeByUserID}/${TeacherUserID}`)
+        .then((response) => {
+          if (!response.ok) {
+        throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          this.Waittime = data.Estimated;
+            if (this.Waittime >= 3600) {
+            this.Waittime = (this.Waittime / 3600).toFixed(2) + ' hours';
+            } else if (this.Waittime >= 60) {
+            this.Waittime = (this.Waittime / 60).toFixed(2) + ' minutes';
+            } else {
+            this.Waittime = this.Waittime + ' seconds';
+            }
+              this.Waittime = parseFloat(this.Waittime).toFixed(0) + ' seconds';
+        })
+        .catch((error) => {
+          console.error('There was a problem with the fetch operation:', error);
+        });
+    },
   },
   mounted() {
     this.GetAllQueue();
     this.getQuestions();
+    setInterval(() => {
+      this.GetTeacherStatus();
+    }, 3000);
   },
 };
 </script>
