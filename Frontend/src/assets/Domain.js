@@ -47,6 +47,9 @@ const CreateQueue_list = DomainName + "queue/CreateQueue_list";
 const GetQueue_listByCreatorID = DomainName + "queue/GetQueue_listByCreatorID";
 const FindQueueByAccessCode = DomainName + "queue/FindQueueByAccessCode";
 
+//HeartBeat
+const SendStatus = DomainName + "status";
+
 export {
     DomainName,
     registerDomain, verifyEmailDomain, UpdateRankByUserID,
@@ -56,5 +59,7 @@ export {
     AddCommentLike, AddCommentLike_Num, CheckUserLikedComment, DeleteCommentLike, DeleteCommentLike_Num,
     GetUserByEmail, GetAllQuestion, GetAllQuestionByQueueListID,
     CreateQuestion, CreateQuestionWithVideo,AddAnswerByQuestionID, GetQuestionByUserID,GetAnswerByQAID,
-    AddQueue,AddCustomrQueue, GetQueue, CreateQueue_list, GetQueue_listByCreatorID, FindQueueByAccessCode
+    AddQueue,AddCustomrQueue, GetQueue, CreateQueue_list, GetQueue_listByCreatorID, FindQueueByAccessCode,
+    SendStatus
+
 };

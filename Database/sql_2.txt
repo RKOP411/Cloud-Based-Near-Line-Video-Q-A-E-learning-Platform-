@@ -16,6 +16,7 @@ CREATE TABLE User (
     Role varchar(10),
     Gender VARCHAR(10) DEFAULT NULL,
     T_rank ENUM('Dr', 'Prof', 'TA')  DEFAULT NULL,
+    Status ENUM('Online', 'Offline', 'Idle') DEFAULT 'Offline',
     PRIMARY KEY (UserID)
 );
 

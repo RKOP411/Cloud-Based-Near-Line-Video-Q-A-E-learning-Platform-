@@ -184,6 +184,7 @@ import {
   DomainName,
   AddAnswerByQuestionID,
   GetQueue,
+  SendStatus,
 } from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
 import Quill from "quill";
@@ -193,7 +194,7 @@ const userId = localStorage.getItem("UserID");
 export default {
   data() {
     return {
-      AccessCode:'',
+      AccessCode: "",
       TheoryCount: 0,
       LabWorkCount: 0,
       DebuggingCount: 0,
@@ -202,14 +203,52 @@ export default {
       activeQuill: null, // Track which Quill editor is active
       quill: null, // Store the Quill instance
       quillCreated: false,
+      userActive: false,
+      heartbeatInterval: null,
     };
   },
   methods: {
+    sendStatus(isOnline) {
+      fetch(SendStatus, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: userId,
+          status: isOnline ? "online" : "idle",
+        }), 
+      })
+        .then((response) => response.json())
+        .then(() => {
+          //console.log("Status response:", data);
+        })
+        .catch((error) => {
+          console.error("Error sending status:", error);
+        });
+    },
+    setUserOnline() {
+      if (!this.userActive) {
+        this.userActive = true;
+        this.sendStatus(true); // Send online status
+      }
+    },
+    setUserOffline() {
+      if (this.userActive) {
+        this.userActive = false;
+        this.sendStatus(false); // Send offline status
+      }
+    },
     async GetAllQueue() {
       const urlParams = new URLSearchParams(window.location.search);
       const QueueListID = urlParams.get("QueueListID");
       fetch(`${GetQueue}/${QueueListID}`)
-        .then((response) => response.json())
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
         .then((data) => {
           console.log(data);
           this.TheoryCount = data.Theory;
@@ -217,6 +256,9 @@ export default {
           this.DebuggingCount = data.Debugging;
           this.AssignmentCount = data.Assignments;
           console.log(data);
+        })
+        .catch((error) => {
+          console.error("Error fetching queue data:", error);
         });
     },
     AnswerQuestion(id) {
@@ -296,7 +338,12 @@ export default {
       const urlParams = new URLSearchParams(window.location.search);
       const QueueListID = urlParams.get("QueueListID");
       fetch(`${GetAllQuestionByQueueListID}/${QueueListID}`)
-        .then((response) => response.json())
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
         .then((data) => {
           for (let i = 0; i < data.length; i++) {
             data[i].UploadTime = this.Calculate_LastUpdate(data[i].UploadTime);
@@ -318,6 +365,9 @@ export default {
               this.questions[i].Path = basePath + this.questions[i].Path; // The full path
             }
           }
+        })
+        .catch((error) => {
+          console.error("Error fetching questions:", error);
         });
     },
     sanitize(commentHtml) {
@@ -363,6 +413,29 @@ export default {
   mounted() {
     this.getQuestions();
     this.GetAllQueue();
+
+    // Event listeners for user activity
+    window.addEventListener("mousemove", this.setUserOnline);
+    window.addEventListener("keypress", this.setUserOnline);
+
+    // Check user status every 4 seconds and send status
+    this.heartbeatInterval = setInterval(() => {
+      this.sendStatus(this.userActive); // Send heartbeat status
+      if (!this.userActive) {
+        this.setUserOffline(); // If inactive, send offline status
+      }
+    }, 4000); // 4 seconds
+
+    // Handle page unload event
+    window.addEventListener("beforeunload", () => {
+      this.setUserOffline(); // Mark user as offline
+      // Send offline status using sendBeacon
+      navigator.sendBeacon(
+        SendStatus,
+        JSON.stringify({ userId: userId, status: "Idle" })
+      );
+      clearInterval(this.heartbeatInterval); // Clear the interval
+    });
   },
 };
 </script>
