@@ -1,7 +1,7 @@
 <template>
   <div class="card">
     <div class="card-header pb-0 px-3">
-      <h6 class="mb-0">Questions Information</h6>
+      <h5 class="mb-0">Access Code - {{ AccessCode }}</h5>
     </div>
 
     <!-- Search Bar -->
@@ -193,6 +193,7 @@ const userId = localStorage.getItem("UserID");
 export default {
   data() {
     return {
+      AccessCode:'',
       TheoryCount: 0,
       LabWorkCount: 0,
       DebuggingCount: 0,
@@ -206,7 +207,7 @@ export default {
   methods: {
     async GetAllQueue() {
       const urlParams = new URLSearchParams(window.location.search);
-      const QueueListID=  urlParams.get("QueueListID");
+      const QueueListID = urlParams.get("QueueListID");
       fetch(`${GetQueue}/${QueueListID}`)
         .then((response) => response.json())
         .then((data) => {
@@ -249,7 +250,6 @@ export default {
           //     // toolbarContainer.parentNode.removeChild(toolbarContainer); // Remove the toolbar
           //   }
           // });
-          
         });
     },
     createQuill(id) {
@@ -294,7 +294,7 @@ export default {
     },
     async getQuestions() {
       const urlParams = new URLSearchParams(window.location.search);
-      const QueueListID=  urlParams.get("QueueListID");
+      const QueueListID = urlParams.get("QueueListID");
       fetch(`${GetAllQuestionByQueueListID}/${QueueListID}`)
         .then((response) => response.json())
         .then((data) => {
@@ -302,6 +302,7 @@ export default {
             data[i].UploadTime = this.Calculate_LastUpdate(data[i].UploadTime);
           }
           this.questions = data;
+          this.AccessCode = data[0].AccessCode;
 
           for (let i = 0; i < this.questions.length; i++) {
             if (this.questions[i].UserID == userId) {

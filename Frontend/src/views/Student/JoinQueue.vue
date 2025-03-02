@@ -100,6 +100,9 @@ export default {
       const data = await response.json();
       this.RetrunQueueListID = data.QueueListID;
       localStorage.setItem('QueueListID', this.RetrunQueueListID);
+      setTimeout(() => {
+        localStorage.removeItem('QueueListID');
+      }, 8 * 60 * 60 * 1000); // 8 hours in milliseconds
       this.$router.push({
         path: "/questionlist",
       

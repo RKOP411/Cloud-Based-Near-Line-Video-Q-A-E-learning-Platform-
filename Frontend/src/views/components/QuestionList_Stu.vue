@@ -3,31 +3,37 @@
     <!-- Course Information-->
     <div class="row align-items-center" style="margin-top: 10px">
       <div class="col">
-        <h5 style="margin-left: 20px; font-size: x-large">Course Name</h5>
+     
       </div>
       <div class="col-auto" style="margin-right: 20px">Week</div>
     </div>
     <!-- Course Information End-->
-    <div class="card-header pb-0 px-3">
-      <div class="row" style="background-color: #f8f8f8">
-        <div class="col-auto">
-          <div class="avatar avatar-xl position-relative">
-            <img
-              src="../../assets/img/team-3.jpg"
-              alt="profile_image"
-              class="shadow-sm w-70 border-radius-lg"
-            />
-          </div>
-        </div>
-        <div class="col-auto my-auto">
-          <div class="h-100">
-            <h5 class="mb-1">Sayo Kravits</h5>
-            <span class="badge badge-sm bg-gradient-success">Online</span>
-          </div>
+    <!-- Teacher Information -->
+    <div class="card" style="border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+  <div class="card-body">
+    <div class="row align-items-center">
+      <div class="col-auto">
+        <div class="avatar avatar-lg position-relative">
+          <img
+            src="../../assets/img/team-3.jpg"
+            alt="profile_image"
+            class="shadow-sm border-radius-lg"
+            style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid #007bff; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);"
+          />
         </div>
       </div>
+      <div class="col my-auto">
+        <div class="d-flex align-items-center">
+          <h5 class="mb-0" style="font-weight: 600;">Sayo Kravits</h5>
+          <span class="badge" style="background-color: #488DCC; padding: 3px 8px; border-radius: 15px; font-size: 0.8rem; margin-left: 5px;">Teacher</span>
+        </div>
+        <span class="badge bg-success ms-2" style="font-size: 0.8rem;">Online</span>
+        <div style="font-size: 0.9rem; color: #6c757d;">Course Name: <span style="color: #007bff;">Your Course Here</span></div>
+      </div>
     </div>
-
+  </div>
+</div>
+    <!-- Teacher Information End -->
     <!-- Queue -->
     <div class="container mt-5">
       <div class="row mt-4 justify-content-between">
@@ -160,7 +166,11 @@
   </div>
 </template>
 <script>
-import { GetAllQuestionByQueueListID, DomainName, GetQueue, } from "../../assets/Domain.js";
+import {
+  GetAllQuestionByQueueListID,
+  DomainName,
+  GetQueue,
+} from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
 const userId = localStorage.getItem("UserID");
 export default {
@@ -262,8 +272,49 @@ export default {
 };
 </script>
 
-<style setup>
+<style scoped>
+.card-header {
+  background-color: #f0f4f8;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
 
+.avatar {
+  position: relative;
+}
+
+.avatar img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid #007bff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.teacher-tag {
+  background-color: #e0efff;
+  padding: 3px 8px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+.badge-success {
+  background-color: #28a745;
+}
+
+h5 {
+  color: #343a40;
+}
+
+h6 {
+  color: #6c757d;
+}
 .status-box {
   padding: 20px;
   border-radius: 8px;

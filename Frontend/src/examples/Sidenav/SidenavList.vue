@@ -53,7 +53,7 @@ const getRoute = () => {
       <li class="nav-item">
         <sidenav-item
           v-if="Role == 'Student'"
-          to="/questionlist"
+          to="/joinqueue"
           :class="getRoute() === 'billing' ? 'active' : ''"
           :navText="'Queue'"
         >
