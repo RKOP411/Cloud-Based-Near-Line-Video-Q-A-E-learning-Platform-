@@ -94,12 +94,13 @@
 <script>
 import { useRouter } from "vue-router";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle";
-import { GetQueue_listByCreatorID } from "../../assets/Domain.js";
+import { GetQueue_listByCreatorID, getCurrentJoins, } from "../../assets/Domain.js";
 export default {
   data() {
     return {
       items: [],
       showAccessCode: false,
+      CurrentJoins: 0,
     };
   },
   setup() {
@@ -112,6 +113,21 @@ export default {
     return { Email, UserID };
   },
   methods: {
+    getJoins(QueueListID) {
+      fetch(`${getCurrentJoins}/${QueueListID}`)
+        .then((response) => {
+          if (!response.ok) {
+        throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          this.CurrentJoins = data[0].userCount;
+        })
+        .catch((error) => {
+          console.error("Error fetching current joins:", error);
+        });
+    },
     goToAnswerQuestion(QueueListID){
       this.$router.push({
         path: "/managequeue/answerquestion",
