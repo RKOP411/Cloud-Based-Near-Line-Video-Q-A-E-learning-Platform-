@@ -2,48 +2,67 @@
   <div class="card">
     <!-- Course Information-->
     <div class="row align-items-center" style="margin-top: 10px">
-      <div class="col">
-     
-      </div>
-      <div class="col-auto" style="margin-right: 20px">Week</div>
+      <div class="col"></div>
+      <div class="col-auto" style="margin-right: 20px"><button type="button" @click="quitThisQueue" class="btn btn-danger">Quit</button></div>
     </div>
     <!-- Course Information End-->
     <!-- Teacher Information -->
-    <div class="card" style="border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
-  <div class="card-body">
-    <div class="row align-items-center">
-      <div class="col-auto">
-        <div class="avatar avatar-lg position-relative">
-          <img
-            src="../../assets/img/team-3.jpg"
-            alt="profile_image"
-            class="shadow-sm border-radius-lg"
-            style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid #007bff; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);"
-          />
+    <div
+      class="card"
+      style="border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1)"
+    >
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-auto">
+            <div class="avatar avatar-lg position-relative">
+              <img
+                src="../../assets/img/team-3.jpg"
+                alt="profile_image"
+                class="shadow-sm border-radius-lg"
+                style="
+                  width: 70px;
+                  height: 70px;
+                  border-radius: 50%;
+                  border: 2px solid #007bff;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+                "
+              />
+            </div>
+          </div>
+          <div class="col my-auto">
+            <div class="d-flex align-items-center">
+              <h5 class="mb-0" style="font-weight: 600">Sayo Kravits</h5>
+              <span
+                class="badge"
+                style="
+                  background-color: #488dcc;
+                  padding: 3px 8px;
+                  border-radius: 15px;
+                  font-size: 0.8rem;
+                  margin-left: 5px;
+                "
+                >Teacher</span
+              >
+            </div>
+            <span
+              :class="{
+                badge: true,
+                'ms-2': true,
+                'bg-success': TeacherStatus === 'Online',
+                'bg-warning': TeacherStatus === 'Idle',
+                'bg-secondary': TeacherStatus === 'Offline',
+              }"
+              style="font-size: 0.8rem"
+            >
+              {{ TeacherStatus }}
+            </span>
+            <div style="font-size: 0.9rem; color: #6c757d">
+              Course Name: <span style="color: #007bff">{{ CourseName }}</span>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="col my-auto">
-        <div class="d-flex align-items-center">
-          <h5 class="mb-0" style="font-weight: 600;">Sayo Kravits</h5>
-          <span class="badge" style="background-color: #488DCC; padding: 3px 8px; border-radius: 15px; font-size: 0.8rem; margin-left: 5px;">Teacher</span>
-        </div>
-        <span 
-          :class="{
-            'badge': true,
-            'ms-2': true,
-            'bg-success': TeacherStatus === 'Online',
-            'bg-warning': TeacherStatus === 'Idle',
-            'bg-secondary': TeacherStatus === 'Offline'
-          }" 
-          style="font-size: 0.8rem;"
-        >
-          {{ TeacherStatus }}
-        </span>
-        <div style="font-size: 0.9rem; color: #6c757d;">Course Name: <span style="color: #007bff;">{{ CourseName }}</span></div>
       </div>
     </div>
-  </div>
-</div>
     <!-- Teacher Information End -->
     <!-- Queue -->
     <div class="container mt-5">
@@ -90,7 +109,9 @@
 
     <!-- Timer-->
     <div class="mt-4 text-center" id="timerDisplay">
-      <h3>Estimated Time: <span id="timeRemaining">{{ Waittime }}</span></h3>
+      <h3>
+        Estimated Time: <span id="timeRemaining">{{ Waittime }}</span>
+      </h3>
     </div>
     <!-- Timer End -->
 
@@ -183,6 +204,7 @@ import {
   GetQueue,
   GetStatus,
   getAvgTakeTimeByUserID,
+  QuitQueue,
 } from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
 const userId = localStorage.getItem("UserID");
@@ -202,12 +224,12 @@ export default {
     };
   },
   methods: {
-    GetTeacherStatus(){
+    GetTeacherStatus() {
       fetch(`${GetStatus}/${this.TeacherUserID}`)
         .then((response) => response.json())
         .then((data) => {
-         this.TeacherStatus = data.status;
-        // console.log(this.TeacherStatus);
+          this.TeacherStatus = data.status;
+          // console.log(this.TeacherStatus);
         });
     },
     redirectToCreateQuestion() {
@@ -233,6 +255,7 @@ export default {
           }
           this.questions = data;
           this.TeacherUserID = data[0].TeacherUserID;
+          this.CourseName = data[0].CourseName;
 
           for (let i = 0; i < this.questions.length; i++) {
             if (this.questions[i].QuestionUserID == userId) {
@@ -291,34 +314,52 @@ export default {
 
       return lastUpdatedTime;
     },
-    getWaitTime(TeacherUserID){
-      console.log("TeacherUserID"+TeacherUserID);
+    getWaitTime(TeacherUserID) {
+      console.log("TeacherUserID" + TeacherUserID);
       fetch(`${getAvgTakeTimeByUserID}/${TeacherUserID}`)
         .then((response) => {
           if (!response.ok) {
-        throw new Error('Network response was not ok');
+            throw new Error("Network response was not ok");
           }
           return response.json();
         })
         .then((data) => {
           this.Waittime = data.Estimated;
-            if (this.Waittime >= 3600) {
-            this.Waittime = (this.Waittime / 3600).toFixed(2) + ' hours';
-            } else if (this.Waittime >= 60) {
-            this.Waittime = (this.Waittime / 60).toFixed(2) + ' minutes';
-            } else {
-            this.Waittime = this.Waittime + ' seconds';
-            }
-              this.Waittime = parseFloat(this.Waittime).toFixed(0) + ' seconds';
+          if (this.Waittime >= 3600) {
+            this.Waittime = (this.Waittime / 3600).toFixed(2) + " hours";
+          } else if (this.Waittime >= 60) {
+            this.Waittime = (this.Waittime / 60).toFixed(2) + " minutes";
+          } else {
+            this.Waittime = this.Waittime + " seconds";
+          }
+          this.Waittime = parseFloat(this.Waittime).toFixed(0) + " seconds";
         })
         .catch((error) => {
-          console.error('There was a problem with the fetch operation:', error);
+          console.error("There was a problem with the fetch operation:", error);
         });
     },
+    quitThisQueue(){
+      fetch(`${QuitQueue}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          QueueListID: this.QueueListID,
+          UserID: userId,
+        }),
+      });
+      localStorage.removeItem("QueueListID");
+      this.$router.push("/joinqueue");
+    }
   },
   mounted() {
     this.GetAllQueue();
     this.getQuestions();
+    setInterval(() => {
+      this.GetAllQueue();
+      this.getQuestions();
+    }, 5000);
     setInterval(() => {
       this.GetTeacherStatus();
     }, 3000);

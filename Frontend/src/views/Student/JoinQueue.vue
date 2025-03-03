@@ -71,7 +71,7 @@
   </main>
 </template>
 <script>
-import { FindQueueByAccessCode } from "../../assets/Domain.js";
+import { FindQueueByAccessCode, JoinQueue } from "../../assets/Domain.js";
 export default {
   data() {
     return {
@@ -80,6 +80,7 @@ export default {
       IsLink: true,
       AccessCode: "",
       RetrunQueueListID: "",
+      UserID: localStorage.getItem("UserID"),
     };
   },
   methods: {
@@ -112,6 +113,22 @@ export default {
         },
         8 * 60 * 60 * 1000
       ); // 8 hours in milliseconds
+      await fetch(`${JoinQueue}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          QueueListID: this.RetrunQueueListID,
+          UserID: this.UserID,
+        }),
+      }).then((response) => {
+        if (response.status === 400) {
+          this.errmsg = "User is already in the queue";
+          return;
+        }
+      });
+
       this.$router.push({
         path: "/questionlist",
       });

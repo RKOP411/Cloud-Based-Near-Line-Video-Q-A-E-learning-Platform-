@@ -356,6 +356,109 @@ router.get('/getAvgTakeTimeByUserID/:UserID', async (req, res) => {
 });
 
 
+router.post('/JoinQueue', async (req, res) => {
+    try {
+        const { QueueListID, UserID } = req.body;
+
+        // Ensure required fields are provided
+        if (!QueueListID || !UserID) {
+            return res.status(400).send('QueueListID and UserID are required');
+        }
+
+        const connection = await connectToDB();
+
+        // Check if the user is already in the queue
+        const checkQuery = 'SELECT * FROM Queue_Students WHERE QueueListID = ? AND UserID = ?';
+        const existingEntry = await new Promise((resolve, reject) => {
+            connection.query(checkQuery, [QueueListID, UserID], (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+        if (existingEntry.length > 0) {
+            return res.status(400).send('User is already in the queue');
+        }
+
+        // Insert into the Queue_Students
+        const query = 'INSERT INTO Queue_Students (QueueListID, UserID) VALUES (?, ?)';
+        await new Promise((resolve, reject) => {
+            connection.query(query, [QueueListID, UserID], (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+        res.status(200).send('User joined the queue successfully');
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error joining the queue:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.get('/getCurrentJoins/:QueueListID', async (req, res) => {
+    try {
+        const { QueueListID } = req.params;
+
+        if (!QueueListID) {
+            return res.status(400).send('QueueListID is required');
+        }
+
+        const connection = await connectToDB();
+
+        // Query to get the current joins by QueueListID
+        const query = 'SELECT COUNT(UserID) AS userCount FROM Queue_Students WHERE QueueListID = ?';
+        const results = await new Promise((resolve, reject) => {
+            connection.query(query, [QueueListID], (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+        res.status(200).json(results);
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving current joins:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.delete('/QuitQueue', async (req, res) => {
+    try {
+        const { QueueListID, UserID } = req.body;
+
+        // Ensure required fields are provided
+        if (!QueueListID || !UserID) {
+            return res.status(400).send('QueueListID and UserID are required');
+        }
+
+        const connection = await connectToDB();
+
+        // Delete from the Queue_Students
+        const query = 'DELETE FROM Queue_Students WHERE QueueListID = ? AND UserID = ?';
+        await new Promise((resolve, reject) => {
+            connection.query(query, [QueueListID, UserID], (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+        res.status(200).send('User quit the queue successfully');
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error quitting the queue:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
 
 // Export the router
 module.exports = router;

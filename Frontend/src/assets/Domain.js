@@ -47,6 +47,9 @@ const CreateQueue_list = DomainName + "queue/CreateQueue_list";
 const GetQueue_listByCreatorID = DomainName + "queue/GetQueue_listByCreatorID";
 const FindQueueByAccessCode = DomainName + "queue/FindQueueByAccessCode";
 const getAvgTakeTimeByUserID = DomainName + "queue/getAvgTakeTimeByUserID";
+const JoinQueue = DomainName + "queue/JoinQueue";
+const QuitQueue = DomainName + "queue/QuitQueue";
+const getCurrentJoins = DomainName + "queue/getCurrentJoins";
 
 //HeartBeat
 const SendStatus = DomainName + "status";
@@ -55,13 +58,13 @@ const GetStatus = DomainName + "GetStatus";
 export {
     DomainName,
     registerDomain, verifyEmailDomain, UpdateRankByUserID,
-    GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment, 
-    GetAllCourses, GetCoursesByUserID, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse,CreateForumWithVideo, 
+    GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment,
+    GetAllCourses, GetCoursesByUserID, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse, CreateForumWithVideo,
     ForumLikes, AddLike, CheckUserLiked, DeleteLike,
     AddCommentLike, AddCommentLike_Num, CheckUserLikedComment, DeleteCommentLike, DeleteCommentLike_Num,
     GetUserByEmail, GetAllQuestion, GetAllQuestionByQueueListID,
-    CreateQuestion, CreateQuestionWithVideo,AddAnswerByQuestionID, GetQuestionByUserID,GetAnswerByQAID,
-    AddQueue,AddCustomrQueue, GetQueue, CreateQueue_list, GetQueue_listByCreatorID, FindQueueByAccessCode, getAvgTakeTimeByUserID,
-    SendStatus,GetStatus
-
+    CreateQuestion, CreateQuestionWithVideo, AddAnswerByQuestionID, GetQuestionByUserID, GetAnswerByQAID,
+    AddQueue, AddCustomrQueue, GetQueue, CreateQueue_list, GetQueue_listByCreatorID, FindQueueByAccessCode, getAvgTakeTimeByUserID,
+    SendStatus, GetStatus,
+    JoinQueue, QuitQueue, getCurrentJoins
 };

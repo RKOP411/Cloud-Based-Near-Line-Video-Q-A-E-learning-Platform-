@@ -167,12 +167,16 @@ router.get('/GetAllQuestionByQueueListID/:QueueListID', async function (req, res
             m.UploadDate, 
             m.Path, 
             u.UserName, 
-            ql.CreatorID as TeacherUserID
+            ql.CreatorID as TeacherUserID,
+            ql.CourseID,
+            ql.AccessCode,
+            c.CourseName
         FROM 
             Question q
         LEFT JOIN User u ON q.UserID = u.UserID       
         LEFT JOIN Media m ON q.MediaID = m.MediaID 
         LEFT JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
+        LEFT JOIN Course c ON ql.CourseID = c.CourseID
         WHERE 
             q.QueueListID = ?
         AND

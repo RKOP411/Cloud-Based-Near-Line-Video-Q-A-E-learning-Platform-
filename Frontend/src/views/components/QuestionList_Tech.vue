@@ -1,8 +1,13 @@
 <template>
   <div class="card">
     <div class="card-header pb-0 px-3">
-      <h5 class="mb-0">Access Code - {{ AccessCode }}</h5>
+  <div class="d-flex justify-content-between align-items-center">
+    <h5 class="mb-0" style="font-weight: bold; font-size: 24px;">Access Code: <span style="color: #00796b;">{{ AccessCode }}</span></h5>
+    <div class="people-count" style="font-size: 20px; color: #00796b; margin-right: 20px;">
+      {{CurrentJoins  }} Students
     </div>
+  </div>
+</div>
 
     <!-- Search Bar -->
     <div class="d-flex p-3 mb-2">
@@ -185,6 +190,7 @@ import {
   AddAnswerByQuestionID,
   GetQueue,
   SendStatus,
+  getCurrentJoins,
 } from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
 import Quill from "quill";
@@ -194,6 +200,7 @@ const userId = localStorage.getItem("UserID");
 export default {
   data() {
     return {
+      CurrentJoins: 0,
       AccessCode: "",
       TheoryCount: 0,
       LabWorkCount: 0,
@@ -209,6 +216,23 @@ export default {
     };
   },
   methods: {
+    getJoins() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const QueueListID = urlParams.get("QueueListID");
+      fetch(`${getCurrentJoins}/${QueueListID}`)
+        .then((response) => {
+          if (!response.ok) {
+        throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          this.CurrentJoins = data[0].userCount;
+        })
+        .catch((error) => {
+          console.error("Error fetching current joins:", error);
+        });
+    },
     beforeDestroy() {
       clearInterval(this.timerInterval);
     },
@@ -254,7 +278,7 @@ export default {
           return response.json();
         })
         .then((data) => {
-          console.log(data);
+          //console.log(data);
           this.TheoryCount = data.Theory;
           this.LabWorkCount = data["Lab Work"];
           this.DebuggingCount = data.Debugging;
@@ -279,7 +303,7 @@ export default {
           QAID: id,
           Answer: quillContent,
           UserID: userId,
-          Timer : this.AnswerTimer,
+          Timer: this.AnswerTimer,
         }),
       })
         .then((response) => response.json())
@@ -427,9 +451,16 @@ export default {
     },
   },
   mounted() {
+    this.getJoins();
     this.getQuestions();
     this.GetAllQueue();
     this.beforeDestroy();
+    setInterval(() => {
+      this.getJoins();
+      this.getQuestions();
+      this.GetAllQueue();
+      this.beforeDestroy();
+    }, 3000);
 
     // Event listeners for user activity
     window.addEventListener("mousemove", this.setUserOnline);
