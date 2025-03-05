@@ -55,30 +55,51 @@
             <tr v-if="items.length === 0">
               <td colspan="6" class="text-center">No data available</td>
             </tr>
-            <tr v-for="(queue, index) in items" :key="index" class="hover-row" @click="goToAnswerQuestion(queue.QueueListID)">
+            <tr
+              v-for="(queue, index) in items"
+              :key="index"
+              class="hover-row"
+              @click="goToAnswerQuestion(queue.QueueListID)"
+            >
               <td style="padding-left: 25px">{{ queue.QueueListID }}</td>
               <td style="padding-left: 25px">{{ queue.AccessCode }}</td>
               <td>
                 <span
                   :class="{
                     'badge bg-success': queue.Status === 'RUNNING',
-                    'badge bg-danger': queue.Status !== 'RUNNING',
+                    'badge bg-danger': queue.Status === 'PAUSED',
+                    'badge bg-secondary': queue.Status == 'CLOSED',
                   }"
                 >
                   {{ queue.Status }}
                 </span>
               </td>
               <td style="padding-left: 25px">{{ queue.TimeOut }}</td>
-              <td style="padding-left: 25px">1</td>
+              <td style="padding-left: 25px">
+                {{ queue.CurrentJoins }}
+              </td>
               <td style="padding-left: 25px">{{ queue.Created }}</td>
               <td>
-                <button
+                <button v-if="queue.Status === 'PAUSED'"
+                  class="btn btn-success btn-sm"
+                  style="margin-right: 6px; width: 100px"
+                  @click.stop="RunQueue(queue.QueueListID)"
+                >
+                  Run
+                </button>
+                <button v-if="queue.Status === 'RUNNING'"
                   class="btn btn-warning btn-sm"
                   style="margin-right: 6px"
+                  @click.stop="PauseQueue(queue.QueueListID)"
                 >
                   Pause
                 </button>
-                <button class="btn btn-danger btn-sm" style="margin-right: 6px">
+                
+                <button
+                  class="btn btn-danger btn-sm"
+                  style="margin-right: 6px"
+                  @click.stop="CloseQueue(queue.QueueListID)"
+                >
                   Close
                 </button>
               </td>
@@ -94,13 +115,18 @@
 <script>
 import { useRouter } from "vue-router";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle";
-import { GetQueue_listByCreatorID, getCurrentJoins, } from "../../assets/Domain.js";
+import {
+  GetQueue_listByCreatorID,
+  getCurrentJoins,
+  PauseQueue,
+  CloseQueue,
+  RunQueue
+} from "../../assets/Domain.js";
 export default {
   data() {
     return {
       items: [],
       showAccessCode: false,
-      CurrentJoins: 0,
     };
   },
   setup() {
@@ -113,25 +139,75 @@ export default {
     return { Email, UserID };
   },
   methods: {
-    getJoins(QueueListID) {
-      fetch(`${getCurrentJoins}/${QueueListID}`)
-        .then((response) => {
-          if (!response.ok) {
-        throw new Error("Network response was not ok");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          this.CurrentJoins = data[0].userCount;
-        })
-        .catch((error) => {
-          console.error("Error fetching current joins:", error);
+    async RunQueue(QueueListID) {
+      try {
+        const response = await fetch(`${RunQueue}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ QueueListID }),
         });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        this.GetQueue();
+      } catch (error) {
+        console.error("Error running queue:", error);
+      }
     },
-    goToAnswerQuestion(QueueListID){
+    async CloseQueue(QueueListID) {
+      try {
+        const response = await fetch(`${CloseQueue}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ QueueListID }),
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        this.GetQueue();
+      } catch (error) {
+        console.error("Error closing queue:", error);
+      }
+    },
+    async PauseQueue(QueueListID) {
+      try {
+        const response = await fetch(`${PauseQueue}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ QueueListID }),
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        this.GetQueue();
+      } catch (error) {
+        console.error("Error closing queue:", error);
+      }
+    },
+    async getJoins(QueueListID) {
+      try {
+        const response = await fetch(`${getCurrentJoins}/${QueueListID}`);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        return data[0].userCount;
+      } catch (error) {
+        console.error("Error fetching current joins:", error);
+        return 0;
+      }
+    },
+    goToAnswerQuestion(QueueListID) {
       this.$router.push({
         path: "/managequeue/answerquestion",
-        query: { QueueListID: QueueListID }
+        query: { QueueListID: QueueListID },
       });
     },
     goToCreateQueue() {
@@ -149,9 +225,13 @@ export default {
 
         const data = await response.json();
         this.items = data;
-        this.items.forEach((item) => {
+
+        for (const item of this.items) {
           item.Created = new Date(item.Created).toLocaleDateString();
-        });
+          item.CurrentJoins = await this.getJoins(item.QueueListID);
+
+          //console.log("TEST2: ", item.CurrentJoins);
+        }
 
         this.items.forEach((item) => {
           item.TimeOut = this.Calculate_Timeout(item.TimeOut);
@@ -165,7 +245,7 @@ export default {
         if (this.showAccessCode) {
           this.PopAccessCode();
         }
-
+        console.log(this.items);
         //console.log(data);
       } catch (error) {
         console.error("Error fetching queue:", error);

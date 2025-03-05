@@ -2,9 +2,16 @@
   <div class="card">
     <!-- Course Information-->
     <div class="row align-items-center" style="margin-top: 10px">
-      <div class="col"></div>
-      <div class="col-auto" style="margin-right: 20px"><button type="button" @click="quitThisQueue" class="btn btn-danger">Quit</button></div>
+    <span class="col-auto badge bg-success" style="padding: 3px 8px; border-radius: 15px; font-size: 0.8rem; z-index: 1; margin-left: 30px; margin-bottom: 20px;">
+        RUNNING
+    </span>
+      
+    <div class="col-auto" style="margin-left: auto; margin-right: 10px;">
+        <button type="button" @click="quitThisQueue" class="btn btn-danger">
+            Quit
+        </button>
     </div>
+</div>
     <!-- Course Information End-->
     <!-- Teacher Information -->
     <div
@@ -221,6 +228,7 @@ export default {
       TeacherUserID: "",
       TeacherStatus: "",
       Waittime: 0,
+      Status: "",
     };
   },
   methods: {
@@ -338,7 +346,7 @@ export default {
           console.error("There was a problem with the fetch operation:", error);
         });
     },
-    quitThisQueue(){
+    quitThisQueue() {
       fetch(`${QuitQueue}`, {
         method: "DELETE",
         headers: {
@@ -351,9 +359,14 @@ export default {
       });
       localStorage.removeItem("QueueListID");
       this.$router.push("/joinqueue");
-    }
+    },
   },
+
   mounted() {
+    if (localStorage.getItem("QueueListID") == null) {
+      this.$router.push("/joinqueue");
+      return;
+    }
     this.GetAllQueue();
     this.getQuestions();
     setInterval(() => {

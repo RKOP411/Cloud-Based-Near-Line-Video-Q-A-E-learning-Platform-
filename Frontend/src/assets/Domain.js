@@ -50,7 +50,9 @@ const getAvgTakeTimeByUserID = DomainName + "queue/getAvgTakeTimeByUserID";
 const JoinQueue = DomainName + "queue/JoinQueue";
 const QuitQueue = DomainName + "queue/QuitQueue";
 const getCurrentJoins = DomainName + "queue/getCurrentJoins";
-
+const PauseQueue = DomainName + "queue/PauseQueue";
+const CloseQueue = DomainName + "queue/CloseQueue";
+const RunQueue = DomainName + "queue/RunQueue"; 
 //HeartBeat
 const SendStatus = DomainName + "status";
 const GetStatus = DomainName + "GetStatus";
@@ -66,5 +68,6 @@ export {
     CreateQuestion, CreateQuestionWithVideo, AddAnswerByQuestionID, GetQuestionByUserID, GetAnswerByQAID,
     AddQueue, AddCustomrQueue, GetQueue, CreateQueue_list, GetQueue_listByCreatorID, FindQueueByAccessCode, getAvgTakeTimeByUserID,
     SendStatus, GetStatus,
-    JoinQueue, QuitQueue, getCurrentJoins
+    JoinQueue, QuitQueue, getCurrentJoins,
+    PauseQueue, CloseQueue, RunQueue
 };

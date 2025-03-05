@@ -459,6 +459,118 @@ router.delete('/QuitQueue', async (req, res) => {
 });
 
 
+router.post('/PauseQueue', async (req, res) => {
+    try {
+        const { QueueListID } = req.body;
+
+        // Ensure QueueListID is provided
+        if (!QueueListID) {
+            return res.status(400).send('QueueListID is required');
+        }
+
+        const connection = await connectToDB();
+
+        // Update the status of the queue to 'PAUSED'
+        const query = 'UPDATE Queue_list SET Status = "PAUSED" WHERE QueueListID = ?';
+        await new Promise((resolve, reject) => {
+            connection.query(query, [QueueListID], (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+        res.status(200).send('Queue paused successfully');
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error pausing the queue:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.post('/CloseQueue', async (req, res) => {
+    try {
+        const { QueueListID } = req.body;
+
+        // Ensure QueueListID is provided
+        if (!QueueListID) {
+            return res.status(400).send('QueueListID is required');
+        }
+
+        const connection = await connectToDB();
+
+        // Update the status of the queue to 'CLOSED' and set the CloseDate to now
+        const query = 'UPDATE Queue_list SET Status = "CLOSED", CloseDate = NOW() WHERE QueueListID = ?';
+        await new Promise((resolve, reject) => {
+            connection.query(query, [QueueListID], (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+        res.status(200).send('Queue closed successfully');
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error closing the queue:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.post('/RunQueue', async (req, res) => {
+    try {
+        const { QueueListID } = req.body;
+
+        // Ensure QueueListID is provided
+        if (!QueueListID) {
+            return res.status(400).send('QueueListID is required');
+        }
+
+        const connection = await connectToDB();
+
+        // Update the status of the queue to 'RUNNING'
+        const query = 'UPDATE Queue_list SET Status = "RUNNING" WHERE QueueListID = ?';
+        await new Promise((resolve, reject) => {
+            connection.query(query, [QueueListID], (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+        res.status(200).send('Queue is now running');
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error running the queue:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.get('/GetQueueStatus', async (req, res) => {
+    try {
+        const connection = await connectToDB();
+
+        // Query to get the status of all queues
+        const query = 'SELECT Status FROM Queue_list';
+        const results = await new Promise((resolve, reject) => {
+            connection.query(query, (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+        res.status(200).json(results);
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving queue status:', error);
+        res.status(500).send('Server error');
+    }
+});
 
 // Export the router
 module.exports = router;
