@@ -281,7 +281,7 @@ router.get('/FindQueueByAccessCode/:AccessCode', async (req, res) => {
         const connection = await connectToDB();
 
         // Query to get QueueListID by AccessCode
-        const query = 'SELECT QueueListID FROM Queue_list WHERE AccessCode = ?';
+        const query = 'SELECT QueueListID FROM Queue_list WHERE AccessCode = ? AND Status = "RUNNING"';
         const results = await new Promise((resolve, reject) => {
             connection.query(query, [AccessCode], (error, results) => {
                 if (error) return reject(error);
@@ -549,20 +549,30 @@ router.post('/RunQueue', async (req, res) => {
     }
 });
 
-router.get('/GetQueueStatus', async (req, res) => {
+router.get('/GetQueueStatus/:QueueListID' , async (req, res) => {
     try {
+        const { QueueListID } = req.params;
+
+        if (!QueueListID) {
+            return res.status(400).send('QueueListID is required');
+        }
+
         const connection = await connectToDB();
 
-        // Query to get the status of all queues
-        const query = 'SELECT Status FROM Queue_list';
+        // Query to get the status of the queue by QueueListID
+        const query = 'SELECT Status FROM Queue_list WHERE QueueListID = ?';
         const results = await new Promise((resolve, reject) => {
-            connection.query(query, (error, results) => {
-                if (error) return reject(error);
-                resolve(results);
+            connection.query(query, [QueueListID], (error, results) => {
+            if (error) return reject(error);
+            resolve(results);
             });
         });
 
-        res.status(200).json(results);
+        if (results.length === 0) {
+            return res.status(404).send('Queue not found');
+        }
+
+        res.status(200).json({ Status: results[0].Status });
 
         // Ensure connection is closed
         connection.end();

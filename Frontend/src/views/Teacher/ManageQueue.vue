@@ -309,6 +309,9 @@ export default {
   },
   mounted() {
     this.GetQueue();
+    setInterval(() => {
+      this.GetQueue();
+    }, 17000);
   },
 };
 </script>

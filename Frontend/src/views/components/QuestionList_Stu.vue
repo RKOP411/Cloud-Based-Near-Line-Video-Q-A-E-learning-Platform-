@@ -2,16 +2,31 @@
   <div class="card">
     <!-- Course Information-->
     <div class="row align-items-center" style="margin-top: 10px">
-    <span class="col-auto badge bg-success" style="padding: 3px 8px; border-radius: 15px; font-size: 0.8rem; z-index: 1; margin-left: 30px; margin-bottom: 20px;">
-        RUNNING
-    </span>
-      
-    <div class="col-auto" style="margin-left: auto; margin-right: 10px;">
+      <span
+        class="col-auto badge"
+        :class="{
+          'bg-success': Status === 'RUNNING',
+          'bg-danger': Status === 'PAUSED',
+          'bg-secondary': Status === 'CLOSED',
+        }"
+        style="
+          padding: 3px 8px;
+          border-radius: 15px;
+          font-size: 0.8rem;
+          z-index: 1;
+          margin-left: 30px;
+          margin-bottom: 20px;
+        "
+      >
+        {{ Status }}
+      </span>
+
+      <div class="col-auto" style="margin-left: auto; margin-right: 10px">
         <button type="button" @click="quitThisQueue" class="btn btn-danger">
-            Quit
+          Quit
         </button>
+      </div>
     </div>
-</div>
     <!-- Course Information End-->
     <!-- Teacher Information -->
     <div
@@ -133,6 +148,7 @@
     <div class="card-body pt-1 p-3">
       <div class="d-flex justify-content-end">
         <argon-button
+          v-if="Status === 'RUNNING'"
           type="button"
           class="btn btn-success mb-3"
           title="Ask Question"
@@ -141,6 +157,7 @@
           <i class="fa fa-plus" aria-hidden="true"></i>
         </argon-button>
       </div>
+
       <ul class="list-group">
         <!-- List Card -->
         <li
@@ -212,8 +229,11 @@ import {
   GetStatus,
   getAvgTakeTimeByUserID,
   QuitQueue,
+  GetQueueStatus,
 } from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
+import bootstrap from "bootstrap/dist/js/bootstrap.bundle";
+
 const userId = localStorage.getItem("UserID");
 export default {
   data() {
@@ -229,9 +249,63 @@ export default {
       TeacherStatus: "",
       Waittime: 0,
       Status: "",
+      showAlert: false,
+      showAlertTimes: 0,
     };
   },
   methods: {
+    closeStatusMessage() {
+      if(this.showAlertTimes >= 1){
+        return;
+      }
+      if ((this.showAlert == true)) {
+        const modalHtml = `
+                <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="statusModalLabel">${this.CourseName} - Status</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                The queue is currently <b>${this.Status}</b>. You cannot ask a question at this time.
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+        document.body.insertAdjacentHTML("beforeend", modalHtml);
+        const statusModal = new bootstrap.Modal(
+          document.getElementById("statusModal")
+        );
+        statusModal.show();
+
+        // Clean up the modal after it's hidden
+        // document
+        //   .getElementById("statusModal")
+        //   .addEventListener("hidden.bs.modal", () => {
+        //     document.getElementById("statusModal").remove();
+        //     this.showAlert = false;
+        //   });
+      }
+      this.showAlertTimes++;
+      this.showAlert = false;
+    },
+    GetStatus() {
+      fetch(`${GetQueueStatus}/${this.QueueListID}`)
+        .then((response) => response.json())
+        .then((data) => {
+          this.Status = data.Status;
+          if(this.Status == "CLOSED"){
+            this.showAlert = true;
+           this.closeStatusMessage();
+          }
+        });
+    },
     GetTeacherStatus() {
       fetch(`${GetStatus}/${this.TeacherUserID}`)
         .then((response) => response.json())
@@ -323,7 +397,6 @@ export default {
       return lastUpdatedTime;
     },
     getWaitTime(TeacherUserID) {
-      console.log("TeacherUserID" + TeacherUserID);
       fetch(`${getAvgTakeTimeByUserID}/${TeacherUserID}`)
         .then((response) => {
           if (!response.ok) {
@@ -367,11 +440,13 @@ export default {
       this.$router.push("/joinqueue");
       return;
     }
+    this.GetStatus();
     this.GetAllQueue();
     this.getQuestions();
     setInterval(() => {
       this.GetAllQueue();
       this.getQuestions();
+      this.GetStatus();
     }, 5000);
     setInterval(() => {
       this.GetTeacherStatus();
