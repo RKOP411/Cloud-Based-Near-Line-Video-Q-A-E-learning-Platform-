@@ -270,6 +270,41 @@ router.get('/GetQueue_listByCreatorID/:CreatorID', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+router.get('/GetQueueTimeryCreatorID/:CreatorID', async (req, res) => {
+    try {
+        const { CreatorID } = req.params;
+
+        if (!CreatorID) {
+            return res.status(400).send('CreatorID is required');
+        }
+
+        const connection = await connectToDB();
+
+        // Query to get the queue times by CreatorID
+        const query = `
+            SELECT TimeOut, QueueListID
+            FROM Queue_list
+            WHERE Queue_list.CreatorID = ?
+        `;
+        const results = await new Promise((resolve, reject) => {
+            connection.query(query, [CreatorID], (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+        res.status(200).json(results);
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving queue times:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
 router.get('/FindQueueByAccessCode/:AccessCode', async (req, res) => {
     try {
         const { AccessCode } = req.params;
@@ -549,7 +584,7 @@ router.post('/RunQueue', async (req, res) => {
     }
 });
 
-router.get('/GetQueueStatus/:QueueListID' , async (req, res) => {
+router.get('/GetQueueStatus/:QueueListID', async (req, res) => {
     try {
         const { QueueListID } = req.params;
 
@@ -563,8 +598,8 @@ router.get('/GetQueueStatus/:QueueListID' , async (req, res) => {
         const query = 'SELECT Status FROM Queue_list WHERE QueueListID = ?';
         const results = await new Promise((resolve, reject) => {
             connection.query(query, [QueueListID], (error, results) => {
-            if (error) return reject(error);
-            resolve(results);
+                if (error) return reject(error);
+                resolve(results);
             });
         });
 

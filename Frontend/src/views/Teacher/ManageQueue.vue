@@ -80,21 +80,23 @@
               </td>
               <td style="padding-left: 25px">{{ queue.Created }}</td>
               <td>
-                <button v-if="queue.Status === 'PAUSED'"
+                <button
+                  v-if="queue.Status === 'PAUSED'"
                   class="btn btn-success btn-sm"
                   style="margin-right: 6px; width: 100px"
                   @click.stop="RunQueue(queue.QueueListID)"
                 >
                   Run
                 </button>
-                <button v-if="queue.Status === 'RUNNING'"
+                <button
+                  v-if="queue.Status === 'RUNNING'"
                   class="btn btn-warning btn-sm"
                   style="margin-right: 6px"
                   @click.stop="PauseQueue(queue.QueueListID)"
                 >
                   Pause
                 </button>
-                
+
                 <button
                   class="btn btn-danger btn-sm"
                   style="margin-right: 6px"
@@ -120,7 +122,8 @@ import {
   getCurrentJoins,
   PauseQueue,
   CloseQueue,
-  RunQueue
+  RunQueue,
+  GetQueueTimeryCreatorID,
 } from "../../assets/Domain.js";
 export default {
   data() {
@@ -213,6 +216,28 @@ export default {
     goToCreateQueue() {
       this.$router.push("/createqueue");
     },
+    async GetTimeOut() {
+      try {
+        const response = await fetch(
+          `${GetQueueTimeryCreatorID}/${this.UserID}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        data.forEach((item) => {
+          for(const queue of this.items){
+            if(queue.QueueListID === item.QueueListID){
+              queue.TimeOut = this.Calculate_Timeout(item.TimeOut);
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Error fetching queue:", error);
+      }
+    },
     async GetQueue() {
       try {
         const response = await fetch(
@@ -229,23 +254,22 @@ export default {
         for (const item of this.items) {
           item.Created = new Date(item.Created).toLocaleDateString();
           item.CurrentJoins = await this.getJoins(item.QueueListID);
-
-          //console.log("TEST2: ", item.CurrentJoins);
         }
 
-        this.items.forEach((item) => {
-          item.TimeOut = this.Calculate_Timeout(item.TimeOut);
-        });
+        // this.items.forEach((item) => {
+        //   item.TimeOut = this.Calculate_Timeout(item.TimeOut);
+        // });
+
         const urlParams = new URLSearchParams(window.location.search);
         const showAccessCode = urlParams.get("showAccessCode");
         if (showAccessCode) {
           this.showAccessCode = showAccessCode === "true";
         }
-        console.log(this.showAccessCode);
+        //console.log(this.showAccessCode);
         if (this.showAccessCode) {
           this.PopAccessCode();
         }
-        console.log(this.items);
+        //console.log(this.items);
         //console.log(data);
       } catch (error) {
         console.error("Error fetching queue:", error);
@@ -308,10 +332,14 @@ export default {
     },
   },
   mounted() {
+    this.GetTimeOut();
+    setInterval(() => {
+      this.GetTimeOut();
+    }, 1000);
     this.GetQueue();
     setInterval(() => {
       this.GetQueue();
-    }, 17000);
+    }, 10000);
   },
 };
 </script>

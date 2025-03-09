@@ -1,5 +1,5 @@
 import mysql.connector
-from datetime import datetime, timedelta
+from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 
 # Database configuration
@@ -11,43 +11,48 @@ db_config = {
 }
 
 def update_timeouts():
-    # Connect to the database
-    connection = mysql.connector.connect(**db_config)
-    cursor = connection.cursor()
+    try:
+        # Connect to the database
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
 
-    # Get the current time
-    current_time = datetime.now()
+        # Get the current time
+        current_time = datetime.now()
 
-    # Query to update TimeOut for active queues
-    query = """
-    UPDATE Queue_list
-    SET TimeOut = GREATEST(TimeOut - 60, 0)  -- Decrease TimeOut by 60 seconds, ensuring it doesn't go below 0
-    WHERE Status = 'Open';
-    """
-    cursor.execute(query)
-    connection.commit()
-    
-    print(f"Updated TimeOut values as of {current_time}")
+        # Query to update TimeOut for active queues
+        query = """
+        UPDATE queue_list
+        SET TimeOut = GREATEST(TimeOut - 1, 0)
+        WHERE Status = 'RUNNING';
+        """
+        cursor.execute(query)
+        connection.commit()
+        
+        print(f"Updated TimeOut values as of {current_time}")
 
-    # Query to close expired queues
-    close_query = """
-    UPDATE Queue_list
-    SET Status = 'Close'
-    WHERE Status = 'Open' AND
-          (TIMESTAMPDIFF(SECOND, Created, %s) >= TimeOut);
-    """
-    cursor.execute(close_query, (current_time,))
-    connection.commit()
-    
-    print(f"Closed expired queues as of {current_time}")
+        # Query to close expired queues
+        close_query = """
+        UPDATE queue_list
+        SET Status = 'CLOSED'
+        WHERE Status = 'RUNNING' AND TimeOut = 0;
+        """
+        cursor.execute(close_query)
+        connection.commit()
+        
+        print(f"Closed expired queues as of {current_time}")
 
-    # Cleanup
-    cursor.close()
-    connection.close()
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+    finally:
+        # Cleanup
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
 
-# Scheduler to run the function periodically
+# Scheduler to run the function every second
 scheduler = BackgroundScheduler()
-scheduler.add_job(update_timeouts, 'interval', seconds=60)  # Check every minute
+scheduler.add_job(update_timeouts, 'interval', seconds=1)  # Check every second
 scheduler.start()
 
 print("Queue management system is running in the background...")
