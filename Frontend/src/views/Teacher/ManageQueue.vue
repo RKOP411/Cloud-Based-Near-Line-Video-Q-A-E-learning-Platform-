@@ -31,6 +31,11 @@
               <th
                 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
               >
+                Class
+              </th>
+              <th
+                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+              >
                 Status
               </th>
               <th
@@ -63,6 +68,7 @@
             >
               <td style="padding-left: 25px">{{ queue.QueueListID }}</td>
               <td style="padding-left: 25px">{{ queue.AccessCode }}</td>
+              <td style="padding-left: 25px">{{ queue.CourseName }}</td>
               <td>
                 <span
                   :class="{

@@ -10,46 +10,46 @@ router.get('/GetTop5Asking/:userId', async (req, res) => {
     const connection = await connectToDB();
     const sql = `
         WITH Engagement AS (
-            SELECT 
+            SELECT
                 COUNT(DISTINCT ql.QueueListID) AS joined_count,
-                (SELECT COUNT(DISTINCT QueueListID) FROM Queue_list WHERE UserID = ?) AS total_count
-            FROM 
+                (SELECT COUNT(DISTINCT QueueListID) FROM Queue_list WHERE CreatorID = ?) AS total_count
+            FROM
                 Queue_list ql
-            WHERE 
-                ql.UserID = ?
+            WHERE
+                ql.CreatorID = ?
         ),
         TopUsers AS (
-            SELECT 
-                u.UserID, 
-                u.Username, 
-                COUNT(q.QuestionID) AS question_count
-            FROM 
+            SELECT
+                u.UserID,
+                u.UserName,
+                COUNT(q.QAID) AS question_count
+            FROM
                 User u
-            JOIN 
+            JOIN
                 Question q ON u.UserID = q.UserID
-            WHERE 
-                q.UserID <> ?  -- Exclude the specified user
-            GROUP BY 
-                u.UserID, 
-                u.Username
-            ORDER BY 
+            WHERE
+                u.UserID <> ?
+            GROUP BY
+                u.UserID,
+                u.UserName
+            ORDER BY
                 question_count DESC
             LIMIT 5
         )
 
-        SELECT 
-            tu.UserID, 
-            tu.Username, 
+        SELECT
+            tu.UserID,
+            tu.UserName,
             tu.question_count,
             COALESCE(e.joined_count, 0) AS joined_count,
             COALESCE(e.total_count, 0) AS total_count,
-            CASE 
+            CASE
                 WHEN e.total_count > 0 THEN (COALESCE(e.joined_count, 0) * 100.0 / e.total_count)
                 ELSE 0
             END AS engagement_percentage
-        FROM 
+        FROM
             TopUsers tu
-        LEFT JOIN 
+        LEFT JOIN
             Engagement e ON 1=1;
     `;
 
