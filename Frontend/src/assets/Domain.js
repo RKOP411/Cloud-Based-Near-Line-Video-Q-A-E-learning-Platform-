@@ -38,6 +38,7 @@ const AddAnswerByQuestionID = DomainName + "qa/AddAnswerByQuestionID";
 const GetQuestionByUserID = DomainName + "qa/GetQuestionByUserID/";
 const GetAnswerByQAID = DomainName + "qa/GetAnswerByQAID/";
 const GetAllQuestionByQueueListID = DomainName + "qa/GetAllQuestionByQueueListID";
+const GetAllQuestionWithType = DomainName + "qa/GetAllQuestionWithType";
 
 //Queue
 const AddQueue = DomainName + "queue/AddQueue";
@@ -56,6 +57,8 @@ const RunQueue = DomainName + "queue/RunQueue";
 const GetQueueStatus = DomainName + "queue/GetQueueStatus";
 const GetQueueTimeryCreatorID = DomainName + "queue/GetQueueTimeryCreatorID";
 const getTotalTakeTime = DomainName + "queue/getTotalTakeTime";
+const GetQueueByType = DomainName + "queue/GetQueueByType";
+
 //HeartBeat
 const SendStatus = DomainName + "status";
 const GetStatus = DomainName + "GetStatus";
@@ -68,9 +71,10 @@ export {
     ForumLikes, AddLike, CheckUserLiked, DeleteLike,
     AddCommentLike, AddCommentLike_Num, CheckUserLikedComment, DeleteCommentLike, DeleteCommentLike_Num,
     GetUserByEmail, GetAllQuestion, GetAllQuestionByQueueListID,
-    CreateQuestion, CreateQuestionWithVideo, AddAnswerByQuestionID, GetQuestionByUserID, GetAnswerByQAID,
+    CreateQuestion, CreateQuestionWithVideo, AddAnswerByQuestionID, GetQuestionByUserID, GetAnswerByQAID, GetAllQuestionWithType,
     AddQueue, AddCustomrQueue, GetQueue, CreateQueue_list, GetQueue_listByCreatorID, FindQueueByAccessCode, getAvgTakeTimeByUserID,
     SendStatus, GetStatus,
     JoinQueue, QuitQueue, getCurrentJoins,
-    PauseQueue, CloseQueue, RunQueue, GetQueueStatus, GetQueueTimeryCreatorID,getTotalTakeTime
+    PauseQueue, CloseQueue, RunQueue, GetQueueStatus, GetQueueTimeryCreatorID,getTotalTakeTime,
+    GetQueueByType
 };

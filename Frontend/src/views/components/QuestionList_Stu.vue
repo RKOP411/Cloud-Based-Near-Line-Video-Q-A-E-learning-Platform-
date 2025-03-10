@@ -89,16 +89,24 @@
     <!-- Queue -->
     <div class="container mt-5">
       <div class="row mt-4 justify-content-between">
-        <div class="col-6 col-md-3">
+        <div
+          class="col-6 col-md-3 Block-hover"
+          @click="GetQuestionWithType('Theory')"
+        >
           <div class="d-flex justify-content-between align-items-center">
             <h6 class="status-description">Theory</h6>
+
             <p class="status-text" style="color: #007bff">Next No</p>
           </div>
+
           <div class="status-box text-white" style="background-color: #007bff">
             <h5 class="status-title">T {{ TheoryCount }}</h5>
           </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div
+          class="col-6 col-md-3 Block-hover"
+          @click="GetQuestionWithType('lab-work')"
+        >
           <div class="d-flex justify-content-between align-items-center">
             <h6 class="status-description">Lab Work</h6>
             <p class="status-text" style="color: #28a745">Next No</p>
@@ -107,7 +115,10 @@
             <h5 class="status-title">L {{ LabWorkCount }}</h5>
           </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div
+          class="col-6 col-md-3 Block-hover"
+          @click="GetQuestionWithType('debugging')"
+        >
           <div class="d-flex justify-content-between align-items-center">
             <h6 class="status-description">Debugging</h6>
             <p class="status-text" style="color: #6f42c1">Next No</p>
@@ -116,7 +127,10 @@
             <h5 class="status-title">D {{ DebuggingCount }}</h5>
           </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div
+          class="col-6 col-md-3 Block-hover"
+          @click="GetQuestionWithType('assignments')"
+        >
           <div class="d-flex justify-content-between align-items-center">
             <h6 class="status-description">Assignments</h6>
             <p class="status-text" style="color: #dc3545">Next No</p>
@@ -231,6 +245,7 @@ import {
   QuitQueue,
   GetQueueStatus,
   getTotalTakeTime,
+  GetAllQuestionWithType,
 } from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle";
@@ -253,6 +268,7 @@ export default {
       showAlert: false,
       showAlertTimes: 0,
       TotalWaitTime: 0,
+      CurrentChoiceType: "",
     };
   },
   methods: {
@@ -381,6 +397,40 @@ export default {
           this.AssignmentCount = data.Assignments;
         });
     },
+    async GetQuestionWithType(Type) {
+      this.CurrentChoiceType = Type;
+      fetch(`${GetAllQuestionWithType}/${this.QueueListID}/${Type}`)
+        .then((response) => response.json())
+        .then((data) => {
+          for (let i = 0; i < data.length; i++) {
+            data[i].UploadTime = this.Calculate_LastUpdate(data[i].UploadTime);
+          }
+          if (data == null || data.length === 0) {
+            this.questions = [];
+            return;
+          }
+          this.questions = data;
+          this.TeacherUserID = data[0].TeacherUserID;
+          this.CourseName = data[0].CourseName;
+
+          for (let i = 0; i < this.questions.length; i++) {
+            if (this.questions[i].QuestionUserID == userId) {
+              //console.log(this.questions[i].QuestionUserID+" to "+userId);
+              this.questions[i].UserName = "You";
+            }
+            // Replace backslashes with forward slashes
+            if (this.questions[i].Path) {
+              this.questions[i].Path = this.questions[i].Path.replace(
+                /\\/g,
+                "/"
+              );
+              const basePath = DomainName;
+              this.questions[i].Path = basePath + this.questions[i].Path; // The full path
+            }
+            this.getWaitTime(data[0].TeacherUserID);
+          }
+        });
+    },
     async getQuestions() {
       fetch(`${GetAllQuestionByQueueListID}/${this.QueueListID}`)
         .then((response) => response.json())
@@ -499,7 +549,11 @@ export default {
     this.getQuestions();
     setInterval(() => {
       this.GetAllQueue();
-      this.getQuestions();
+      if (this.CurrentChoiceType == "") {
+        this.getQuestions();
+      } else {
+        this.GetQuestionWithType(this.CurrentChoiceType);
+      }
       this.GetStatus();
     }, 5000);
     setInterval(() => {
@@ -535,6 +589,18 @@ export default {
   border-radius: 15px;
   font-size: 0.8rem;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.Block-hover {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.Block-hover:hover {
+  background-color: #e0efff;  /* Darker background on hover */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);  /* Add shadow on hover */
+}
+
+.Block-hover:active {
+  transform: scale(0.98);  /* Slightly scale down when clicked */
 }
 
 .bg-light {

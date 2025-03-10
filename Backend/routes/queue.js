@@ -180,6 +180,36 @@ router.get('/GetQueue/:QueueListID', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+router.get('/GetQueueByType/:QueueListID/:QueueType', async (req, res) => {
+    try {
+        const { QueueListID, QueueType } = req.params;
+
+        if (!QueueType) {
+            return res.status(400).send('QueueType is required');
+        }
+
+        const connection = await connectToDB();
+
+        // Query to get queues by QueueType
+        const countQuery = 'SELECT COUNT(*) AS count FROM Question WHERE Type = ? AND Replied = 0 AND QueueListID = ?';
+        const results = await new Promise((resolve, reject) => {
+            connection.query(countQuery, [QueueType, QueueListID], (error, results) => {
+                if (error) return reject(error);
+                resolve(results[0].count);
+            });
+        });
+
+        res.status(200).json({ count: results });
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving queues by type:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 function generateAccessCode(length = 10) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let accessCode = '';
@@ -340,9 +370,9 @@ router.get('/FindQueueByAccessCode/:AccessCode', async (req, res) => {
 
 router.get('/getTotalTakeTime/:QueueListID', async (req, res) => {
     try {
-        const {QueueListID } = req.params;
+        const { QueueListID } = req.params;
 
-        if ( !QueueListID) {
+        if (!QueueListID) {
             return res.status(400).send(' QueueListID are required');
         }
 

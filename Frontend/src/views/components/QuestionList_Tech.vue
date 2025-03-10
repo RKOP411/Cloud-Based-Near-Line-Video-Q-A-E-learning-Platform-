@@ -1,13 +1,18 @@
 <template>
   <div class="card">
     <div class="card-header pb-0 px-3">
-  <div class="d-flex justify-content-between align-items-center">
-    <h5 class="mb-0" style="font-weight: bold; font-size: 24px;">Access Code: <span style="color: #00796b;">{{ AccessCode }}</span></h5>
-    <div class="people-count" style="font-size: 20px; color: #00796b; margin-right: 20px;">
-      {{CurrentJoins  }} Students
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="mb-0" style="font-weight: bold; font-size: 24px">
+          Access Code: <span style="color: #00796b">{{ AccessCode }}</span>
+        </h5>
+        <div
+          class="people-count"
+          style="font-size: 20px; color: #00796b; margin-right: 20px"
+        >
+          {{ CurrentJoins }} Students
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
     <!-- Search Bar -->
     <div class="d-flex p-3 mb-2">
@@ -21,11 +26,16 @@
       <!-- Queue -->
       <div class="container mt-5">
         <div class="row mt-4 justify-content-between">
-          <div class="col-6 col-md-3">
+          <div
+            class="col-6 col-md-3 Block-hover"
+            @click="GetQuestionWithType('Theory')"
+          >
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="status-description">Theory</h6>
+
               <p class="status-text" style="color: #007bff">Next No</p>
             </div>
+
             <div
               class="status-box text-white"
               style="background-color: #007bff"
@@ -33,7 +43,10 @@
               <h5 class="status-title">T {{ TheoryCount }}</h5>
             </div>
           </div>
-          <div class="col-6 col-md-3">
+          <div
+            class="col-6 col-md-3 Block-hover"
+            @click="GetQuestionWithType('lab-work')"
+          >
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="status-description">Lab Work</h6>
               <p class="status-text" style="color: #28a745">Next No</p>
@@ -45,7 +58,10 @@
               <h5 class="status-title">L {{ LabWorkCount }}</h5>
             </div>
           </div>
-          <div class="col-6 col-md-3">
+          <div
+            class="col-6 col-md-3 Block-hover"
+            @click="GetQuestionWithType('debugging')"
+          >
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="status-description">Debugging</h6>
               <p class="status-text" style="color: #6f42c1">Next No</p>
@@ -57,7 +73,10 @@
               <h5 class="status-title">D {{ DebuggingCount }}</h5>
             </div>
           </div>
-          <div class="col-6 col-md-3">
+          <div
+            class="col-6 col-md-3 Block-hover"
+            @click="GetQuestionWithType('assignments')"
+          >
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="status-description">Assignments</h6>
               <p class="status-text" style="color: #dc3545">Next No</p>
@@ -191,6 +210,7 @@ import {
   GetQueue,
   SendStatus,
   getCurrentJoins,
+  GetAllQuestionWithType,
 } from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
 import Quill from "quill";
@@ -213,16 +233,54 @@ export default {
       quillCreated: false,
       userActive: false,
       heartbeatInterval: null,
+      CurrentChoiceType: "",
     };
   },
   methods: {
+    async GetQuestionWithType(Type) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const QueueListID = urlParams.get("QueueListID");
+      this.CurrentChoiceType = Type;
+      fetch(`${GetAllQuestionWithType}/${QueueListID}/${Type}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          for (let i = 0; i < data.length; i++) {
+            data[i].UploadTime = this.Calculate_LastUpdate(data[i].UploadTime);
+          }
+          this.questions = data;
+          this.AccessCode = data[0].AccessCode;
+
+          for (let i = 0; i < this.questions.length; i++) {
+            if (this.questions[i].UserID == userId) {
+              this.questions[i].UserName = "You";
+            }
+            // Replace backslashes with forward slashes
+            if (this.questions[i].Path) {
+              this.questions[i].Path = this.questions[i].Path.replace(
+                /\\/g,
+                "/"
+              );
+              const basePath = DomainName;
+              this.questions[i].Path = basePath + this.questions[i].Path; // The full path
+            }
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching questions:", error);
+        });
+    },
     getJoins() {
       const urlParams = new URLSearchParams(window.location.search);
       const QueueListID = urlParams.get("QueueListID");
       fetch(`${getCurrentJoins}/${QueueListID}`)
         .then((response) => {
           if (!response.ok) {
-        throw new Error("Network response was not ok");
+            throw new Error("Network response was not ok");
           }
           return response.json();
         })
@@ -457,7 +515,11 @@ export default {
     this.beforeDestroy();
     setInterval(() => {
       this.getJoins();
-      this.getQuestions();
+      if (this.CurrentChoiceType == "") {
+        this.getQuestions();
+      } else {
+        this.GetQuestionWithType(this.CurrentChoiceType);
+      }
       this.GetAllQueue();
       this.beforeDestroy();
     }, 3000);
@@ -547,4 +609,16 @@ export default {
   padding: 1px;
   margin-bottom: 5px;
 } /* Red */
+.Block-hover {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.Block-hover:hover {
+  background-color: #e0efff; /* Darker background on hover */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+}
+
+.Block-hover:active {
+  transform: scale(0.98); /* Slightly scale down when clicked */
+}
 </style>

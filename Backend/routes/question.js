@@ -60,34 +60,76 @@ router.get('/GetAnswerByQAID/:QAID', async function (req, res, next) {
     }
 });
 
-router.get('/GetQuestionByUserID/:UserID', async function (req, res, next) {
-    try {
-        const { UserID } = req.params;
-        const connection = await connectToDB();
+router.get('/GetQuestionByUserID/:UserID', async function (req, res) {
+    const { UserID } = req.params;
 
-        const sql = `SELECT 
-                    q.*, 
-                    m.*,
-                    u.UserName 
-                FROM 
-                    Question q  
-                LEFT JOIN User u ON q.UserID = u.UserID 
-                LEFT JOIN Media m ON q.MediaID = m.MediaID 
-                WHERE 
-                    q.UserID = ?;`;
-        connection.query(sql, [UserID], (err, results) => {
+    let connection;
+    try {
+        connection = await connectToDB();
+        console.log(`Connected to MySQL as id ${connection.threadId}`); // Log connection ID
+        console.log('Requested UserID:', UserID); // Log the requested UserID
+
+        // First Query: Get questions, users, and media
+        const sqlQuestions = `
+            SELECT 
+                q.*, 
+                m.*, 
+                u.UserName 
+            FROM 
+                Question q  
+            LEFT JOIN User u ON q.UserID = u.UserID 
+            LEFT JOIN Media m ON q.MediaID = m.MediaID 
+            WHERE 
+                q.UserID = ?;`;
+
+        connection.query(sqlQuestions, [UserID], (err, questionsResults) => {
             if (err) {
                 console.error('Error getting Question:', err);
-                console.log("Database error");
+                return res.status(500).json({ message: 'Database error' });
             }
-            console.log(results);
-            res.status(200).json(results);
+            
+            console.log('Questions Results:', questionsResults); // Log the results
+
+            // Check if questions were found
+            if (!questionsResults || questionsResults.length === 0) {
+                return res.status(404).json({ message: 'No questions found for this user.' });
+            }
+
+            // Extract Type and QueueListID from the first question result
+            const { Type, QueueListID } = questionsResults[0];
+
+            // Second Query: Get CurrentQueue count
+            const sqlCount = `
+                SELECT COUNT(*) AS count 
+                FROM Question 
+                WHERE Type = ? AND Replied = 0 AND QueueListID = ?;`;
+
+            connection.query(sqlCount, [Type, QueueListID], (err, countResults) => {
+                if (err) {
+                    console.error('Error getting CurrentQueue count:', err);
+                    return res.status(500).json({ message: 'Database error' });
+                }
+
+                // Get the count
+                const currentQueueCount = countResults[0].count;
+
+                // Send the combined results back to the client
+                res.status(200).json({
+                    questions: questionsResults,
+                    currentQueueCount: currentQueueCount,
+                });
+            });
         });
-        connection.end();
 
     } catch (error) {
         console.error('Error connecting to the database:', error);
         res.status(500).send('Server error');
+        
+    } finally {
+        // Ensure connection is closed only if it was opened
+        if (connection && connection.state !== 'disconnected') {
+            connection.end();
+        }
     }
 });
 
@@ -184,6 +226,67 @@ router.get('/GetAllQuestionByQueueListID/:QueueListID', async function (req, res
         ORDER BY q.UploadTime
     `;
         connection.query(sql, [QueueListID], (err, results) => {
+            if (err) {
+                console.error('Error getting Question:', err);
+                console.log("Database error");
+            }
+            console.log(results);
+            res.status(200).json(results);
+        });
+
+        // Close the connection
+        connection.end();
+
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.get('/GetAllQuestionWithType/:QueueListID/:Type', async function (req, res, next) {
+    try {
+        const { QueueListID, Type } = req.params;
+        const connection = await connectToDB();
+
+        const sql = `
+        SELECT 
+            q.QAID, 
+            q.UserID as StudentUserID, 
+            q.MediaID, 
+            q.CourseID, 
+            q.QuestionTitle, 
+            q.Description, 
+            q.UploadTime, 
+            q.Type, 
+            q.Replied, 
+            q.Checking, 
+            q.QueueListID, 
+            m.UserID as MediaUserID,
+            m.MediaID, 
+            m.Video_Type, 
+            m.Title, 
+            m.UploadDate, 
+            m.Path, 
+            u.UserName, 
+            ql.CreatorID as TeacherUserID,
+            ql.CourseID,
+            ql.AccessCode,
+            c.CourseName
+        FROM 
+            Question q
+        LEFT JOIN User u ON q.UserID = u.UserID       
+        LEFT JOIN Media m ON q.MediaID = m.MediaID 
+        LEFT JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
+        LEFT JOIN Course c ON ql.CourseID = c.CourseID
+        WHERE 
+            q.QueueListID = ?
+        AND
+            q.Replied = 0
+        AND
+            q.Type = ?
+        ORDER BY q.UploadTime
+    `;
+        connection.query(sql, [QueueListID, Type], (err, results) => {
             if (err) {
                 console.error('Error getting Question:', err);
                 console.log("Database error");

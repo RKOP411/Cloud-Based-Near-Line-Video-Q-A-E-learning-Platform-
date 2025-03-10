@@ -33,7 +33,7 @@
         >
           <div class="d-flex flex-column">
             <h6 class="mb-3 text-sm question-header">
-              {{ question.UserName }} . {{ question.UploadTime }}
+              {{ question.UserName }} . {{ question.UploadTime }} 
             </h6>
             <h5 class="mb-1 question-title">
               {{ question.QuestionTitle }}

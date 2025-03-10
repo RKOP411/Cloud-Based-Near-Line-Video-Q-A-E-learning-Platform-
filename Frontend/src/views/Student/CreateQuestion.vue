@@ -121,10 +121,13 @@ import {
   CreateQuestionWithVideo,
   AddQueue,
   AddCustomrQueue,
+  GetQueueByType,
 } from "../../assets/Domain.js";
+import bootstrap from "bootstrap/dist/js/bootstrap.bundle";
 
 export default {
   setup() {
+    const CurrentQueue = ref(0);
     const router = useRouter();
     const Email = localStorage.getItem("Email");
     const QueueListID = localStorage.getItem("QueueListID");
@@ -147,6 +150,73 @@ export default {
           ],
         },
       });
+    };
+    const showCurrentQueueModal = (CurrentQueue) => {
+      const modalHtml = `
+    <div class="modal fade" id="currentQueueModal" tabindex="-1" aria-labelledby="currentQueueModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="currentQueueModalLabel">Current Queue</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Your Current Queue in ${type.value}: <b>${CurrentQueue}</b>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+      // Append the modal HTML to the body
+      document.body.insertAdjacentHTML("beforeend", modalHtml);
+
+      // Show the modal
+      const modalElement = new bootstrap.Modal(
+        document.getElementById("currentQueueModal")
+      );
+      modalElement.show();
+
+      // Handle the modal close event
+      const modalCloseButton = document.querySelector(
+        "#currentQueueModal .btn-close"
+      );
+      modalCloseButton.addEventListener("click", () => {
+        modalElement.hide(); // Hide the modal
+        document.getElementById("currentQueueModal").remove(); // Remove modal from DOM
+        router.push("/questionlist"); // Navigate to /questionlist
+      });
+
+      // Also handle the modal dismissal from the backdrop
+      const modalBackdrop = document.querySelector("#currentQueueModal");
+      modalBackdrop.addEventListener("hidden.bs.modal", () => {
+        document.getElementById("currentQueueModal").remove(); // Remove modal from DOM
+        router.push("/questionlist"); // Navigate to /questionlist
+      });
+    };
+
+    // showCurrentQueueModal(CurrentQueue.value);
+    const GetCurrentQueue = async () => {
+      const response = await fetch(
+        `${GetQueueByType}/${QueueListID}/${type.value}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      CurrentQueue.value = data.count;
+      showCurrentQueueModal(CurrentQueue.value);
     };
 
     const handleFileUpload = () => {
@@ -190,7 +260,11 @@ export default {
     };
 
     const AddQuestion = async () => {
-      if (QuestionTitle.value === "" || !quill.value || quill.value.root.innerHTML === "<p><br></p>") {
+      if (
+        QuestionTitle.value === "" ||
+        !quill.value ||
+        quill.value.root.innerHTML === "<p><br></p>"
+      ) {
         errormsg.value = "Please fill all fields";
         return;
       }
@@ -218,8 +292,9 @@ export default {
       console.log(data);
       await AddIntoCustomerQueue();
       await AddIntoQueue();
+      await GetCurrentQueue();
 
-      router.push("/questionlist");
+      //router.push("/questionlist");
     };
 
     const AddQuestionVideo = async () => {
