@@ -320,15 +320,38 @@ export default {
         });
     },
     Calculate_Timeout(time) {
-      if (time < 60) {
-        return `${time} sec`;
-      } else if (time < 3600) {
-        return `${Math.floor(time / 60)} min`;
-      } else if (time < 86400) {
-        return `${Math.floor(time / 3600)} hour`;
-      } else {
-        return `${Math.floor(time / 86400)} day`;
+      let result = [];
+      let days, hours, minutes, seconds;
+
+      // Calculate days, hours, minutes, and seconds
+      days = Math.floor(time / 86400);
+      time %= 86400;
+      hours = Math.floor(time / 3600);
+      time %= 3600;
+      minutes = Math.floor(time / 60);
+      seconds = Math.floor(time % 60);
+
+      // Determine which components to include in the result
+      if (days > 0) {
+        result.push(`${days} Day${days > 1 ? "s" : ""}`);
+        if (hours > 0) {
+          result.push(`${hours} Hour${hours > 1 ? "s" : ""}`);
+        }
+      } else if (hours > 0) {
+        result.push(`${hours} Hour${hours > 1 ? "s" : ""}`);
+        if (minutes > 0) {
+          result.push(`${minutes} Min${minutes > 1 ? "s" : ""}`);
+        }
+      } else if (minutes > 0) {
+        result.push(`${minutes} Min${minutes > 1 ? "s" : ""}`);
+        if (seconds > 0) {
+          result.push(`${seconds} Sec${seconds > 1 ? "s" : ""}`);
+        }
+      } else if (seconds > 0) {
+        result.push(`${seconds} Sec${seconds > 1 ? "s" : ""}`);
       }
+
+      return result.slice(0, 2).join(" and "); // Join the first two parts with " and "
     },
   },
   mounted() {

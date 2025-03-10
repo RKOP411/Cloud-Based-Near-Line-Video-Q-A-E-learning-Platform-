@@ -55,6 +55,7 @@ const CloseQueue = DomainName + "queue/CloseQueue";
 const RunQueue = DomainName + "queue/RunQueue"; 
 const GetQueueStatus = DomainName + "queue/GetQueueStatus";
 const GetQueueTimeryCreatorID = DomainName + "queue/GetQueueTimeryCreatorID";
+const getTotalTakeTime = DomainName + "queue/getTotalTakeTime";
 //HeartBeat
 const SendStatus = DomainName + "status";
 const GetStatus = DomainName + "GetStatus";
@@ -71,5 +72,5 @@ export {
     AddQueue, AddCustomrQueue, GetQueue, CreateQueue_list, GetQueue_listByCreatorID, FindQueueByAccessCode, getAvgTakeTimeByUserID,
     SendStatus, GetStatus,
     JoinQueue, QuitQueue, getCurrentJoins,
-    PauseQueue, CloseQueue, RunQueue, GetQueueStatus, GetQueueTimeryCreatorID
+    PauseQueue, CloseQueue, RunQueue, GetQueueStatus, GetQueueTimeryCreatorID,getTotalTakeTime
 };

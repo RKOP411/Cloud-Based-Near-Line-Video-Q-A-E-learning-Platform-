@@ -338,6 +338,52 @@ router.get('/FindQueueByAccessCode/:AccessCode', async (req, res) => {
     }
 });
 
+router.get('/getTotalTakeTime/:QueueListID', async (req, res) => {
+    try {
+        const {QueueListID } = req.params;
+
+        if ( !QueueListID) {
+            return res.status(400).send(' QueueListID are required');
+        }
+
+        const connection = await connectToDB();
+
+        const query = `
+            SELECT 
+                a.ASID, 
+                a.QAID, 
+                a.UserID, 
+                a.Text, 
+                a.UploadTime AS AnswerUploadTime, 
+                q.UploadTime AS QuestionUploadTime,
+                TIMESTAMPDIFF(SECOND, q.UploadTime, a.UploadTime) AS WaitingTimeInSeconds,
+                q.QuestionTitle,
+                q.Description,
+                q.QueueListID
+            FROM 
+                Answer a
+            JOIN 
+                Question q ON a.QAID = q.QAID
+            WHERE 
+                q.QueueListID = ?;
+        `;
+        const results = await new Promise((resolve, reject) => {
+            connection.query(query, [QueueListID], (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+        res.status(200).json(results);
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving total take time:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 router.get('/getAvgTakeTimeByUserID/:UserID', async (req, res) => {
     try {
         const { UserID } = req.params;

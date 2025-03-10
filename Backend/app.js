@@ -10,6 +10,7 @@ var accountRouter = require('./routes/account');
 var forumRouter = require('./routes/forum');
 var QuestionRouter = require('./routes/question');
 var QueueRouter = require('./routes/queue');
+var DashboardRouter = require('./routes/dashboard');
 var cors = require('cors');
 const bodyParser = require('body-parser');
 
@@ -42,7 +43,7 @@ app.use('/account', accountRouter);
 app.use('/forum', forumRouter);
 app.use('/qa', QuestionRouter);
 app.use('/queue', QueueRouter);
-
+app.use('/dashboard', DashboardRouter);
 
 
 // catch 404 and forward to error handler

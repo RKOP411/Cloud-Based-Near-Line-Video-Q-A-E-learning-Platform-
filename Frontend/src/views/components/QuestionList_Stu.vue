@@ -132,7 +132,7 @@
     <!-- Timer-->
     <div class="mt-4 text-center" id="timerDisplay">
       <h3>
-        Estimated Time: <span id="timeRemaining">{{ Waittime }}</span>
+        Estimated Time: <span id="timeRemaining">{{ TotalWaitTime }}</span>
       </h3>
     </div>
     <!-- Timer End -->
@@ -230,6 +230,7 @@ import {
   getAvgTakeTimeByUserID,
   QuitQueue,
   GetQueueStatus,
+  getTotalTakeTime,
 } from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle";
@@ -251,14 +252,66 @@ export default {
       Status: "",
       showAlert: false,
       showAlertTimes: 0,
+      TotalWaitTime: 0,
     };
   },
   methods: {
+    Calculate_Timeout(time) {
+      let result = [];
+      let days, hours, minutes, seconds;
+
+      // Calculate days, hours, minutes, and seconds
+      days = Math.floor(time / 86400);
+      time %= 86400;
+      hours = Math.floor(time / 3600);
+      time %= 3600;
+      minutes = Math.floor(time / 60);
+      seconds = Math.floor(time % 60);
+
+      // Determine which components to include in the result
+      if (days > 0) {
+        result.push(`${days} Day${days > 1 ? "s" : ""}`);
+        if (hours > 0) {
+          result.push(`${hours} Hour${hours > 1 ? "s" : ""}`);
+        }
+      } else if (hours > 0) {
+        result.push(`${hours} Hour${hours > 1 ? "s" : ""}`);
+        if (minutes > 0) {
+          result.push(`${minutes} Min${minutes > 1 ? "s" : ""}`);
+        }
+      } else if (minutes > 0) {
+        result.push(`${minutes} Min${minutes > 1 ? "s" : ""}`);
+        if (seconds > 0) {
+          result.push(`${seconds} Sec${seconds > 1 ? "s" : ""}`);
+        }
+      } else if (seconds > 0) {
+        result.push(`${seconds} Sec${seconds > 1 ? "s" : ""}`);
+      }
+
+      return result.slice(0, 2).join(" and "); // Join the first two parts with " and "
+    },
+    GetTotalWaitTime() {
+      fetch(`${getTotalTakeTime}/${this.QueueListID}`)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(this.QueueListID);
+          console.log("TEST ");
+          console.log(data);
+          let totalWaitTime = 0;
+          for (let i = 0; i < data.length; i++) {
+            totalWaitTime += data[i].WaitingTimeInSeconds;
+          }
+          let avg = totalWaitTime / data.length;
+          console.log(avg);
+          this.TotalWaitTime = avg;
+          this.TotalWaitTime = this.Calculate_Timeout(this.TotalWaitTime);
+        });
+    },
     closeStatusMessage() {
-      if(this.showAlertTimes >= 1){
+      if (this.showAlertTimes >= 1) {
         return;
       }
-      if ((this.showAlert == true)) {
+      if (this.showAlert == true) {
         const modalHtml = `
                 <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -300,9 +353,9 @@ export default {
         .then((response) => response.json())
         .then((data) => {
           this.Status = data.Status;
-          if(this.Status == "CLOSED"){
+          if (this.Status == "CLOSED") {
             this.showAlert = true;
-           this.closeStatusMessage();
+            this.closeStatusMessage();
           }
         });
     },
@@ -440,6 +493,7 @@ export default {
       this.$router.push("/joinqueue");
       return;
     }
+    this.GetTotalWaitTime();
     this.GetStatus();
     this.GetAllQueue();
     this.getQuestions();
