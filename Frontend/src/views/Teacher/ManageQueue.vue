@@ -262,9 +262,9 @@ export default {
           item.CurrentJoins = await this.getJoins(item.QueueListID);
         }
 
-        // this.items.forEach((item) => {
-        //   item.TimeOut = this.Calculate_Timeout(item.TimeOut);
-        // });
+        this.items.forEach((item) => {
+          item.TimeOut = this.Calculate_Timeout(item.TimeOut);
+        });
 
         const urlParams = new URLSearchParams(window.location.search);
         const showAccessCode = urlParams.get("showAccessCode");

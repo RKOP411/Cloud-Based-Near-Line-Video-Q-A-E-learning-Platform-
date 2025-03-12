@@ -15,8 +15,6 @@ if (Email === null || Email === "") {
   router.push("/signin");
 }
 
-
-
 const sales = {
   us: {
     country: "Mia Thompson",
@@ -51,66 +49,107 @@ const sales = {
 <template>
   <div class="py-4 container-fluid">
     <div class="row">
+      <div class="col-lg-2 ms-auto d-flex justify-content-end">
+        <select
+          class="form-select"
+          id="optionsSelect"
+          style="width: 100px; margin-bottom: 3px"
+        >
+          <option selected value="total">Total</option>
+          <option value="week">Week</option>
+        </select>
+      </div>
+      <div>
+        <select class="form-select form-select-lg mb-3">
+          <option selected value="1">One</option>
+          <option value="2">Two</option>
+          <option value="3">Three</option>
+        </select>
+      </div>
       <div class="col-lg-12">
         <div class="row">
           <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card title="Today's Questions" value="6" description="<span
+            <mini-statistics-card
+              title="Today's Questions"
+              value="6"
+              description="<span
                 class='text-sm font-weight-bolder text-success'
-                >+67%</span> than last course" :icon="{
-                  component: 'fa fa-question',
-                  background: 'bg-gradient-primary',
-                  shape: 'rounded-circle',
-                }" />
+                >+67%</span> than last course"
+              :icon="{
+                component: 'fa fa-question',
+                background: 'bg-gradient-primary',
+                shape: 'rounded-circle',
+              }"
+            />
           </div>
           <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card title="User Engagement" value="35%" description="<span
+            <mini-statistics-card
+              title="User Engagement"
+              value="35%"
+              description="<span
                 class='text-sm font-weight-bolder text-success'
-                >+3%</span> since last course" :icon="{
-                  component: 'fa fa-users',
-                  background: 'bg-gradient-danger',
-                  shape: 'rounded-circle',
-                }" />
+                >+3%</span> since last course"
+              :icon="{
+                component: 'fa fa-users',
+                background: 'bg-gradient-danger',
+                shape: 'rounded-circle',
+              }"
+            />
           </div>
           <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card title="Most Topic" value="vertex-cover" description="Today's Topic: '<span
+            <mini-statistics-card
+              title="Most Topic"
+              value="vertex-cover"
+              description="Today's Topic: '<span
                 class='text-sm font-weight-bolder text-success'
-                >graph theory</span>'" :icon="{
-                  component: 'ni ni-paper-diploma',
-                  background: 'bg-gradient-success',
-                  shape: 'rounded-circle',
-                }" />
+                >graph theory</span>'"
+              :icon="{
+                component: 'ni ni-paper-diploma',
+                background: 'bg-gradient-success',
+                shape: 'rounded-circle',
+              }"
+            />
           </div>
           <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card title="Common Type" value="Theory" description="Highest Type Inquiry Rates" :icon="{
-              component: 'ni ni-tag',
-              background: 'bg-gradient-warning',
-              shape: 'rounded-circle',
-            }" />
+            <mini-statistics-card
+              title="Common Type"
+              value="Theory"
+              description="Highest Type Inquiry Rates"
+              :icon="{
+                component: 'ni ni-tag',
+                background: 'bg-gradient-warning',
+                shape: 'rounded-circle',
+              }"
+            />
           </div>
         </div>
         <div class="row">
           <div class="col-lg-12 mb-lg">
             <!-- line chart -->
             <div class="card z-index-2">
-              <gradient-line-chart id="chart-line" title="Question Times" :chart="{
-                labels: [
-                  'Week 1',
-                  'Week 2',
-                  'Week 3',
-                  'Week 4',
-                  'Week 5',
-                  'Week 6',
-                  'Week 7',
-                  'Week 8',
-                  'Week 9',
-                ],
-                datasets: [
-                  {
-                    label: 'Question Times',
-                    data: [5, 4, 30, 22, 50, 25, 40, 23, 50],
-                  },
-                ],
-              }" />
+              <gradient-line-chart
+                id="chart-line"
+                title="Question Times"
+                :chart="{
+                  labels: [
+                    'Week 1',
+                    'Week 2',
+                    'Week 3',
+                    'Week 4',
+                    'Week 5',
+                    'Week 6',
+                    'Week 7',
+                    'Week 8',
+                    'Week 9',
+                  ],
+                  datasets: [
+                    {
+                      label: 'Question Times',
+                      data: [5, 4, 30, 22, 50, 25, 40, 23, 50],
+                    },
+                  ],
+                }"
+              />
             </div>
           </div>
         </div>
@@ -145,13 +184,17 @@ const sales = {
                       </td>
                       <td>
                         <div class="text-center">
-                          <p class="mb-0 text-xs font-weight-bold">Active Hours:</p>
+                          <p class="mb-0 text-xs font-weight-bold">
+                            Active Hours:
+                          </p>
                           <h6 class="mb-0 text-sm">{{ sale.value }}</h6>
                         </div>
                       </td>
                       <td class="text-sm align-middle">
                         <div class="text-center col">
-                          <p class="mb-0 text-xs font-weight-bold">Engagement:</p>
+                          <p class="mb-0 text-xs font-weight-bold">
+                            Engagement:
+                          </p>
                           <h6 class="mb-0 text-sm">{{ sale.bounce }}</h6>
                         </div>
                       </td>
@@ -162,40 +205,42 @@ const sales = {
             </div>
           </div>
           <div class="col-lg-5">
-            <categories-list :categories="[
-              {
-                icon: {
-                  component: 'fa fa-bug',
-                  background: 'dark',
+            <categories-list
+              :categories="[
+                {
+                  icon: {
+                    component: 'fa fa-bug',
+                    background: 'dark',
+                  },
+                  label: 'Debug',
+                  description: 'Total: <strong>25</strong>',
                 },
-                label: 'Debug',
-                description: 'Total: <strong>25</strong>',
-              },
-              {
-                icon: {
-                  component: 'fa fa-flask',
-                  background: 'dark',
+                {
+                  icon: {
+                    component: 'fa fa-flask',
+                    background: 'dark',
+                  },
+                  label: 'Lab Work',
+                  description: 'Total: <strong>12</strong>',
                 },
-                label: 'Lab Work',
-                description: 'Total: <strong>12</strong>',
-              },
-              {
-                icon: {
-                  component: 'fa fa-exclamation-triangle',
-                  background: 'dark'
+                {
+                  icon: {
+                    component: 'fa fa-exclamation-triangle',
+                    background: 'dark',
+                  },
+                  label: 'Error',
+                  description: 'Total: <strong>1</strong>',
                 },
-                label: 'Error',
-                description: 'Total: <strong>1</strong>',
-              },
-              {
-                icon: {
-                  component: 'fa fa-book',
-                  background: 'dark'
+                {
+                  icon: {
+                    component: 'fa fa-book',
+                    background: 'dark',
+                  },
+                  label: 'Theory',
+                  description: 'Total: <strong>43</strong>',
                 },
-                label: 'Theory',
-                description: 'Total: <strong>43</strong>',
-              },
-            ]" />
+              ]"
+            />
           </div>
         </div>
       </div>
