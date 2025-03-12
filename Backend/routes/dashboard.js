@@ -5,6 +5,31 @@ const cors = require('cors')
 const app = express();
 app.use(cors());
 
+router.get('/GetCourses/:userId', async function (req, res, next) {
+    try {
+        const connection = await connectToDB();
+        const userId = req.params.userId; // Get the UserID from the URL parameter
+
+        const sql = `SELECT * FROM Course WHERE UserID = ?`;
+
+        connection.query(sql, [userId], (err, results) => {
+            if (err) {
+                console.error('Error retrieving courses:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            res.status(200).json(results);
+        });
+
+        // Close the connection
+        connection.end();
+
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 router.get('/GetTop5Asking/:userId', async (req, res) => {
     const { userId } = req.params;
     const connection = await connectToDB();

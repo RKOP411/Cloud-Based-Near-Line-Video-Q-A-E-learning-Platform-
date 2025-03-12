@@ -59,9 +59,14 @@ const GetQueueTimeryCreatorID = DomainName + "queue/GetQueueTimeryCreatorID";
 const getTotalTakeTime = DomainName + "queue/getTotalTakeTime";
 const GetQueueByType = DomainName + "queue/GetQueueByType";
 
+//Dashboard
+const GetCourses = DomainName + "dashboard/GetCourses";
+
 //HeartBeat
 const SendStatus = DomainName + "status";
 const GetStatus = DomainName + "GetStatus";
+
+
 
 export {
     DomainName,
@@ -76,5 +81,6 @@ export {
     SendStatus, GetStatus,
     JoinQueue, QuitQueue, getCurrentJoins,
     PauseQueue, CloseQueue, RunQueue, GetQueueStatus, GetQueueTimeryCreatorID,getTotalTakeTime,
-    GetQueueByType
+    GetQueueByType,
+    GetCourses
 };

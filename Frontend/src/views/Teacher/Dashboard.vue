@@ -60,10 +60,15 @@ const sales = {
         </select>
       </div>
       <div>
-        <select class="form-select form-select-lg mb-3">
-          <option selected value="1">One</option>
-          <option value="2">Two</option>
-          <option value="3">Three</option>
+        <select
+          class="form-select form-select-lg mb-3"
+          v-model="selectedCourse"
+          @change="getSelectedCourse"
+          id="courseSelect"
+        >
+          <option v-for="(course, index) in Course" :key="index" :value="course">
+            {{ course }}
+          </option>
         </select>
       </div>
       <div class="col-lg-12">
@@ -247,3 +252,32 @@ const sales = {
     </div>
   </div>
 </template>
+<script>
+import { GetCourses } from "../../assets/Domain.js";
+import { ref } from "vue";
+
+export default {
+  data() {
+    return {
+      UserID: localStorage.getItem("UserID"),
+      Course: ref([]),
+      selectedCourse: "",
+    };
+  },
+  methods: {
+    async GetCourses() {
+      fetch(`${GetCourses}/${this.UserID}`)
+        .then((response) => response.json())
+        .then((data) => {
+          this.Course = data.map((course) => course.CourseName);
+          //console.log(this.Course);
+          this.selectedCourse = this.Course[0];
+          // console.log("Selected Course:", this.selectedCourse);
+        });
+    },
+  },
+  mounted() {
+    this.GetCourses();
+  },
+};
+</script>
