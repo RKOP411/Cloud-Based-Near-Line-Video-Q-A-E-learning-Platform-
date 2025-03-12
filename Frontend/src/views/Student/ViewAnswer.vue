@@ -33,7 +33,9 @@
         >
           <div class="d-flex flex-column">
             <h6 class="mb-3 text-sm question-header">
-              {{ question.UserName }} . {{ question.UploadTime }} 
+                {{ question.UserName }} . {{ question.UploadTime }} - 
+                <span v-if="question.Replied === 0" style="color: green;">Next No. <b>{{ question.currentQueueCount+1 }}</b></span>
+                <span v-else style="color: red;">Replied</span>
             </h6>
             <h5 class="mb-1 question-title">
               {{ question.QuestionTitle }}
@@ -170,10 +172,10 @@ export default {
       })
         .then((response) => response.json())
         .then((data) => {
-          for (let i = 0; i < data.length; i++) {
-            data[i].UploadTime = this.Calculate_LastUpdate(data[i].UploadTime);
+          this.questions = data.questions;
+          for(let i = 0; i < this.questions.length; i++){
+            this.questions[i].UploadTime = this.Calculate_LastUpdate(this.questions[i].UploadTime);
           }
-          this.questions = data;
           for (let i = 0; i < this.questions.length; i++) {
             // Replace backslashes with forward slashes
             if (this.questions[i].Path) {

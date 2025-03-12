@@ -60,76 +60,69 @@ router.get('/GetAnswerByQAID/:QAID', async function (req, res, next) {
     }
 });
 
-router.get('/GetQuestionByUserID/:UserID', async function (req, res) {
-    const { UserID } = req.params;
-
-    let connection;
+router.get('/GetQuestionByUserID/:UserID', async function (req, res, next) {
     try {
-        connection = await connectToDB();
-        console.log(`Connected to MySQL as id ${connection.threadId}`); // Log connection ID
-        console.log('Requested UserID:', UserID); // Log the requested UserID
+        const { UserID } = req.params;
+        const connection = await connectToDB();
 
-        // First Query: Get questions, users, and media
-        const sqlQuestions = `
-            SELECT 
-                q.*, 
-                m.*, 
-                u.UserName 
-            FROM 
-                Question q  
-            LEFT JOIN User u ON q.UserID = u.UserID 
-            LEFT JOIN Media m ON q.MediaID = m.MediaID 
-            WHERE 
-                q.UserID = ?;`;
+        // First Query: Get all questions for the user
+        const sql = `SELECT 
+                        q.*, 
+                        m.*, 
+                        u.UserName 
+                    FROM 
+                        Question q  
+                    LEFT JOIN User u ON q.UserID = u.UserID 
+                    LEFT JOIN Media m ON q.MediaID = m.MediaID 
+                    WHERE 
+                        q.UserID = ?;`;
 
-        connection.query(sqlQuestions, [UserID], (err, questionsResults) => {
+        connection.query(sql, [UserID], (err, questionsResults) => {
             if (err) {
                 console.error('Error getting Question:', err);
                 return res.status(500).json({ message: 'Database error' });
             }
-            
-            console.log('Questions Results:', questionsResults); // Log the results
 
             // Check if questions were found
             if (!questionsResults || questionsResults.length === 0) {
+                connection.end();
                 return res.status(404).json({ message: 'No questions found for this user.' });
             }
 
-            // Extract Type and QueueListID from the first question result
-            const { Type, QueueListID } = questionsResults[0];
+            // Calculate currentQueueCount for each question
+            const questionsWithCount = questionsResults.map(question => {
+                // Initialize currentQueueCount
+                let currentQueueCount = 0;
 
-            // Second Query: Get CurrentQueue count
-            const sqlCount = `
-                SELECT COUNT(*) AS count 
-                FROM Question 
-                WHERE Type = ? AND Replied = 0 AND QueueListID = ?;`;
-
-            connection.query(sqlCount, [Type, QueueListID], (err, countResults) => {
-                if (err) {
-                    console.error('Error getting CurrentQueue count:', err);
-                    return res.status(500).json({ message: 'Database error' });
+                // Count how many unreplied questions of the same type and queue list are ahead of this question
+                if (question.Replied === 0) { // Only consider unreplied questions
+                    currentQueueCount = questionsResults.filter(q => 
+                        q.Type === question.Type && 
+                        q.QueueListID === question.QueueListID && 
+                        q.Replied === 0 && 
+                        new Date(q.UploadTime) < new Date(question.UploadTime)
+                    ).length;
                 }
 
-                // Get the count
-                const currentQueueCount = countResults[0].count;
-
-                // Send the combined results back to the client
-                res.status(200).json({
-                    questions: questionsResults,
+                // Add currentQueueCount to the question
+                return {
+                    ...question,
                     currentQueueCount: currentQueueCount,
-                });
+                };
             });
+
+            // Send the combined results back to the client
+            res.status(200).json({
+                questions: questionsWithCount,
+            });
+
+            // Close the connection after the response is sent
+            connection.end();
         });
 
     } catch (error) {
         console.error('Error connecting to the database:', error);
         res.status(500).send('Server error');
-        
-    } finally {
-        // Ensure connection is closed only if it was opened
-        if (connection && connection.state !== 'disconnected') {
-            connection.end();
-        }
     }
 });
 

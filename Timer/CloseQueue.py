@@ -32,9 +32,13 @@ def update_timeouts():
 
         # Query to close expired queues
         close_query = """
-        UPDATE queue_list
-        SET Status = 'CLOSED'
-        WHERE Status = 'RUNNING' AND TimeOut = 0;
+            UPDATE queue_list
+            SET 
+                Status = 'CLOSED',
+                CloseDate = NOW()
+            WHERE 
+                Status = 'RUNNING' AND 
+                TimeOut = 0;
         """
         cursor.execute(close_query)
         connection.commit()
