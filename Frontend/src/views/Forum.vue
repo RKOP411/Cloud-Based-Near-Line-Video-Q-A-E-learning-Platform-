@@ -3,7 +3,12 @@
     <div class="card-header pb-0">
       <div class="d-flex align-items-center">
         <h6>Forum</h6>
-        <argon-button title="Create Forum" type="button" class="btn btn-success mb-3 ms-auto" @click="redirectToCreateForum()">
+        <argon-button
+          title="Create Forum"
+          type="button"
+          class="btn btn-success mb-3 ms-auto"
+          @click="redirectToCreateForum()"
+        >
           <i class="fa fa-plus" aria-hidden="true"></i>
         </argon-button>
       </div>
@@ -37,12 +42,17 @@
             </tr>
           </thead>
           <tbody>
-
-            <tr v-if="items.length === 0">
+            <!-- Show a message when no items are available -->
+            <tr v-if="paginatedItems.length === 0">
               <td colspan="5" class="text-center">No Forum</td>
             </tr>
-            
-            <tr v-for="(item, index) in items" :key="index" class="hover-row">
+            <!-- Loop through the paginated items -->
+            <tr
+              v-else
+              v-for="(item, index) in paginatedItems"
+              :key="index"
+              class="hover-row"
+            >
               <td>
                 <div class="d-flex px-2 py-1">
                   <div>
@@ -52,7 +62,9 @@
                       style="font-size: 20px"
                     ></i>
                   </div>
-                  <a :href="`/tables/forum/forumcontent?ForumID=${item.ForumID}`">
+                  <a
+                    :href="`/tables/forum/forumcontent?ForumID=${item.ForumID}`"
+                  >
                     <div class="d-flex flex-column justify-content-center">
                       <h6 class="mb-0 text-sm">{{ item.ForumTitle }}</h6>
                       <p class="text-xs text-secondary mb-0">
@@ -83,20 +95,40 @@
                   class="text-secondary font-weight-bold text-xs"
                   data-toggle="tooltip"
                   data-original-title="Edit user"
-                  ><i class="fa fa-th-list" aria-hidden="true"></i
-                ></a>
+                >
+                  <i class="fa fa-th-list" aria-hidden="true"></i>
+                </a>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+    <!-- Page -->
+    <div class="pagination d-flex justify-content-center">
+      <button
+        class="btn btn-secondary"
+        @click="currentPage--"
+        :disabled="currentPage === 1"
+      >
+        Previous
+      </button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button
+        class="btn btn-secondary"
+        @click="currentPage++"
+        :disabled="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+    <!-- End Page -->
   </div>
   <br />
 </template>
 <script>
 import { GetForumByCourseID } from "../assets/Domain.js";
-import { ref } from 'vue';
+import { ref } from "vue";
 const params = new URLSearchParams(window.location.search);
 const CourseID = ref(params.get("CourseID"));
 
@@ -104,7 +136,19 @@ export default {
   data() {
     return {
       items: [],
+      currentPage: 1,
+      itemsPerPage: 5,
     };
+  },
+  computed: {
+    paginatedItems() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.items.slice(start, end);
+    },
+    totalPages() {
+      return Math.ceil(this.items.length / this.itemsPerPage);
+    },
   },
   methods: {
     async getForum() {
@@ -134,8 +178,8 @@ export default {
       });
     },
     redirectToCreateForum() {
-        this.$router.push(`/tables/forum/createforum?CourseID=${CourseID.value}`);
-    }
+      this.$router.push(`/tables/forum/createforum?CourseID=${CourseID.value}`);
+    },
   },
   mounted() {
     this.getForum();
@@ -143,7 +187,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .star {
   align-items: center;
   justify-content: center;
@@ -153,6 +197,20 @@ export default {
   color: #f0ad4e;
 }
 .hover-row:hover {
-    background-color: #f8f9fe;
+  background-color: #f8f9fe;
+}
+.pagination {
+  margin-top: 20px;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.pagination button {
+  margin: 0 5px;
+  padding: 5px 10px;
+}
+
+.pagination span {
+  margin: 0 10px;
 }
 </style>

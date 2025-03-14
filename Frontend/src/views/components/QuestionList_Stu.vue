@@ -91,7 +91,7 @@
       <div class="row mt-4 justify-content-between">
         <div
           class="col-6 col-md-3 Block-hover"
-          @click="GetQuestionWithType('Theory')"
+          @click="GetQuestionWithType('theory')"
         >
           <div class="d-flex justify-content-between align-items-center">
             <h6 class="status-description">Theory</h6>
@@ -310,15 +310,18 @@ export default {
       fetch(`${getTotalTakeTime}/${this.QueueListID}`)
         .then((response) => response.json())
         .then((data) => {
-          console.log(this.QueueListID);
-          console.log("TEST ");
-          console.log(data);
           let totalWaitTime = 0;
+          if (this.CurrentChoiceType != "") {
+            data = data.filter((item) => item.Type == this.CurrentChoiceType);
+          }
+
+          // console.log(data);
+          // console.log(this.CurrentChoiceType);
           for (let i = 0; i < data.length; i++) {
             totalWaitTime += data[i].WaitingTimeInSeconds;
           }
           let avg = totalWaitTime / data.length;
-          console.log(avg);
+          // console.log(avg);
           this.TotalWaitTime = avg;
           this.TotalWaitTime = this.Calculate_Timeout(this.TotalWaitTime);
         });
@@ -429,6 +432,7 @@ export default {
             }
             this.getWaitTime(data[0].TeacherUserID);
           }
+          this.GetTotalWaitTime();
         });
     },
     async getQuestions() {
@@ -554,6 +558,7 @@ export default {
       } else {
         this.GetQuestionWithType(this.CurrentChoiceType);
       }
+      this.GetTotalWaitTime();
       this.GetStatus();
     }, 5000);
     setInterval(() => {
@@ -595,12 +600,12 @@ export default {
   transition: all 0.3s ease;
 }
 .Block-hover:hover {
-  background-color: #e0efff;  /* Darker background on hover */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);  /* Add shadow on hover */
+  background-color: #e0efff; /* Darker background on hover */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
 }
 
 .Block-hover:active {
-  transform: scale(0.98);  /* Slightly scale down when clicked */
+  transform: scale(0.98); /* Slightly scale down when clicked */
 }
 
 .bg-light {

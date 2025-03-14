@@ -85,6 +85,25 @@
         </table>
       </div>
     </div>
+    <!-- Page -->
+    <div class="pagination d-flex justify-content-center">
+      <button
+        class="btn btn-secondary"
+        @click="currentPage--"
+        :disabled="currentPage === 1"
+      >
+        Previous
+      </button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button
+        class="btn btn-secondary"
+        @click="currentPage++"
+        :disabled="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+    <!-- End Page -->
   </div>
   <br />
 </template>
@@ -105,6 +124,8 @@ export default {
     return {
       items: [],
       role: ref(""),
+      currentPage: 1,
+      itemsPerPage: 5,
     };
   },
   setup() {
@@ -115,8 +136,17 @@ export default {
     const UserID = localStorage.getItem("UserID");
     return { Email, UserID };
   },
+  computed: {
+    paginatedItems() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.items.slice(start, end);
+    },
+    totalPages() {
+      return Math.ceil(this.items.length / this.itemsPerPage);
+    },
+  },
   methods: {
-    
     async getCourse() {
       fetch(GetCoursesByUserID + this.UserID)
         .then((response) => response.json())
@@ -156,4 +186,19 @@ export default {
   display: flex;
   padding-top: 8px;
 }
+.pagination {
+  margin-top: 20px;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.pagination button {
+  margin: 0 5px;
+  padding: 5px 10px;
+}
+
+.pagination span {
+  margin: 0 10px;
+}
+
 </style>

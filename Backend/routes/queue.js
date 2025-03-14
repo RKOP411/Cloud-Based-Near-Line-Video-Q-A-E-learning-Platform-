@@ -346,7 +346,7 @@ router.get('/FindQueueByAccessCode/:AccessCode', async (req, res) => {
         const connection = await connectToDB();
 
         // Query to get QueueListID by AccessCode
-        const query = 'SELECT QueueListID FROM Queue_list WHERE AccessCode = ? AND Status = "RUNNING"';
+        const query = 'SELECT QueueListID FROM Queue_list WHERE AccessCode = ? AND (Status = "RUNNING" OR Status = "PAUSED");';
         const results = await new Promise((resolve, reject) => {
             connection.query(query, [AccessCode], (error, results) => {
                 if (error) return reject(error);
@@ -389,7 +389,8 @@ router.get('/getTotalTakeTime/:QueueListID', async (req, res) => {
                 TIMESTAMPDIFF(SECOND, q.UploadTime, a.UploadTime) AS WaitingTimeInSeconds,
                 q.QuestionTitle,
                 q.Description,
-                q.QueueListID
+                q.QueueListID,
+                q.Type
             FROM 
                 Answer a
             JOIN 

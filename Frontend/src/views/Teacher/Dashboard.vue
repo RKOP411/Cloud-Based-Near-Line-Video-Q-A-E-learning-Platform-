@@ -3,10 +3,6 @@ import MiniStatisticsCard from "@/examples/Cards/MiniStatisticsCard.vue";
 import GradientLineChart from "@/examples/Charts/GradientLineChart.vue";
 import CategoriesList from "../components/CategoriesList.vue";
 
-import US from "@/assets/img/icons/flags/US.png";
-import DE from "@/assets/img/icons/flags/DE.png";
-import GB from "@/assets/img/icons/flags/GB.png";
-import BR from "@/assets/img/icons/flags/BR.png";
 import { useRouter } from "vue-router";
 const router = useRouter();
 let Email = localStorage.getItem("Email");
@@ -14,37 +10,6 @@ let Email = localStorage.getItem("Email");
 if (Email === null || Email === "") {
   router.push("/signin");
 }
-
-const sales = {
-  us: {
-    country: "Mia Thompson",
-    sales: 8,
-    value: "130.00",
-    bounce: "93.9%",
-    flag: US,
-  },
-  germany: {
-    country: "Ethan Johnson",
-    sales: 5,
-    value: "48.00",
-    bounce: "81.22%",
-    flag: DE,
-  },
-  britain: {
-    country: "Ava Patel",
-    sales: 4,
-    value: "90.70",
-    bounce: "83.44%",
-    flag: GB,
-  },
-  brasil: {
-    country: "Noah Williams",
-    sales: 3,
-    value: "43.60",
-    bounce: "72.14%",
-    flag: BR,
-  },
-};
 </script>
 <template>
   <div class="py-4 container-fluid">
@@ -56,18 +21,22 @@ const sales = {
           style="width: 100px; margin-bottom: 3px"
         >
           <option selected value="total">Total</option>
+          <option value="week">Month</option>
           <option value="week">Week</option>
         </select>
       </div>
       <div>
         <select
           class="form-select form-select-lg mb-3"
-          v-model="selectedCourse"
-          @change="getSelectedCourse"
+          @change="handleCourseChange"
           id="courseSelect"
         >
-          <option v-for="(course, index) in Course" :key="index" :value="course">
-            {{ course }}
+          <option
+            v-for="(course, index) in Course"
+            :key="index"
+            :value="course.CourseName"
+          >
+            {{ course.CourseName }}
           </option>
         </select>
       </div>
@@ -169,7 +138,7 @@ const sales = {
               <div class="table-responsive">
                 <table class="table align-items-center">
                   <tbody>
-                    <tr v-for="(sale, index) in sales" :key="index">
+                    <tr v-for="(Top5, index) in Top5" :key="index">
                       <td class="w-30">
                         <div class="px-2 py-1 d-flex align-items-center">
                           <i class="fa fa-user-circle" aria-hidden="true"></i>
@@ -177,22 +146,16 @@ const sales = {
                             <p class="mb-0 text-xs font-weight-bold">
                               Student:
                             </p>
-                            <h6 class="mb-0 text-sm">{{ sale.country }}</h6>
+                            <h6 class="mb-0 text-sm">{{ Top5.UserName }}</h6>
                           </div>
                         </div>
                       </td>
                       <td>
                         <div class="text-center">
                           <p class="mb-0 text-xs font-weight-bold">Question:</p>
-                          <h6 class="mb-0 text-sm">{{ sale.sales }}</h6>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="text-center">
-                          <p class="mb-0 text-xs font-weight-bold">
-                            Active Hours:
-                          </p>
-                          <h6 class="mb-0 text-sm">{{ sale.value }}</h6>
+                          <h6 class="mb-0 text-sm">
+                            {{ Top5.question_count }}
+                          </h6>
                         </div>
                       </td>
                       <td class="text-sm align-middle">
@@ -200,7 +163,9 @@ const sales = {
                           <p class="mb-0 text-xs font-weight-bold">
                             Engagement:
                           </p>
-                          <h6 class="mb-0 text-sm">{{ sale.bounce }}</h6>
+                          <h6 class="mb-0 text-sm">
+                            {{ Math.round(Top5.engagement_percentage) }}%
+                          </h6>
                         </div>
                       </td>
                     </tr>
@@ -253,7 +218,7 @@ const sales = {
   </div>
 </template>
 <script>
-import { GetCourses } from "../../assets/Domain.js";
+import { GetCourses, GetTop5Asking } from "../../assets/Domain.js";
 import { ref } from "vue";
 
 export default {
@@ -261,7 +226,8 @@ export default {
     return {
       UserID: localStorage.getItem("UserID"),
       Course: ref([]),
-      selectedCourse: "",
+      Top5: ref([]),
+      selectedCourseID: "",
     };
   },
   methods: {
@@ -269,13 +235,35 @@ export default {
       fetch(`${GetCourses}/${this.UserID}`)
         .then((response) => response.json())
         .then((data) => {
-          this.Course = data.map((course) => course.CourseName);
+          this.Course = data.map((course) => course);
           //console.log(this.Course);
-          this.selectedCourse = this.Course[0];
-          // console.log("Selected Course:", this.selectedCourse);
+          this.selectedCourseID = data[0].CourseID;
+          //console.log("Selected Course ID: ", this.selectedCourseID);
+
+          //Get Dashboard Data
+          this.GetTop5();
         });
     },
+    async GetTop5() {
+      fetch(`${GetTop5Asking}/${this.UserID}/${this.selectedCourseID}`)
+        .then((response) => response.json())
+        .then((data) => {
+          this.Top5 = data.map((course) => course);
+          console.log(this.Top5);
+        });
+    },
+    handleCourseChange(event) {
+      const selectedCourse = this.Course.find(
+        (course) => course.CourseName === event.target.value
+      );
+      this.selectedCourseID = selectedCourse ? selectedCourse.CourseID : "";
+      //console.log("Selected Course: ", selectedCourse);
+      //console.log("Selected Course ID: ", this.selectedCourseID);
+
+      this.GetTop5();
+    },
   },
+
   mounted() {
     this.GetCourses();
   },

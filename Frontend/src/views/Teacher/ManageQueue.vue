@@ -57,11 +57,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-if="items.length === 0">
+            <tr v-if="paginatedItems.length === 0">
               <td colspan="6" class="text-center">No data available</td>
             </tr>
             <tr
-              v-for="(queue, index) in items"
+              v-for="(queue, index) in paginatedItems"
               :key="index"
               class="hover-row"
               @click="goToAnswerQuestion(queue.QueueListID)"
@@ -81,9 +81,7 @@
                 </span>
               </td>
               <td style="padding-left: 25px">{{ queue.TimeOut }}</td>
-              <td style="padding-left: 25px">
-                {{ queue.CurrentJoins }}
-              </td>
+              <td style="padding-left: 25px">{{ queue.CurrentJoins }}</td>
               <td style="padding-left: 25px">{{ queue.Created }}</td>
               <td>
                 <button
@@ -116,6 +114,17 @@
         </table>
       </div>
     </div>
+    <!-- Page -->
+    <div class="pagination d-flex justify-content-center">
+      <button class="btn btn-secondary" @click="currentPage--" :disabled="currentPage === 1">
+      Previous
+      </button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button class="btn btn-secondary" @click="currentPage++" :disabled="currentPage === totalPages">
+      Next
+      </button>
+    </div>
+    <!-- End Page -->
   </div>
   <br />
 </template>
@@ -136,6 +145,9 @@ export default {
     return {
       items: [],
       showAccessCode: false,
+      AlertAccessCodeOnce: false,
+      currentPage: 1,
+      itemsPerPage: 5,
     };
   },
   setup() {
@@ -146,6 +158,16 @@ export default {
       router.push("/signin");
     }
     return { Email, UserID };
+  },
+  computed: {
+    paginatedItems() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.items.slice(start, end);
+    },
+    totalPages() {
+      return Math.ceil(this.items.length / this.itemsPerPage);
+    },
   },
   methods: {
     async RunQueue(QueueListID) {
@@ -234,8 +256,8 @@ export default {
 
         const data = await response.json();
         data.forEach((item) => {
-          for(const queue of this.items){
-            if(queue.QueueListID === item.QueueListID){
+          for (const queue of this.items) {
+            if (queue.QueueListID === item.QueueListID) {
               queue.TimeOut = this.Calculate_Timeout(item.TimeOut);
             }
           }
@@ -272,7 +294,8 @@ export default {
           this.showAccessCode = showAccessCode === "true";
         }
         //console.log(this.showAccessCode);
-        if (this.showAccessCode) {
+        if (this.showAccessCode & !this.AlertAccessCodeOnce) {
+          this.AlertAccessCodeOnce = true;
           this.PopAccessCode();
         }
         //console.log(this.items);
@@ -282,6 +305,10 @@ export default {
       }
     },
     PopAccessCode() {
+      if (this.AlertAccessCodeOnce) {
+        return;
+      }
+      this.AlertAccessCodeOnce = true;
       const accessCode =
         this.items.length > 0
           ? this.items[this.items.length - 1].AccessCode
@@ -366,9 +393,6 @@ export default {
       this.GetTimeOut();
     }, 1000);
     this.GetQueue();
-    setInterval(() => {
-      this.GetQueue();
-    }, 10000);
   },
 };
 </script>
@@ -388,5 +412,20 @@ export default {
 }
 .hover-row:hover {
   background-color: #f8f9fe;
+}
+.pagination {
+  margin-top: 20px;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.pagination button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  
+}
+
+.pagination span {
+  margin: 0 10px;
 }
 </style>

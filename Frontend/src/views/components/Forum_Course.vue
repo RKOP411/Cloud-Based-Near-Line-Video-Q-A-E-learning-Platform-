@@ -8,7 +8,8 @@
           type="button"
           class="btn btn-success mb-3 ms-auto"
           title="Create Course"
-            :role="role" @click="goToCreateCourse"
+          :role="role"
+          @click="goToCreateCourse"
         >
           <i class="fa fa-plus" aria-hidden="true"></i>
         </argon-button>
@@ -38,7 +39,18 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in items" :key="index" class="hover-row">
+            <!-- Show message when no items are available -->
+            <tr v-if="paginatedItems.length === 0">
+              <td colspan="4" class="text-center">No courses available.</td>
+            </tr>
+
+            <!-- Loop through paginated items -->
+            <tr
+              v-else
+              v-for="(item, index) in paginatedItems"
+              :key="index"
+              class="hover-row"
+            >
               <td>
                 <div class="d-flex px-2 py-1">
                   <div>
@@ -50,7 +62,7 @@
                   </div>
                   <div class="d-flex flex-column justify-content-center">
                     <a
-                      :href="`tables/forum?CourseID= ${item.CourseID}`"
+                      :href="`tables/forum?CourseID=${item.CourseID}`"
                       class="text-decoration-none"
                     >
                       <h6 class="mb-0 text-sm">{{ item.CourseName }}</h6>
@@ -77,19 +89,39 @@
                   class="text-secondary font-weight-bold text-xs"
                   data-toggle="tooltip"
                   data-original-title="Edit user"
-                  ><i class="fa fa-th-list" aria-hidden="true"></i
-                ></a>
+                >
+                  <i class="fa fa-th-list" aria-hidden="true"></i>
+                </a>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+    <!-- Page -->
+    <div class="pagination d-flex justify-content-center">
+      <button
+        class="btn btn-secondary"
+        @click="currentPage--"
+        :disabled="currentPage === 1"
+      >
+        Previous
+      </button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button
+        class="btn btn-secondary"
+        @click="currentPage++"
+        :disabled="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+    <!-- End Page -->
   </div>
   <br />
 </template>
 <script>
-import { ref } from 'vue';
+import { ref } from "vue";
 import { GetAllCourses, GetUserByEmail } from "../../assets/Domain.js";
 import { useRouter } from "vue-router";
 
@@ -105,6 +137,8 @@ export default {
     return {
       items: [],
       role: ref(""),
+      currentPage: 1,
+      itemsPerPage: 5,
     };
   },
   setup() {
@@ -113,6 +147,16 @@ export default {
       this.$router.push("/signin");
     }
     return { Email };
+  },
+  computed: {
+    paginatedItems() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.items.slice(start, end);
+    },
+    totalPages() {
+      return Math.ceil(this.items.length / this.itemsPerPage);
+    },
   },
   methods: {
     async getCourse() {
@@ -138,15 +182,13 @@ export default {
       }
 
       const UserData = await response.json();
-      return UserData[0].Role;  //Only get the Role here
-      
+      return UserData[0].Role; //Only get the Role here
     },
   },
   async mounted() {
     this.getCourse();
     this.role = await this.GetUserRoleByEmail();
   },
-  
 };
 </script>
 <style>
@@ -157,6 +199,20 @@ export default {
   padding-top: 8px;
 }
 .hover-row:hover {
-    background-color: #f8f9fe;
+  background-color: #f8f9fe;
+}
+.pagination {
+  margin-top: 20px;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.pagination button {
+  margin: 0 5px;
+  padding: 5px 10px;
+}
+
+.pagination span {
+  margin: 0 10px;
 }
 </style>

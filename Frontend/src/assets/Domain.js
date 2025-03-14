@@ -61,6 +61,7 @@ const GetQueueByType = DomainName + "queue/GetQueueByType";
 
 //Dashboard
 const GetCourses = DomainName + "dashboard/GetCourses";
+const GetTop5Asking = DomainName + "dashboard/GetTop5Asking";
 
 //HeartBeat
 const SendStatus = DomainName + "status";
@@ -82,5 +83,5 @@ export {
     JoinQueue, QuitQueue, getCurrentJoins,
     PauseQueue, CloseQueue, RunQueue, GetQueueStatus, GetQueueTimeryCreatorID,getTotalTakeTime,
     GetQueueByType,
-    GetCourses
+    GetCourses,GetTop5Asking
 };
