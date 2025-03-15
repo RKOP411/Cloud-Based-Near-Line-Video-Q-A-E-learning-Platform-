@@ -89,7 +89,6 @@
 
 <script>
 import DOMPurify from "dompurify";
-GetQuestionByUserID;
 import {
   GetQuestionByUserID,
   DomainName,

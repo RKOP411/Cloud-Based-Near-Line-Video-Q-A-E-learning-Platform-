@@ -102,11 +102,12 @@ router.get('/GetQuestionByUserID/:UserID', async function (req, res, next) {
                             SELECT COUNT(*) AS position
                             FROM question
                             WHERE Type = ? AND Replied = 0
-                              AND QAID <= ?;
+                              AND QAID <= ?
+                              AND QueueListID = ?;;
                         `;
 
                         // Execute the query asynchronously for each question
-                        const [positionResult] = await connection.promise().query(sqlPosition, [question.Type, question.QAID]);
+                        const [positionResult] = await connection.promise().query(sqlPosition, [question.Type, question.QAID, question.QueueListID]);
                         currentQueueCount = positionResult[0].position - 1; // Subtract 1 to exclude the current question itself
 
                         // Add currentQueueCount to the question
