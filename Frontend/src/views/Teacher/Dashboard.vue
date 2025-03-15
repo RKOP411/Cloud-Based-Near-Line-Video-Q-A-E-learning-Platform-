@@ -245,6 +245,8 @@ export default {
         });
     },
     async GetTop5() {
+      console.log("Selected Course ID: ", this.selectedCourseID);
+      console.log("User ID: ", this.UserID);
       fetch(`${GetTop5Asking}/${this.UserID}/${this.selectedCourseID}`)
         .then((response) => response.json())
         .then((data) => {

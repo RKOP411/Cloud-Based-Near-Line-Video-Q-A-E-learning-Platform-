@@ -6,6 +6,7 @@ const path = require('path');
 const cors = require('cors')
 const app = express();
 app.use(cors());
+const mysql = require('mysql2/promise');
 
 router.post('/AddAnswerByQuestionID', async function (req, res) {
     try {
@@ -77,7 +78,7 @@ router.get('/GetQuestionByUserID/:UserID', async function (req, res, next) {
                     WHERE 
                         q.UserID = ?;`;
 
-        connection.query(sql, [UserID], (err, questionsResults) => {
+        connection.query(sql, [UserID], async (err, questionsResults) => {
             if (err) {
                 console.error('Error getting Question:', err);
                 return res.status(500).json({ message: 'Database error' });
@@ -89,35 +90,44 @@ router.get('/GetQuestionByUserID/:UserID', async function (req, res, next) {
                 return res.status(404).json({ message: 'No questions found for this user.' });
             }
 
-            // Calculate currentQueueCount for each question
-            const questionsWithCount = questionsResults.map(question => {
-                // Initialize currentQueueCount
-                let currentQueueCount = 0;
+            try {
+                // Calculate currentQueueCount for each question
+                const questionsWithCount = await Promise.all(
+                    questionsResults.map(async (question) => {
+                        // Initialize currentQueueCount
+                        let currentQueueCount = 0;
 
-                // Count how many unreplied questions of the same type and queue list are ahead of this question
-                if (question.Replied === 0) { // Only consider unreplied questions
-                    currentQueueCount = questionsResults.filter(q => 
-                        q.Type === question.Type && 
-                        q.QueueListID === question.QueueListID && 
-                        q.Replied === 0 && 
-                        new Date(q.UploadTime) < new Date(question.UploadTime)
-                    ).length;
-                }
+                        // Query the position of the current question in the queue
+                        const sqlPosition = `
+                            SELECT COUNT(*) AS position
+                            FROM question
+                            WHERE Type = ? AND Replied = 0
+                              AND QAID <= ?;
+                        `;
 
-                // Add currentQueueCount to the question
-                return {
-                    ...question,
-                    currentQueueCount: currentQueueCount,
-                };
-            });
+                        // Execute the query asynchronously for each question
+                        const [positionResult] = await connection.promise().query(sqlPosition, [question.Type, question.QAID]);
+                        currentQueueCount = positionResult[0].position - 1; // Subtract 1 to exclude the current question itself
 
-            // Send the combined results back to the client
-            res.status(200).json({
-                questions: questionsWithCount,
-            });
+                        // Add currentQueueCount to the question
+                        return {
+                            ...question,
+                            currentQueueCount: currentQueueCount,
+                        };
+                    })
+                );
 
-            // Close the connection after the response is sent
-            connection.end();
+                // Send the combined results back to the client
+                res.status(200).json({
+                    questions: questionsWithCount,
+                });
+            } catch (error) {
+                console.error('Error processing questions:', error);
+                res.status(500).json({ message: 'Error processing questions' });
+            } finally {
+                // Close the connection after the response is sent
+                connection.end();
+            }
         });
 
     } catch (error) {
@@ -176,13 +186,13 @@ router.get('/GetAllQuestion', async function (req, res, next) {
         res.status(500).send('Server error');
     }
 });
-
 router.get('/GetAllQuestionByQueueListID/:QueueListID', async function (req, res, next) {
+    let connection;
     try {
         const { QueueListID } = req.params;
         const connection = await connectToDB();
 
-        const sql = `
+        const sql1 = `
         SELECT 
             q.QAID, 
             q.UserID as StudentUserID, 
@@ -217,22 +227,67 @@ router.get('/GetAllQuestionByQueueListID/:QueueListID', async function (req, res
         AND
             q.Replied = 0
         ORDER BY q.UploadTime
-    `;
-        connection.query(sql, [QueueListID], (err, results) => {
-            if (err) {
-                console.error('Error getting Question:', err);
-                console.log("Database error");
-            }
-            console.log(results);
-            res.status(200).json(results);
-        });
+        `;
 
-        // Close the connection
+
+        const sql2 = `
+        SELECT
+            ql.QueueListID,
+            ql.CourseID,
+            ql.CreatorID AS TeacherUserID,
+            ql.Status,
+            ql.Created,
+            ql.CloseDate,
+            ql.CourseWeek,
+            ql.AccessCode,
+            ql.TimeOut,
+            c.* 
+        FROM 
+            queue_list ql
+        JOIN 
+            course c ON ql.CourseID = c.CourseID
+        WHERE 
+            ql.QueueListID = ?;
+        `;
+
+        const results = await Promise.all([
+            new Promise((resolve, reject) => {
+                connection.query(sql1, [QueueListID], (err, results) => {
+                    if (err) {
+                        console.error('Error getting Question:', err);
+                        console.log("Database error");
+                        reject(err);
+                    }
+                    resolve(results);
+                });
+            }
+            ),
+            new Promise((resolve, reject) => {
+                connection.query(sql2, [QueueListID], (err, results) => {
+                    if (err) {
+                        console.error('Error getting Question:', err);
+                        console.log("Database error");
+                        reject(err);
+                    }
+                    resolve(results);
+                });
+            }
+            )
+        ]);
+        const response = {
+            questions: results[0],
+            question: results[1]
+        }
+        res.status(200).json(response);
+
         connection.end();
+
 
     } catch (error) {
         console.error('Error connecting to the database:', error);
         res.status(500).send('Server error');
+    } finally {
+        if (connection) await connection.end(); // Ensure the connection is closed
     }
 });
 

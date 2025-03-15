@@ -146,7 +146,8 @@
     <!-- Timer-->
     <div class="mt-4 text-center" id="timerDisplay">
       <h3>
-        Estimated Time: <span id="timeRemaining">{{ TotalWaitTime }}</span>
+        <span v-if="TotalWaitTime">Estimated Time: <span id="timeRemaining">{{ TotalWaitTime }}</span></span>
+        <span v-else>No estimated time available</span>
       </h3>
     </div>
     <!-- Timer End -->
@@ -175,7 +176,7 @@
       <ul class="list-group">
         <!-- List Card -->
         <li
-          v-if="questions.length === 0"
+          v-if="questions.length === 0 || questions[0]?.QAID == undefined"
           class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
         >
           <div class="d-flex flex-column">
@@ -185,6 +186,7 @@
           </div>
         </li>
         <li
+          v-else
           v-for="question in questions"
           :key="question.id"
           class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
@@ -405,6 +407,7 @@ export default {
       fetch(`${GetAllQuestionWithType}/${this.QueueListID}/${Type}`)
         .then((response) => response.json())
         .then((data) => {
+           this.questions = data;
           for (let i = 0; i < data.length; i++) {
             data[i].UploadTime = this.Calculate_LastUpdate(data[i].UploadTime);
           }
@@ -414,6 +417,7 @@ export default {
           }
           this.questions = data;
           this.TeacherUserID = data[0].TeacherUserID;
+          //console.log(data[0]);
           this.CourseName = data[0].CourseName;
 
           for (let i = 0; i < this.questions.length; i++) {
@@ -438,13 +442,15 @@ export default {
     async getQuestions() {
       fetch(`${GetAllQuestionByQueueListID}/${this.QueueListID}`)
         .then((response) => response.json())
-        .then((data) => {
-          for (let i = 0; i < data.length; i++) {
-            data[i].UploadTime = this.Calculate_LastUpdate(data[i].UploadTime);
+        .then(async (data) => {
+          this.questions = await data.questions;
+          console.log(this.questions);
+          for (let i = 0; i < this.questions.length; i++) {
+            this.questions[i].UploadTime = this.Calculate_LastUpdate(this.questions[i].UploadTime);
           }
-          this.questions = data;
-          this.TeacherUserID = data[0].TeacherUserID;
-          this.CourseName = data[0].CourseName;
+          this.TeacherUserID = this.questions[0].TeacherUserID;
+          console.log("TEST1");
+          this.CourseName = this.questions[0].CourseName;
 
           for (let i = 0; i < this.questions.length; i++) {
             if (this.questions[i].QuestionUserID == userId) {
@@ -460,7 +466,8 @@ export default {
               const basePath = DomainName;
               this.questions[i].Path = basePath + this.questions[i].Path; // The full path
             }
-            this.getWaitTime(data[0].TeacherUserID);
+            this.getWaitTime(this.questions[0].TeacherUserID);
+            this.GetTotalWaitTime();
           }
         });
     },

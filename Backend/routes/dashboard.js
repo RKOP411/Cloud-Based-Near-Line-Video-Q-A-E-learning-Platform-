@@ -36,14 +36,14 @@ router.get('/GetTop5Asking/:userId/:courseId', async (req, res) => {
     const sql = `
         WITH Engagement AS (
             SELECT
-                COUNT(DISTINCT q.QueueListID) AS joined_count,  -- Count distinct QueueListID joined by the user
+                COUNT(DISTINCT q.QueueListID) AS joined_count, 
                 (SELECT COUNT(DISTINCT ql.QueueListID) 
                 FROM Queue_list ql 
-                WHERE ql.CreatorID = 11 AND ql.CourseID = 12) AS total_count
+                WHERE ql.CreatorID = ? AND ql.CourseID = ?) AS total_count
             FROM
                 Question q
             WHERE
-                q.UserID = 11
+                q.UserID = ?
         ),
         TopUsers AS (
             SELECT
@@ -55,7 +55,7 @@ router.get('/GetTop5Asking/:userId/:courseId', async (req, res) => {
             JOIN
                 Question q ON u.UserID = q.UserID
             WHERE
-                u.UserID <> 11
+                u.UserID <> ?
             GROUP BY
                 u.UserID,
                 u.UserName
@@ -80,7 +80,7 @@ router.get('/GetTop5Asking/:userId/:courseId', async (req, res) => {
             Engagement e ON 1=1;
         `;
 
-    connection.query(sql, [userId, userId, courseId, userId, courseId], (err, results) => {
+    connection.query(sql, [userId, courseId, userId, courseId], (err, results) => {
         if (err) {
             console.error('Error fetching top 5 asking users:', err);
             res.status(500).send('Server error');

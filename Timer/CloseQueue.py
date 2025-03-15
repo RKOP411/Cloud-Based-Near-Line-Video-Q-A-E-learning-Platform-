@@ -4,10 +4,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 # Database configuration
 db_config = {
-    'host': 'localhost',
+    'host': '127.0.0.1',  # Use IP address instead of 'localhost'
     'user': 'root',
     'password': 'root12',
-    'database': 'LearnPlatform'
+    'database': 'LearnPlatform',
+    'port': 3306  # Ensure the correct port is specified
 }
 
 def update_timeouts():
@@ -48,8 +49,7 @@ def update_timeouts():
     except mysql.connector.Error as err:
         print(f"Error: {err}")
     finally:
-        # Cleanup
-        if cursor:
+        if 'cursor' in locals() and cursor:
             cursor.close()
         if connection:
             connection.close()

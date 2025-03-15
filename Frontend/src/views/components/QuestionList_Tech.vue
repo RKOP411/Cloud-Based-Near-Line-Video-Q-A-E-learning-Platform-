@@ -96,7 +96,7 @@
       <ul class="list-group">
         <!-- List Card -->
         <li
-          v-if="questions.length === 0"
+          v-if="questions.length === 0 || questions[0]?.QAID == undefined"
           class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
         >
           <div class="d-flex flex-column">
@@ -106,6 +106,7 @@
           </div>
         </li>
         <li
+          v-else
           v-for="question in questions"
           :key="question.id"
           class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
@@ -442,12 +443,19 @@ export default {
           }
           return response.json();
         })
-        .then((data) => {
-          for (let i = 0; i < data.length; i++) {
-            data[i].UploadTime = this.Calculate_LastUpdate(data[i].UploadTime);
+        .then(async (data) => {
+          this.questions = await data.questions; 
+          console.log("questions:", this.questions);
+          for (let i = 0; i < this.questions.length; i++) {
+            this.questions[i].UploadTime = this.Calculate_LastUpdate(this.questions[i].UploadTime);
           }
-          this.questions = data;
-          this.AccessCode = data[0].AccessCode;
+          console.log("Data: " + data[0]);
+          if(this.questions[0] != null){
+            this.AccessCode = this.questions[0].AccessCode;
+          }
+          else{
+            this.AccessCode = await data.question[0].AccessCode;
+          }
 
           for (let i = 0; i < this.questions.length; i++) {
             if (this.questions[i].UserID == userId) {
@@ -546,6 +554,7 @@ export default {
       );
       clearInterval(this.heartbeatInterval); // Clear the interval
     });
+
   },
 };
 </script>
