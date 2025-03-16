@@ -271,8 +271,11 @@ export default {
         .then((response) => response.json())
         .then((data) => {
           this.QuestionTimesLabel.value = data.map(
-            (item) => `${item.CourseWeek}`
+            (item) => `${item.LastUploadTime}`
           );
+            this.QuestionTimesLabel.value = data.map(
+            (item) => new Date(item.LastUploadTime).toISOString().split('T')[0]
+            );
           this.QuestionTimesData.value = data.map((item) => item.QuestionCount);
 
           // console.log("Question Times Data: ", [

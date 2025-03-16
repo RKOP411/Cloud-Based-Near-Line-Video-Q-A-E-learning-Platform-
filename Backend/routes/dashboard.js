@@ -825,7 +825,7 @@ router.get('/GetQuestionTimes/:CourseID/:duration', async (req, res) => {
 
         if (duration === 'month') {
             const query = `
-            SELECT ql.CourseWeek, COUNT(q.QAID) AS QuestionCount
+            SELECT ql.CourseWeek, COUNT(q.QAID) AS QuestionCount, MAX(q.UploadTime) AS LastUploadTime
             FROM queue_list ql
             LEFT JOIN question q ON ql.QueueListID = q.QueueListID
             WHERE ql.CourseID = ?
@@ -846,7 +846,7 @@ router.get('/GetQuestionTimes/:CourseID/:duration', async (req, res) => {
         }
         else if (duration === 'week') {
             const query = `
-            SELECT ql.CourseWeek, COUNT(q.QAID) AS QuestionCount
+            SELECT ql.CourseWeek, COUNT(q.QAID) AS QuestionCount, MAX(q.UploadTime) AS LastUploadTime
             FROM queue_list ql
             LEFT JOIN question q ON ql.QueueListID = q.QueueListID
             WHERE ql.CourseID = ?
@@ -867,7 +867,7 @@ router.get('/GetQuestionTimes/:CourseID/:duration', async (req, res) => {
         }
         else {
             const query = `
-            SELECT ql.CourseWeek, COUNT(q.QAID) AS QuestionCount
+            SELECT ql.CourseWeek, COUNT(q.QAID) AS QuestionCount, MAX(q.UploadTime) AS LastUploadTime
             FROM queue_list ql
             LEFT JOIN question q ON ql.QueueListID = q.QueueListID
             WHERE ql.CourseID = ?
