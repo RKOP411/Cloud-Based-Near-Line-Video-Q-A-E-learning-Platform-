@@ -44,11 +44,11 @@ if (Email === null || Email === "") {
         <div class="row">
           <div class="col-lg-3 col-md-6 col-12">
             <mini-statistics-card
-              title="Today's Questions"
-              value="6"
+              title="Number of Answers"
+              :value="NumberofAnswers > 0 ? NumberofAnswers : '0'"
               description="<span
                 class='text-sm font-weight-bolder text-success'
-                >+67%</span> than last course"
+                ></span> Total Answers Submitted"
               :icon="{
                 component: 'fa fa-question',
                 background: 'bg-gradient-primary',
@@ -58,11 +58,11 @@ if (Email === null || Email === "") {
           </div>
           <div class="col-lg-3 col-md-6 col-12">
             <mini-statistics-card
-              title="User Engagement"
-              value="35%"
+              title="Answer Duration"
+              :value="AvgAnswerTimer"
               description="<span
                 class='text-sm font-weight-bolder text-success'
-                >+3%</span> since last course"
+                ></span>Timer Duration for Answer"
               :icon="{
                 component: 'fa fa-users',
                 background: 'bg-gradient-danger',
@@ -87,7 +87,7 @@ if (Email === null || Email === "") {
           <div class="col-lg-3 col-md-6 col-12">
             <mini-statistics-card
               title="Common Type"
-              value="Theory"
+              :value="MostTypeAsked"
               description="Highest Type Inquiry Rates"
               :icon="{
                 component: 'ni ni-tag',
@@ -120,8 +120,28 @@ if (Email === null || Email === "") {
                     {
                       label: 'Question Times',
                       data: [5, 4, 30, 22, 50, 25, 40, 23, 50],
+                      borderColor: 'rgba(75, 192, 192, 1)',
+                      backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     },
                   ],
+                  options: {
+                    responsive: true, // Make the chart responsive
+                    scales: {
+                      y: {
+                        title: {
+                          display: true,
+                          text: 'Number of Questions', // Y-axis label
+                        },
+                        beginAtZero: true, // Start y-axis at zero
+                      },
+                      x: {
+                        title: {
+                          display: true,
+                          text: 'Weeks', // X-axis label
+                        },
+                      },
+                    },
+                  },
                 }"
               />
             </div>
@@ -138,7 +158,7 @@ if (Email === null || Email === "") {
               <div class="table-responsive">
                 <table class="table align-items-center">
                   <tbody>
-                    <tr v-for="(Top5, index) in Top5" :key="index">
+                    <tr v-for="index in 5" :key="index">
                       <td class="w-30">
                         <div class="px-2 py-1 d-flex align-items-center">
                           <i class="fa fa-user-circle" aria-hidden="true"></i>
@@ -146,7 +166,9 @@ if (Email === null || Email === "") {
                             <p class="mb-0 text-xs font-weight-bold">
                               Student:
                             </p>
-                            <h6 class="mb-0 text-sm">{{ Top5.UserName }}</h6>
+                            <h6 class="mb-0 text-sm">
+                              {{ Top5[index - 1]?.UserName || "No record" }}
+                            </h6>
                           </div>
                         </div>
                       </td>
@@ -154,7 +176,7 @@ if (Email === null || Email === "") {
                         <div class="text-center">
                           <p class="mb-0 text-xs font-weight-bold">Question:</p>
                           <h6 class="mb-0 text-sm">
-                            {{ Top5.question_count }}
+                            {{ Top5[index - 1]?.question_count || "0" }}
                           </h6>
                         </div>
                       </td>
@@ -164,7 +186,11 @@ if (Email === null || Email === "") {
                             Engagement:
                           </p>
                           <h6 class="mb-0 text-sm">
-                            {{ Math.round(Top5.engagement_percentage) }}%
+                            {{
+                              Top5[index - 1]?.Engagement !== undefined
+                                ? Top5[index - 1].Engagement + "%"
+                                : "NA"
+                            }}
                           </h6>
                         </div>
                       </td>
@@ -179,11 +205,11 @@ if (Email === null || Email === "") {
               :categories="[
                 {
                   icon: {
-                    component: 'fa fa-bug',
+                    component: 'fa fa-book',
                     background: 'dark',
                   },
-                  label: 'Debug',
-                  description: 'Total: <strong>25</strong>',
+                  label: 'Theory',
+                  description: `Total: <strong>${CoursesCategoryCount.theory || 0}</strong>`,
                 },
                 {
                   icon: {
@@ -191,23 +217,23 @@ if (Email === null || Email === "") {
                     background: 'dark',
                   },
                   label: 'Lab Work',
-                  description: 'Total: <strong>12</strong>',
+                  description: `Total: <strong>${CoursesCategoryCount.labWork || 0}</strong>`,
                 },
                 {
                   icon: {
-                    component: 'fa fa-exclamation-triangle',
+                    component: 'fa fa-bug',
                     background: 'dark',
                   },
-                  label: 'Error',
-                  description: 'Total: <strong>1</strong>',
+                  label: 'Debugging',
+                  description: `Total: <strong>${CoursesCategoryCount.debugging || 0}</strong>`,
                 },
                 {
                   icon: {
-                    component: 'fa fa-book',
+                    component: 'fa fa-tasks',
                     background: 'dark',
                   },
-                  label: 'Theory',
-                  description: 'Total: <strong>43</strong>',
+                  label: 'Assignments',
+                  description: `Total: <strong>${CoursesCategoryCount.assignments || 0}</strong>`,
                 },
               ]"
             />
@@ -218,7 +244,14 @@ if (Email === null || Email === "") {
   </div>
 </template>
 <script>
-import { GetCourses, GetTop5Asking } from "../../assets/Domain.js";
+import {
+  GetCourses,
+  GetTop5Asking,
+  GetEngagement,
+  GetCategoryCount,
+  getAnswer_QA_AvgTime,
+  GetNumAns,
+} from "../../assets/Domain.js";
 import { ref } from "vue";
 
 export default {
@@ -227,10 +260,91 @@ export default {
       UserID: localStorage.getItem("UserID"),
       Course: ref([]),
       Top5: ref([]),
+      CoursesCategoryCount: ref([]),
       selectedCourseID: "",
+      MostTypeAsked: ref(""),
+      AvgAnswerTimer: ref(""),
+      NumberofAnswers: ref(""),
     };
   },
   methods: {
+    async GetNumAnswers() {
+      fetch(`${GetNumAns}/${this.UserID}/${this.selectedCourseID}`)
+        .then((response) => response.json())
+        .then((data) => {
+          this.NumberofAnswers = data.Answer_Count;
+          if (this.NumberofAnswers === null) {
+            this.NumberofAnswers = 0;
+          }
+          //console.log("Number of Answers: ", this.NumberofAnswers);
+        });
+    },
+    async getAnswerTImer() {
+      fetch(`${getAnswer_QA_AvgTime}/${this.UserID}/${this.selectedCourseID}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data && data.Avg) {
+            this.AvgAnswerTimer = parseFloat(data.Avg).toFixed(2);
+            if (this.AvgAnswerTimer < 60) {
+              this.AvgAnswerTimer += " Sec";
+            } else if (
+              this.AvgAnswerTimer >= 60 &&
+              this.AvgAnswerTimer < 3600
+            ) {
+              this.AvgAnswerTimer =
+                (this.AvgAnswerTimer / 60).toFixed(2) + " Min";
+            } else if (
+              this.AvgAnswerTimer >= 3600 &&
+              this.AvgAnswerTimer < 86400
+            ) {
+              this.AvgAnswerTimer =
+                (this.AvgAnswerTimer / 3600).toFixed(2) + " Hour";
+            } else {
+              this.AvgAnswerTimer =
+                (this.AvgAnswerTimer / 86400).toFixed(2) + " Day";
+            }
+          } else {
+            this.AvgAnswerTimer = "Not Answered Yet";
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching average answer time:", error);
+          this.AvgAnswerTimer = "No Answered Yet";
+        });
+    },
+    async GetCoursesCategories() {
+      fetch(`${GetCategoryCount}/${this.selectedCourseID}`)
+        .then((response) => response.json())
+        .then((data) => {
+          // console.log(data);
+          this.CoursesCategoryCount = data;
+          //console.log(this.CoursesCategoryCount);
+          this.MostTypeAsked = Object.keys(data).reduce((a, b) =>
+            data[a] > data[b] ? a : b
+          );
+          if (data[this.MostTypeAsked] === 0) {
+            this.MostTypeAsked = "None";
+          } else {
+            switch (this.MostTypeAsked) {
+              case "theory":
+                this.MostTypeAsked = "Theory";
+                break;
+              case "labWork":
+                this.MostTypeAsked = "Lab Work";
+                break;
+              case "debugging":
+                this.MostTypeAsked = "Debugging";
+                break;
+              case "assignments":
+                this.MostTypeAsked = "Assignments";
+                break;
+              default:
+                this.MostTypeAsked = "Unknown";
+            }
+          }
+          //console.log(this.MostTypeAsked);
+        });
+    },
     async GetCourses() {
       fetch(`${GetCourses}/${this.UserID}`)
         .then((response) => response.json())
@@ -240,18 +354,65 @@ export default {
           this.selectedCourseID = data[0].CourseID;
           //console.log("Selected Course ID: ", this.selectedCourseID);
 
-          //Get Dashboard Data
+          //Get Dashboard Data **
           this.GetTop5();
+          this.GetCoursesCategories();
+          this.getAnswerTImer();
+          this.GetNumAnswers();
+        });
+    },
+
+    async GetEngagement(UserID) {
+      fetch(`${GetEngagement}/${UserID}/${this.selectedCourseID}`)
+        .then((response) => response.json())
+        .then((data) => {
+          const userIndex = this.Top5.findIndex(
+            (user) => user.UserID === UserID
+          );
+          if (userIndex !== -1) {
+            this.Top5[userIndex].count = data;
+            // console.log("Top5", this.Top5);
+
+            this.Top5[userIndex].Engagement =
+              this.Top5[userIndex].count[0].joined_count /
+              this.Top5[userIndex].total_count;
+            this.Top5[userIndex].Engagement = Math.round(
+              this.Top5[userIndex].Engagement * 100
+            );
+          }
         });
     },
     async GetTop5() {
-      console.log("Selected Course ID: ", this.selectedCourseID);
-      console.log("User ID: ", this.UserID);
+      // console.log("Selected Course ID: ", this.selectedCourseID);
+      // console.log("User ID: ", this.UserID);
       fetch(`${GetTop5Asking}/${this.UserID}/${this.selectedCourseID}`)
         .then((response) => response.json())
         .then((data) => {
-          this.Top5 = data.map((course) => course);
-          console.log(this.Top5);
+          // Combine users with the same UserID
+          const combinedData = data.reduce((acc, current) => {
+            // Check if the user already exists in the accumulator
+            const existingUser = acc.find(
+              (user) => user.UserID === current.UserID
+            );
+
+            if (existingUser) {
+              // If user exists, add to their question_count
+              existingUser.question_count += current.question_count;
+            } else {
+              // If user does not exist, add them to the accumulator
+              acc.push({ ...current });
+            }
+
+            return acc;
+          }, []);
+
+          // Assign the combined data to Top5
+          this.Top5 = combinedData;
+
+          // Loop through Top5 and fetch engagement for each user
+          this.Top5.forEach(async (user) => {
+            await this.GetEngagement(user.UserID);
+          });
         });
     },
     handleCourseChange(event) {
@@ -262,7 +423,11 @@ export default {
       //console.log("Selected Course: ", selectedCourse);
       //console.log("Selected Course ID: ", this.selectedCourseID);
 
+      //Change the data based on the selected course **
       this.GetTop5();
+      this.GetCoursesCategories();
+      this.getAnswerTImer();
+      this.GetNumAnswers();
     },
   },
 

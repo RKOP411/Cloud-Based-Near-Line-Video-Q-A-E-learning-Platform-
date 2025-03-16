@@ -32,65 +32,289 @@ router.get('/GetCourses/:userId', async function (req, res, next) {
 
 router.get('/GetTop5Asking/:userId/:courseId', async (req, res) => {
     const { userId, courseId } = req.params;
-    const connection = await connectToDB();
-    const sql = `
-        WITH Engagement AS (
-            SELECT
-                COUNT(DISTINCT q.QueueListID) AS joined_count, 
-                (SELECT COUNT(DISTINCT ql.QueueListID) 
-                FROM Queue_list ql 
-                WHERE ql.CreatorID = ? AND ql.CourseID = ?) AS total_count
-            FROM
-                Question q
-            WHERE
-                q.UserID = ?
-        ),
-        TopUsers AS (
-            SELECT
-                u.UserID,
-                u.UserName,
-                COUNT(q.QAID) AS question_count
-            FROM
-                User u
-            JOIN
-                Question q ON u.UserID = q.UserID
-            WHERE
-                u.UserID <> ?
-            GROUP BY
-                u.UserID,
-                u.UserName
-            ORDER BY
-                question_count DESC
-            LIMIT 5
-        )
 
+    const connection = await connectToDB(); // Use the updated function
+
+    const combinedQuery = `
         SELECT
-            tu.UserID,
-            tu.UserName,
-            tu.question_count,
-            COALESCE(e.joined_count, 0) AS joined_count,
-            COALESCE(e.total_count, 0) AS total_count,
-            CASE
-                WHEN e.total_count > 0 THEN (COALESCE(e.joined_count, 0) * 100.0 / e.total_count)
-                ELSE 0
-            END AS engagement_percentage
+            u.UserID,
+            u.UserName,
+            COUNT(q.QAID) AS question_count,
+            ql.QueueListID,
+            c.CourseName,
+            (SELECT COUNT(*) FROM Queue_list WHERE CourseID = ? AND CreatorID = ?) AS total_count,
+            COUNT(DISTINCT CASE WHEN ql_inner.CreatorID IS NOT NULL THEN ql_inner.QueueListID END) AS joined_count
         FROM
-            TopUsers tu
+            User u
+        JOIN
+            Question q ON u.UserID = q.UserID
+        JOIN
+            Queue_list ql ON q.QueueListID = ql.QueueListID
+        JOIN
+            Course c ON ql.CourseID = c.CourseID
         LEFT JOIN
-            Engagement e ON 1=1;
-        `;
+            Queue_list ql_inner ON ql_inner.CourseID = c.CourseID AND ql_inner.CreatorID = u.UserID
+        WHERE
+            u.UserID <> ?
+        AND
+            c.CourseID = ?
+        GROUP BY
+            u.UserID,
+            u.UserName,
+            ql.QueueListID,
+            c.CourseName
+        ORDER BY
+            question_count DESC
+        LIMIT 5;
+    `;
 
-    connection.query(sql, [userId, courseId, userId, courseId], (err, results) => {
-        if (err) {
-            console.error('Error fetching top 5 asking users:', err);
-            res.status(500).send('Server error');
-            return;
+    try {
+        connection.query(combinedQuery, [courseId, userId, userId, courseId], (err, results) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+            //const Data = results.map(result => ({ UserID: result.UserID, joined_count: result.joined_count }));
+            res.status(200).json(results);
+        });
+    } catch (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        connection.end(); // Ensure the connection is closed
+    }
+});
+
+router.get('/GetEngagement/:userId/:courseId', async (req, res) => {
+    const { userId, courseId } = req.params;
+
+    const connection = await connectToDB();
+
+    const engagementQuery = `
+        SELECT
+            u.UserID,
+            COUNT(DISTINCT ql.QueueListID) AS joined_count,
+            c.CourseName
+        FROM
+            User u
+        JOIN
+            Question q ON u.UserID = q.UserID
+        JOIN
+            Queue_list ql ON q.QueueListID = ql.QueueListID
+        JOIN
+            Course c ON ql.CourseID = c.CourseID
+        WHERE
+            c.CourseID = ?
+        AND
+            q.UserID = ?
+        GROUP BY
+            u.UserID,
+            c.CourseName;
+    `;
+
+    try {
+        connection.query(engagementQuery, [courseId, userId], (err, results) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+            res.status(200).json(results);
+        });
+    } catch (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        connection.end(); // Ensure the connection is closed
+    }
+});
+
+
+router.get('/GetCategoryCount/:courseId', async (req, res) => {
+    const { courseId } = req.params;
+
+    const connection = await connectToDB();
+
+    const countQueries = {
+        theory: `
+            SELECT COUNT(q.QAID) AS count
+            FROM Question q
+            JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE q.Type = "Theory"
+            AND ql.CourseID = ?;
+        `,
+        labWork: `
+            SELECT COUNT(q.QAID) AS count
+            FROM Question q
+            JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE q.Type = "lab-work"
+            AND ql.CourseID = ?;
+        `,
+        debugging: `
+            SELECT COUNT(q.QAID) AS count
+            FROM Question q
+            JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE q.Type = "Debugging"
+            AND ql.CourseID = ?;
+        `,
+        assignments: `
+            SELECT COUNT(q.QAID) AS count
+            FROM Question q
+            JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE q.Type = "Assignments"
+            AND ql.CourseID = ?;
+        `
+    };
+
+    const results = await Promise.all([
+        new Promise((resolve, reject) => {
+            connection.query(countQueries.theory, [courseId], (err, results) => {
+                if (err) {
+                    reject(err);
+                }
+                resolve(results[0].count);
+            });
+        }
+        ),
+        new Promise((resolve, reject) => {
+            connection.query(countQueries.labWork, [courseId], (err, results) => {
+                if (err) {
+                    reject(err);
+                }
+                resolve(results[0].count);
+            });
+        }
+        ),
+        new Promise((resolve, reject) => {
+            connection.query(countQueries.debugging, [courseId], (err, results) => {
+                if (err) {
+                    reject(err);
+                }
+                resolve(results[0].count);
+            });
+        }
+        ),
+        new Promise((resolve, reject) => {
+            connection.query(countQueries.assignments, [courseId], (err, results) => {
+                if (err) {
+                    reject(err);
+                }
+                resolve(results[0].count);
+            });
+        }
+        )
+    ]);
+    const response = {
+        theory: results[0],
+        labWork: results[1],
+        debugging: results[2],
+        assignments: results[3]
+    };
+    res.status(200).json(response);
+
+    connection.end();
+});
+
+
+
+router.get('/getAnswer_QA_AvgTime/:UserID/:CourseID', async (req, res) => {
+    try {
+        const { UserID, CourseID } = req.params;
+        let avg_taketime = 0;
+        let Num_Waiting = 0;
+        if (!UserID) {
+            return res.status(400).send('UserID is required');
         }
 
-        res.status(200).json(results);
-        connection.end(); // End the connection after the query
-    });
+        const connection = await connectToDB();
+
+        // Query to get the average TakeTime by UserID from Answer table
+        const query = `
+            SELECT AVG(a.TakeTime) AS avg_take_time
+            FROM Answer a
+            JOIN Question q ON a.QAID = q.QAID
+            JOIN Queue_List ql ON q.QueueListID = ql.QueueListID
+            WHERE a.UserID = ?
+            AND ql.CourseID = ?
+            GROUP BY a.UserID
+        `;
+        const results = await new Promise((resolve, reject) => {
+            connection.query(query, [UserID,CourseID], (error, results) => {
+                if (error) return reject(error);
+                avg_taketime = results.length > 0 ? results[0].avg_take_time : 0;
+                resolve(results);
+            });
+        });
+
+        const waitingQuery = 'SELECT COUNT(*) AS WaitingCount FROM Customer_queue WHERE Status = "waiting"';
+        const waitingResults = await new Promise((resolve, reject) => {
+            connection.query(waitingQuery, (error, results) => {
+                if (error) return reject(error);
+                Num_Waiting = results[0].WaitingCount;
+                resolve(results);
+            });
+        });
+
+        
+        const response = {
+            Estimated: avg_taketime * Num_Waiting,
+            Avg: avg_taketime,
+            Num_Waiting: Num_Waiting
+
+        };
+
+
+        if (results.length === 0) {
+            return res.status(404).send('No records found');
+        }
+
+        res.status(200).json(response);
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving TakeTime:', error);
+        res.status(500).send('Server error');
+    }
 });
+
+router.get('/GetNumAns/:UserID/:CourseID', async (req, res) => {
+    try {
+        const { UserID, CourseID } = req.params;
+
+        if (!UserID || !CourseID) {
+            return res.status(400).send('UserID and CourseID are required');
+        }
+
+        const connection = await connectToDB();
+
+        const query = `
+            SELECT COUNT(a.ASID) AS Answer_Count
+            FROM Answer a
+            JOIN Question q ON a.QAID = q.QAID
+            JOIN Queue_List ql ON q.QueueListID = ql.QueueListID
+            WHERE a.UserID = ?
+            AND ql.CourseID = ?
+            GROUP BY a.UserID;
+        `;
+
+        connection.query(query, [UserID, CourseID], (err, results) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            const response = results.length > 0 ? results[0] : { Answer_Count: 0 };
+            res.status(200).json(response);
+        });
+
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving Answer Count:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
 
 
 module.exports = router;

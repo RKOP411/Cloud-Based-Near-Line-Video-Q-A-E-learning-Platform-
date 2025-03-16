@@ -444,12 +444,15 @@ export default {
         .then((response) => response.json())
         .then(async (data) => {
           this.questions = await data.questions;
-          console.log(this.questions);
+          // console.log(this.questions);
+          // console.log(this.questions.length);
+          if(this.questions.length == 0){
+            this.questions =  await data.question;
+          }
           for (let i = 0; i < this.questions.length; i++) {
             this.questions[i].UploadTime = this.Calculate_LastUpdate(this.questions[i].UploadTime);
           }
           this.TeacherUserID = this.questions[0].TeacherUserID;
-          console.log("TEST1");
           this.CourseName = this.questions[0].CourseName;
 
           for (let i = 0; i < this.questions.length; i++) {
