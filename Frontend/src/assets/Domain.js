@@ -66,6 +66,7 @@ const GetEngagement = DomainName + "dashboard/GetEngagement";
 const GetCategoryCount = DomainName + "dashboard/GetCategoryCount";
 const getAnswer_QA_AvgTime = DomainName + "dashboard/getAnswer_QA_AvgTime";
 const GetNumAns = DomainName + "dashboard/GetNumAns";
+const GetQuestionTimes = DomainName + "dashboard/GetQuestionTimes";
 
 //HeartBeat
 const SendStatus = DomainName + "status";
@@ -87,5 +88,5 @@ export {
     JoinQueue, QuitQueue, getCurrentJoins,
     PauseQueue, CloseQueue, RunQueue, GetQueueStatus, GetQueueTimeryCreatorID,getTotalTakeTime,
     GetQueueByType,
-    GetCourses,GetTop5Asking, GetEngagement,GetCategoryCount,getAnswer_QA_AvgTime,GetNumAns
+    GetCourses,GetTop5Asking, GetEngagement,GetCategoryCount,getAnswer_QA_AvgTime,GetNumAns,GetQuestionTimes
 };

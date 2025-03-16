@@ -18,10 +18,12 @@ if (Email === null || Email === "") {
         <select
           class="form-select"
           id="optionsSelect"
+          @change="handleDurationChange"
+          v-model="optionsSelect"
           style="width: 100px; margin-bottom: 3px"
         >
           <option selected value="total">Total</option>
-          <option value="week">Month</option>
+          <option value="month">Month</option>
           <option value="week">Week</option>
         </select>
       </div>
@@ -102,42 +104,33 @@ if (Email === null || Email === "") {
             <!-- line chart -->
             <div class="card z-index-2">
               <gradient-line-chart
+                v-if="QuestionTimesData.value && QuestionTimesLabel.value"
                 id="chart-line"
                 title="Question Times"
                 :chart="{
-                  labels: [
-                    'Week 1',
-                    'Week 2',
-                    'Week 3',
-                    'Week 4',
-                    'Week 5',
-                    'Week 6',
-                    'Week 7',
-                    'Week 8',
-                    'Week 9',
-                  ],
+                  labels: QuestionTimesLabel.value,
                   datasets: [
                     {
                       label: 'Question Times',
-                      data: [5, 4, 30, 22, 50, 25, 40, 23, 50],
+                      data: QuestionTimesData.value,
                       borderColor: 'rgba(75, 192, 192, 1)',
                       backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     },
                   ],
                   options: {
-                    responsive: true, // Make the chart responsive
+                    responsive: true,
                     scales: {
                       y: {
                         title: {
                           display: true,
-                          text: 'Number of Questions', // Y-axis label
+                          text: 'Number of Questions',
                         },
-                        beginAtZero: true, // Start y-axis at zero
+                        beginAtZero: true,
                       },
                       x: {
                         title: {
                           display: true,
-                          text: 'Weeks', // X-axis label
+                          text: 'Weeks',
                         },
                       },
                     },
@@ -251,6 +244,7 @@ import {
   GetCategoryCount,
   getAnswer_QA_AvgTime,
   GetNumAns,
+  GetQuestionTimes,
 } from "../../assets/Domain.js";
 import { ref } from "vue";
 
@@ -265,11 +259,32 @@ export default {
       MostTypeAsked: ref(""),
       AvgAnswerTimer: ref(""),
       NumberofAnswers: ref(""),
+      QuestionTimesData: ref([]),
+      QuestionTimesLabel: ref([]),
+      optionsSelect: "total",
     };
   },
+
   methods: {
+    async GetQuestionTimes() {
+      fetch(`${GetQuestionTimes}/${this.selectedCourseID}/${this.optionsSelect}`)
+        .then((response) => response.json())
+        .then((data) => {
+          this.QuestionTimesLabel.value = data.map(
+            (item) => `${item.CourseWeek}`
+          );
+          this.QuestionTimesData.value = data.map((item) => item.QuestionCount);
+
+          // console.log("Question Times Data: ", [
+          //   ...this.QuestionTimesData.value,
+          // ]); // Spread to log as array
+          // console.log("Question Times Label: ", [
+          //   ...this.QuestionTimesLabel.value,
+          // ]);
+        });
+    },
     async GetNumAnswers() {
-      fetch(`${GetNumAns}/${this.UserID}/${this.selectedCourseID}`)
+      fetch(`${GetNumAns}/${this.UserID}/${this.selectedCourseID}/${this.optionsSelect}`)
         .then((response) => response.json())
         .then((data) => {
           this.NumberofAnswers = data.Answer_Count;
@@ -280,7 +295,7 @@ export default {
         });
     },
     async getAnswerTImer() {
-      fetch(`${getAnswer_QA_AvgTime}/${this.UserID}/${this.selectedCourseID}`)
+      fetch(`${getAnswer_QA_AvgTime}/${this.UserID}/${this.selectedCourseID}/${this.optionsSelect}`)
         .then((response) => response.json())
         .then((data) => {
           if (data && data.Avg) {
@@ -313,7 +328,9 @@ export default {
         });
     },
     async GetCoursesCategories() {
-      fetch(`${GetCategoryCount}/${this.selectedCourseID}`)
+      fetch(
+        `${GetCategoryCount}/${this.selectedCourseID}/${this.optionsSelect}`
+      )
         .then((response) => response.json())
         .then((data) => {
           // console.log(data);
@@ -359,11 +376,12 @@ export default {
           this.GetCoursesCategories();
           this.getAnswerTImer();
           this.GetNumAnswers();
+          this.GetQuestionTimes();
         });
     },
 
     async GetEngagement(UserID) {
-      fetch(`${GetEngagement}/${UserID}/${this.selectedCourseID}`)
+      fetch(`${GetEngagement}/${UserID}/${this.selectedCourseID}/${this.optionsSelect}`)
         .then((response) => response.json())
         .then((data) => {
           const userIndex = this.Top5.findIndex(
@@ -371,7 +389,7 @@ export default {
           );
           if (userIndex !== -1) {
             this.Top5[userIndex].count = data;
-            // console.log("Top5", this.Top5);
+            //console.log("Top5", this.Top5);
 
             this.Top5[userIndex].Engagement =
               this.Top5[userIndex].count[0].joined_count /
@@ -379,13 +397,16 @@ export default {
             this.Top5[userIndex].Engagement = Math.round(
               this.Top5[userIndex].Engagement * 100
             );
+           // console.log("Top5_2", this.Top5);
           }
         });
     },
     async GetTop5() {
       // console.log("Selected Course ID: ", this.selectedCourseID);
       // console.log("User ID: ", this.UserID);
-      fetch(`${GetTop5Asking}/${this.UserID}/${this.selectedCourseID}`)
+      fetch(
+        `${GetTop5Asking}/${this.UserID}/${this.selectedCourseID}/${this.optionsSelect}`
+      )
         .then((response) => response.json())
         .then((data) => {
           // Combine users with the same UserID
@@ -428,6 +449,15 @@ export default {
       this.GetCoursesCategories();
       this.getAnswerTImer();
       this.GetNumAnswers();
+      this.GetQuestionTimes();
+    },
+    handleDurationChange(event) {
+      console.log("Duration changed to: ", event.target.value);
+      this.GetTop5();
+      this.GetCoursesCategories();
+      this.getAnswerTImer();
+      this.GetNumAnswers();
+      this.GetQuestionTimes();
     },
   },
 
