@@ -265,6 +265,7 @@ export default {
     };
   },
 
+  
   methods: {
     async GetQuestionTimes() {
       fetch(`${GetQuestionTimes}/${this.selectedCourseID}/${this.optionsSelect}`)
