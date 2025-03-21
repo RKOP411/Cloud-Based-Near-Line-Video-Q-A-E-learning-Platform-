@@ -68,15 +68,23 @@ router.get('/GetQuestionByUserID/:UserID', async function (req, res, next) {
 
         // First Query: Get all questions for the user
         const sql = `SELECT 
-                        q.*, 
-                        m.*, 
-                        u.UserName 
-                    FROM 
-                        Question q  
-                    LEFT JOIN User u ON q.UserID = u.UserID 
-                    LEFT JOIN Media m ON q.MediaID = m.MediaID 
-                    WHERE 
-                        q.UserID = ?;`;
+                    q.*, 
+                    m.*, 
+                    u.UserName, 
+                    ql.*,  -- Select columns from queue_list
+                    c.*    -- Select columns from Course
+                FROM 
+                    Question q  
+                LEFT JOIN 
+                    User u ON q.UserID = u.UserID 
+                LEFT JOIN 
+                    Media m ON q.MediaID = m.MediaID 
+                LEFT JOIN 
+                    queue_list ql ON q.QueueListID = ql.QueueListID  -- Join with queue_list
+                LEFT JOIN 
+                    Course c ON ql.CourseID = c.CourseID  -- Join with Course
+                WHERE 
+                    q.UserID = ?;`;
 
         connection.query(sql, [UserID], async (err, questionsResults) => {
             if (err) {

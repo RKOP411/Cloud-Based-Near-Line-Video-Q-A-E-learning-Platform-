@@ -38,36 +38,38 @@ router.get('/GetTop5Asking/:userId/:courseId/:duration', async (req, res) => {
     if (duration === 'month') {
         const query = `
             SELECT
-                u.UserID,
-                u.UserName,
-                COUNT(q.QAID) AS question_count,
-                ql.QueueListID,
-                c.CourseName,
-                (SELECT COUNT(*) FROM Queue_list WHERE CourseID = ? AND CreatorID = ?) AS total_count,
-                COUNT(DISTINCT CASE WHEN ql_inner.CreatorID IS NOT NULL THEN ql_inner.QueueListID END) AS joined_count
+            u.UserID,
+            u.UserName,
+            COUNT(q.QAID) AS question_count,
+            ql.QueueListID,
+            c.CourseName,
+            (SELECT COUNT(*) FROM Queue_list WHERE CourseID = ? AND CreatorID = ?) AS total_count,
+            COUNT(DISTINCT CASE WHEN ql_inner.CreatorID IS NOT NULL THEN ql_inner.QueueListID END) AS joined_count
             FROM
-                User u
+            User u
             JOIN
-                Question q ON u.UserID = q.UserID
+            Question q ON u.UserID = q.UserID
             JOIN
-                Queue_list ql ON q.QueueListID = ql.QueueListID
+            Queue_list ql ON q.QueueListID = ql.QueueListID
             JOIN
-                Course c ON ql.CourseID = c.CourseID
+            Course c ON ql.CourseID = c.CourseID
             LEFT JOIN
-                Queue_list ql_inner ON ql_inner.CourseID = c.CourseID AND ql_inner.CreatorID = u.UserID
+            Queue_list ql_inner ON ql_inner.CourseID = c.CourseID AND ql_inner.CreatorID = u.UserID
             WHERE
-                u.UserID <> ?
+            u.UserID <> ?
             AND
-                c.CourseID = ?
+            c.CourseID = ?
             AND
-                q.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
+            MONTH(q.UploadTime) = MONTH(CURRENT_DATE())
+            AND
+            YEAR(q.UploadTime) = YEAR(CURRENT_DATE())
             GROUP BY
-                u.UserID,
-                u.UserName,
-                ql.QueueListID,
-                c.CourseName
+            u.UserID,
+            u.UserName,
+            ql.QueueListID,
+            c.CourseName
             ORDER BY
-                question_count DESC
+            question_count DESC
             LIMIT 5;
         `;
 
@@ -88,36 +90,36 @@ router.get('/GetTop5Asking/:userId/:courseId/:duration', async (req, res) => {
     } else if (duration === 'week') {
         const query = `
             SELECT
-                u.UserID,
-                u.UserName,
-                COUNT(q.QAID) AS question_count,
-                ql.QueueListID,
-                c.CourseName,
-                (SELECT COUNT(*) FROM Queue_list WHERE CourseID = ? AND CreatorID = ?) AS total_count,
-                COUNT(DISTINCT CASE WHEN ql_inner.CreatorID IS NOT NULL THEN ql_inner.QueueListID END) AS joined_count
+            u.UserID,
+            u.UserName,
+            COUNT(q.QAID) AS question_count,
+            ql.QueueListID,
+            c.CourseName,
+            (SELECT COUNT(*) FROM Queue_list WHERE CourseID = ? AND CreatorID = ?) AS total_count,
+            COUNT(DISTINCT CASE WHEN ql_inner.CreatorID IS NOT NULL THEN ql_inner.QueueListID END) AS joined_count
             FROM
-                User u
+            User u
             JOIN
-                Question q ON u.UserID = q.UserID
+            Question q ON u.UserID = q.UserID
             JOIN
-                Queue_list ql ON q.QueueListID = ql.QueueListID
+            Queue_list ql ON q.QueueListID = ql.QueueListID
             JOIN
-                Course c ON ql.CourseID = c.CourseID
+            Course c ON ql.CourseID = c.CourseID
             LEFT JOIN
-                Queue_list ql_inner ON ql_inner.CourseID = c.CourseID AND ql_inner.CreatorID = u.UserID
+            Queue_list ql_inner ON ql_inner.CourseID = c.CourseID AND ql_inner.CreatorID = u.UserID
             WHERE
-                u.UserID <> ?
+            u.UserID <> ?
             AND
-                c.CourseID = ?
+            c.CourseID = ?
             AND
-                q.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 WEEK)
+            YEARWEEK(q.UploadTime, 1) = YEARWEEK(CURDATE(), 1)
             GROUP BY
-                u.UserID,
-                u.UserName,
-                ql.QueueListID,
-                c.CourseName
+            u.UserID,
+            u.UserName,
+            ql.QueueListID,
+            c.CourseName
             ORDER BY
-                question_count DESC
+            question_count DESC
             LIMIT 5;
         `;
 
@@ -213,11 +215,13 @@ router.get('/GetEngagement/:userId/:courseId/:duration', async (req, res) => {
         AND
             q.UserID = ?
         AND
-            q.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
+            MONTH(q.UploadTime) = MONTH(CURRENT_DATE())
+        AND
+            YEAR(q.UploadTime) = YEAR(CURRENT_DATE())
         GROUP BY
             u.UserID,
             c.CourseName;
-    `;
+        `;
         try {
             connection.query(engagementQuery, [courseId, userId], (err, results) => {
                 if (err) {
@@ -253,11 +257,11 @@ router.get('/GetEngagement/:userId/:courseId/:duration', async (req, res) => {
         AND
             q.UserID = ?
         AND
-            q.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 WEEK)
+            YEARWEEK(q.UploadTime, 1) = YEARWEEK(CURDATE(), 1)
         GROUP BY
             u.UserID,
             c.CourseName;
-    `;
+        `;
         try {
             connection.query(engagementQuery, [courseId, userId], (err, results) => {
                 if (err) {
@@ -325,36 +329,40 @@ router.get('/GetCategoryCount/:courseId/:duration', async (req, res) => {
     if (duration === 'month') {
         const countQueries = {
             theory: `
-                SELECT COUNT(q.QAID) AS count
-                FROM Question q
-                JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
-                WHERE q.Type = "Theory"
-                AND ql.CourseID = ?
-                AND q.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 MONTH);
+            SELECT COUNT(q.QAID) AS count
+            FROM Question q
+            JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE q.Type = "Theory"
+            AND ql.CourseID = ?
+            AND MONTH(q.UploadTime) = MONTH(CURRENT_DATE())
+            AND YEAR(q.UploadTime) = YEAR(CURRENT_DATE());
             `,
             labWork: `
-                SELECT COUNT(q.QAID) AS count
-                FROM Question q
-                JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
-                WHERE q.Type = "lab-work"
-                AND ql.CourseID = ?
-                AND q.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 MONTH);
+            SELECT COUNT(q.QAID) AS count
+            FROM Question q
+            JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE q.Type = "lab-work"
+            AND ql.CourseID = ?
+            AND MONTH(q.UploadTime) = MONTH(CURRENT_DATE())
+            AND YEAR(q.UploadTime) = YEAR(CURRENT_DATE());
             `,
             debugging: `
-                SELECT COUNT(q.QAID) AS count
-                FROM Question q
-                JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
-                WHERE q.Type = "Debugging"
-                AND ql.CourseID = ?
-                AND q.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 MONTH);
+            SELECT COUNT(q.QAID) AS count
+            FROM Question q
+            JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE q.Type = "Debugging"
+            AND ql.CourseID = ?
+            AND MONTH(q.UploadTime) = MONTH(CURRENT_DATE())
+            AND YEAR(q.UploadTime) = YEAR(CURRENT_DATE());
             `,
             assignments: `
-                SELECT COUNT(q.QAID) AS count
-                FROM Question q
-                JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
-                WHERE q.Type = "Assignments"
-                AND ql.CourseID = ?
-                AND q.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 MONTH);
+            SELECT COUNT(q.QAID) AS count
+            FROM Question q
+            JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE q.Type = "Assignments"
+            AND ql.CourseID = ?
+            AND MONTH(q.UploadTime) = MONTH(CURRENT_DATE())
+            AND YEAR(q.UploadTime) = YEAR(CURRENT_DATE());
             `
         };
         const results = await Promise.all([
@@ -408,36 +416,36 @@ router.get('/GetCategoryCount/:courseId/:duration', async (req, res) => {
     } else if (duration === 'week') {
         const countQueries = {
             theory: `
-                SELECT COUNT(q.QAID) AS count
-                FROM Question q
-                JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
-                WHERE q.Type = "Theory"
-                AND ql.CourseID = ?
-                AND q.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 WEEK);
+            SELECT COUNT(q.QAID) AS count
+            FROM Question q
+            JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE q.Type = "Theory"
+            AND ql.CourseID = ?
+            AND q.UploadTime >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY;
             `,
             labWork: `
-                SELECT COUNT(q.QAID) AS count
-                FROM Question q
-                JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
-                WHERE q.Type = "lab-work"
-                AND ql.CourseID = ?
-                AND q.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 WEEK);
+            SELECT COUNT(q.QAID) AS count
+            FROM Question q
+            JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE q.Type = "lab-work"
+            AND ql.CourseID = ?
+            AND q.UploadTime >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY;
             `,
             debugging: `
-                SELECT COUNT(q.QAID) AS count
-                FROM Question q
-                JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
-                WHERE q.Type = "Debugging"
-                AND ql.CourseID = ?
-                AND q.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 WEEK);
+            SELECT COUNT(q.QAID) AS count
+            FROM Question q
+            JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE q.Type = "Debugging"
+            AND ql.CourseID = ?
+            AND q.UploadTime >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY;
             `,
             assignments: `
-                SELECT COUNT(q.QAID) AS count
-                FROM Question q
-                JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
-                WHERE q.Type = "Assignments"
-                AND ql.CourseID = ?
-                AND q.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 WEEK);
+            SELECT COUNT(q.QAID) AS count
+            FROM Question q
+            JOIN Queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE q.Type = "Assignments"
+            AND ql.CourseID = ?
+            AND q.UploadTime >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY;
             `
         };
         const results = await Promise.all([
@@ -592,7 +600,8 @@ router.get('/getAnswer_QA_AvgTime/:UserID/:CourseID/:duration', async (req, res)
                 JOIN Queue_List ql ON q.QueueListID = ql.QueueListID
                 WHERE a.UserID = ?
                 AND ql.CourseID = ?
-                AND a.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
+                AND MONTH(a.UploadTime) = MONTH(CURRENT_DATE())
+                AND YEAR(a.UploadTime) = YEAR(CURRENT_DATE())
                 GROUP BY a.UserID
             `;
             const results = await new Promise((resolve, reject) => {
@@ -636,7 +645,7 @@ router.get('/getAnswer_QA_AvgTime/:UserID/:CourseID/:duration', async (req, res)
                 JOIN Queue_List ql ON q.QueueListID = ql.QueueListID
                 WHERE a.UserID = ?
                 AND ql.CourseID = ?
-                AND a.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 WEEK)
+                AND YEARWEEK(a.UploadTime, 1) = YEARWEEK(CURDATE(), 1)
                 GROUP BY a.UserID
             `;
             const results = await new Promise((resolve, reject) => {
@@ -742,7 +751,8 @@ router.get('/GetNumAns/:UserID/:CourseID/:duration', async (req, res) => {
             JOIN Queue_List ql ON q.QueueListID = ql.QueueListID
             WHERE a.UserID = ?
             AND ql.CourseID = ?
-            AND a.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
+            AND MONTH(a.UploadTime) = MONTH(CURRENT_DATE())
+            AND YEAR(a.UploadTime) = YEAR(CURRENT_DATE())
             GROUP BY a.UserID;
         `;
 
@@ -766,7 +776,7 @@ router.get('/GetNumAns/:UserID/:CourseID/:duration', async (req, res) => {
             JOIN Queue_List ql ON q.QueueListID = ql.QueueListID
             WHERE a.UserID = ?
             AND ql.CourseID = ?
-            AND a.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 WEEK)
+            AND a.UploadTime >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY
             GROUP BY a.UserID;
         `;
 
@@ -850,7 +860,7 @@ router.get('/GetQuestionTimes/:CourseID/:duration', async (req, res) => {
             FROM queue_list ql
             LEFT JOIN question q ON ql.QueueListID = q.QueueListID
             WHERE ql.CourseID = ?
-            AND q.UploadTime >= DATE_SUB(NOW(), INTERVAL 1 WEEK)
+            AND q.UploadTime >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY
             GROUP BY ql.CourseWeek;
         `;
 

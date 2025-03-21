@@ -33,12 +33,16 @@
         >
           <div class="d-flex flex-column">
             <h6 class="mb-3 text-sm question-header">
-                {{ question.UserName }} . {{ question.UploadTime }} - 
-                <span v-if="question.Replied === 0" style="color: green;">Next No. <b>{{ question.currentQueueCount+1 }}</b></span>
-                <span v-else style="color: red;">Replied</span>
+               
+              <span v-if="question.Replied === 0" style="color: green"
+                >Next No. <b>{{ question.currentQueueCount + 1 }}</b></span
+              >
+              <span v-else style="color: red">Replied</span> - {{ question.UploadTime }}
             </h6>
+            <h6 class="mb-3 text-sm">Course: {{ question.CourseName }}</h6>
+            <br />
             <h5 class="mb-1 question-title">
-              {{ question.QuestionTitle }}
+              Title: {{ question.QuestionTitle }}
             </h5>
             <span class="mb-3 text-xs">
               Type:
@@ -65,11 +69,13 @@
               </div>
               <!-- Question Content End -->
             </span>
+            
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">
                   <span v-if="question.AnswerUserName">
-                    Answer - {{ question.AnswerUserName }} . {{question.AnswerUploadTime}}</span
+                    Answer - {{ question.AnswerUserName }} .
+                    {{ question.AnswerUploadTime }}</span
                   >
                 </h5>
                 <div class="card-text" id="AnswerContent">
@@ -111,8 +117,12 @@ export default {
         question.AnswerUserName = await this.getAnswerUserName(question.QAID);
       }
       for (let question of this.questions) {
-        question.AnswerUploadTime = await this.getAnswerUploadTime(question.QAID);
-        question.AnswerUploadTime = this.Calculate_LastUpdate(question.AnswerUploadTime);
+        question.AnswerUploadTime = await this.getAnswerUploadTime(
+          question.QAID
+        );
+        question.AnswerUploadTime = this.Calculate_LastUpdate(
+          question.AnswerUploadTime
+        );
       }
     },
 
@@ -172,8 +182,10 @@ export default {
         .then((response) => response.json())
         .then((data) => {
           this.questions = data.questions;
-          for(let i = 0; i < this.questions.length; i++){
-            this.questions[i].UploadTime = this.Calculate_LastUpdate(this.questions[i].UploadTime);
+          for (let i = 0; i < this.questions.length; i++) {
+            this.questions[i].UploadTime = this.Calculate_LastUpdate(
+              this.questions[i].UploadTime
+            );
           }
           for (let i = 0; i < this.questions.length; i++) {
             // Replace backslashes with forward slashes
@@ -236,3 +248,5 @@ export default {
   },
 };
 </script>
+<style scoped>
+</style>
