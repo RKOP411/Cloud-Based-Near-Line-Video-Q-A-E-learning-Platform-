@@ -34,11 +34,26 @@ if (localStorage.getItem("QueueListID") != null) {
           v-if="Role == 'Teacher'"
           to="/dashboard-default"
           :class="getRoute() === 'dashboard-default' ? 'active' : ''"
-          :navText="'Analytic Dashboard'"
+          :navText="'Dashboard'"
         >
           <template v-slot:icon>
             <i
               class="ni ni-chart-bar-32 text-primary text-sm opacity-10"
+              aria-hidden="true"
+            ></i>
+          </template>
+        </sidenav-item>
+      </li>
+      <li class="nav-item">
+        <sidenav-item
+          v-if="Role == 'Student'"
+          to="/stu_dashboard"
+          :class="getRoute() === 'stu_dashboard' ? 'active' : ''"
+          :navText="'Dashboard'"
+        >
+          <template v-slot:icon>
+            <i
+              class="ni ni-chart-pie-35 text-primary text-sm opacity-10"
               aria-hidden="true"
             ></i>
           </template>

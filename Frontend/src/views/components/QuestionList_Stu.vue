@@ -561,7 +561,7 @@ export default {
     this.GetStatus();
     this.GetAllQueue();
     this.getQuestions();
-    setInterval(() => {
+    this.queueInterval = setInterval(() => {
       this.GetAllQueue();
       if (this.CurrentChoiceType == "") {
         this.getQuestions();
@@ -571,9 +571,13 @@ export default {
       this.GetTotalWaitTime();
       this.GetStatus();
     }, 5000);
-    setInterval(() => {
+    this.teacherStatusInterval = setInterval(() => {
       this.GetTeacherStatus();
     }, 3000);
+  },
+  beforeUnmount() {
+    clearInterval(this.queueInterval);
+    clearInterval(this.teacherStatusInterval);
   },
 };
 </script>

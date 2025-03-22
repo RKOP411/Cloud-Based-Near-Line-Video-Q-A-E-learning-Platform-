@@ -16,7 +16,7 @@ if (Email === null || Email === "") {
     <div class="row">
       <div class="col-lg-2 ms-auto d-flex justify-content-end">
         <select
-          class="form-select"
+          class="form-select text-white bg-primary"
           id="optionsSelect"
           @change="handleDurationChange"
           v-model="optionsSelect"
@@ -130,11 +130,12 @@ if (Email === null || Email === "") {
                       x: {
                         title: {
                           display: true,
-                          text: 'Weeks',
+                          text: optionsSelect === 'total' ? 'Total Duration' : optionsSelect === 'month' ? 'Monthly Duration' : 'Weekly Duration',
+                        },
                         },
                       },
                     },
-                  },
+                
                 }"
               />
             </div>
@@ -248,6 +249,7 @@ import {
 } from "../../assets/Domain.js";
 import { ref } from "vue";
 
+
 export default {
   data() {
     return {
@@ -261,6 +263,7 @@ export default {
       NumberofAnswers: ref(""),
       QuestionTimesData: ref([]),
       QuestionTimesLabel: ref([]),
+      QuestionDate: ref([]),
       optionsSelect: "total",
     };
   },
@@ -275,8 +278,12 @@ export default {
             (item) => `${item.LastUploadTime}`
           );
             this.QuestionTimesLabel.value = data.map(
+            (item) => "Queue " + item.CourseWeek
+            );
+            this.QuestionDate.value = data.map(
             (item) => new Date(item.LastUploadTime).toISOString().split('T')[0]
             );
+            
           this.QuestionTimesData.value = data.map((item) => item.QuestionCount);
 
           // console.log("Question Times Data: ", [

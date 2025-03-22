@@ -381,7 +381,7 @@ router.get('/GetCategoryCount/:courseId/:duration', async (req, res) => {
                     if (err) {
                         reject(err);
                     }
-                    resolve(results[0].count);
+                    resolve(results[0] ? results[0].count : 0); // Default to 0 if no rows are returned
                 });
             }
             ),
@@ -390,7 +390,7 @@ router.get('/GetCategoryCount/:courseId/:duration', async (req, res) => {
                     if (err) {
                         reject(err);
                     }
-                    resolve(results[0].count);
+                    resolve(results[0] ? results[0].count : 0);
                 });
             }
             ),
@@ -399,7 +399,7 @@ router.get('/GetCategoryCount/:courseId/:duration', async (req, res) => {
                     if (err) {
                         reject(err);
                     }
-                    resolve(results[0].count);
+                    resolve(results[0] ? results[0].count : 0);
                 }
                 )
             }
@@ -454,7 +454,7 @@ router.get('/GetCategoryCount/:courseId/:duration', async (req, res) => {
                     if (err) {
                         reject(err);
                     }
-                    resolve(results[0].count);
+                    resolve(results[0] ? results[0].count : 0);
                 });
             }
             ),
@@ -463,7 +463,7 @@ router.get('/GetCategoryCount/:courseId/:duration', async (req, res) => {
                     if (err) {
                         reject(err);
                     }
-                    resolve(results[0].count);
+                    resolve(results[0] ? results[0].count : 0);
                 });
             }
             ),
@@ -472,7 +472,7 @@ router.get('/GetCategoryCount/:courseId/:duration', async (req, res) => {
                     if (err) {
                         reject(err);
                     }
-                    resolve(results[0].count);
+                    resolve(results[0] ? results[0].count : 0);
                 });
             }
             ),
@@ -482,7 +482,7 @@ router.get('/GetCategoryCount/:courseId/:duration', async (req, res) => {
                         reject(err
                         );
                     }
-                    resolve(results[0].count);
+                    resolve(results[0] ? results[0].count : 0);
                 });
             }
             )
@@ -534,7 +534,7 @@ router.get('/GetCategoryCount/:courseId/:duration', async (req, res) => {
                     if (err) {
                         reject(err);
                     }
-                    resolve(results[0].count);
+                    resolve(results[0] ? results[0].count : 0);
                 });
             }
             ),
@@ -543,7 +543,7 @@ router.get('/GetCategoryCount/:courseId/:duration', async (req, res) => {
                     if (err) {
                         reject(err);
                     }
-                    resolve(results[0].count);
+                    resolve(results[0] ? results[0].count : 0);
                 });
             }
             ),
@@ -552,7 +552,7 @@ router.get('/GetCategoryCount/:courseId/:duration', async (req, res) => {
                     if (err) {
                         reject(err);
                     }
-                    resolve(results[0].count);
+                    resolve(results[0] ? results[0].count : 0);
                 });
             }
             ),
@@ -561,7 +561,7 @@ router.get('/GetCategoryCount/:courseId/:duration', async (req, res) => {
                     if (err) {
                         reject(err);
                     }
-                    resolve(results[0].count);
+                    resolve(results[0] ? results[0].count : 0);
                 });
             }
             )
@@ -735,7 +735,7 @@ router.get('/getAnswer_QA_AvgTime/:UserID/:CourseID/:duration', async (req, res)
 
 router.get('/GetNumAns/:UserID/:CourseID/:duration', async (req, res) => {
     try {
-        const { UserID, CourseID,duration } = req.params;
+        const { UserID, CourseID, duration } = req.params;
 
         if (!UserID || !CourseID) {
             return res.status(400).send('UserID and CourseID are required');
@@ -824,7 +824,7 @@ router.get('/GetNumAns/:UserID/:CourseID/:duration', async (req, res) => {
 
 router.get('/GetQuestionTimes/:CourseID/:duration', async (req, res) => {
     try {
-        const { CourseID,duration } = req.params;
+        const { CourseID, duration } = req.params;
 
         if (!CourseID) {
             return res.status(400).send('CourseID is required');
@@ -902,5 +902,40 @@ router.get('/GetQuestionTimes/:CourseID/:duration', async (req, res) => {
     }
 });
 
+
+
+//=================================================Student Dashboard=======================================================================================================
+router.get('/stu/GetQuestions/:UserID', async (req, res) => {
+    try {
+        const { UserID } = req.params;
+
+        if (!UserID) {
+            return res.status(400).send('UserID is required');
+        }
+
+        const connection = await connectToDB();
+
+        const query = `
+            SELECT COUNT(QAID) AS QuestionCount
+            FROM Question
+            WHERE UserID = ?;
+        `;
+
+        connection.query(query, [UserID], (err, results) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            const response = results.length > 0 ? results[0] : { QuestionCount: 0 };
+            res.status(200).json(response);
+        });
+
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving question count:', error);
+        res.status(500).send('Server error');
+    }
+});
 
 module.exports = router;
