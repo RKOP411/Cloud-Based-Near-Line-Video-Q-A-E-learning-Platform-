@@ -6,6 +6,8 @@ import {
   GetDashboradQuestions,
   AnswerGetTotal,
   AvgWaitingTime,
+  MostTypeAsked,
+  GetQuestionPerTime,
 } from "../../assets/Domain.js";
 
 const totalQuestions = ref(0);
@@ -14,6 +16,9 @@ const avgWaitingTime = ref(0);
 const totalWaitingTime = ref(0);
 const MostType = ref("");
 const optionsSelect = ref("total");
+const questionData = ref([]);
+const labelsData = ref([]);
+const answerData = ref([]);
 const UserID = localStorage.getItem("UserID");
 console.log("UserID: " + UserID);
 
@@ -25,6 +30,54 @@ const loadStats = async () => {
 };
 
 let chartInstance = null;
+
+const GetQuestionTime = () => {
+  fetch(`${GetQuestionPerTime}/${UserID}`, {
+    method: "get",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+    //console.log(data);
+    labelsData.value = [];
+    questionData.value = [];
+    answerData.value = [];
+    data.forEach((item) => {
+      labelsData.value.push(item.Time);
+      questionData.value.push(item.QuestionCount);
+      answerData.value.push(item.AnswerGetCount);
+    });
+    loadChart();
+    });
+};
+
+
+
+const GetMostType = () => {
+  fetch(`${MostTypeAsked}/${UserID}`, {
+    method: "get",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      let maxCount = 0;
+      let mostAskedType = "None";
+
+      data.forEach((item) => {
+        if (item.Count > maxCount) {
+          maxCount = item.Count;
+          mostAskedType = item.Type;
+        }
+      });
+
+      MostType.value = mostAskedType;
+    });
+};
 
 const GetQuestion = () => {
   fetch(`${GetDashboradQuestions}/${UserID}`, {
@@ -62,22 +115,22 @@ const GetAvgTime = () => {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
+      //console.log(data);
       avgWaitingTime.value = data.AverageWaitingTime;
-    if (data && data.AverageWaitingTime) {
+      if (data && data.AverageWaitingTime) {
         let avgTime = parseFloat(data.AverageWaitingTime).toFixed(2);
         if (avgTime < 60) {
-            avgWaitingTime.value = avgTime + " Sec";
+          avgWaitingTime.value = avgTime + " Sec";
         } else if (avgTime >= 60 && avgTime < 3600) {
-            avgWaitingTime.value = (avgTime / 60).toFixed(2) + " Min";
+          avgWaitingTime.value = (avgTime / 60).toFixed(2) + " Min";
         } else if (avgTime >= 3600 && avgTime < 86400) {
-            avgWaitingTime.value = (avgTime / 3600).toFixed(2) + " Hour";
+          avgWaitingTime.value = (avgTime / 3600).toFixed(2) + " Hour";
         } else {
-            avgWaitingTime.value = (avgTime / 86400).toFixed(2) + " Day";
+          avgWaitingTime.value = (avgTime / 86400).toFixed(2) + " Day";
         }
-    } else {
+      } else {
         avgWaitingTime.value = "Not Answered Yet";
-    }
+      }
     });
 };
 
@@ -91,9 +144,9 @@ const loadChart = () => {
   let answersData = [];
 
   if (optionsSelect.value === "total") {
-    labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-    questionsData = [10, 20, 30, 40, 50, 60];
-    answersData = [5, 10, 15, 20, 25, 30];
+    labels = [...labelsData.value];
+    questionsData = [...questionData.value];
+    answersData = [...answerData.value];
   } else if (optionsSelect.value === "month") {
     labels = ["Week 1", "Week 2", "Week 3", "Week 4"];
     questionsData = [15, 25, 35, 45];
@@ -137,18 +190,23 @@ const loadChart = () => {
 
 const handleDurationChange = (event) => {
   optionsSelect.value = event.target.value;
-  loadChart();
   GetQuestion();
   GetTotalAnswer();
   GetAvgTime();
+  GetMostType();
+  GetQuestionTime();
+  loadChart();
+  loadStats();
 };
 
 onMounted(() => {
-  loadStats();
-  loadChart();
   GetQuestion();
   GetTotalAnswer();
   GetAvgTime();
+  GetMostType();
+  GetQuestionTime();
+  loadStats();
+  loadChart();
 });
 </script>
 
@@ -200,7 +258,11 @@ onMounted(() => {
         <div class="col-lg-3 col-md-6 col-12">
           <mini-statistics-card
             title="Average Waiting Time"
-            :value="avgWaitingTime !== 'Not Answered Yet' ? avgWaitingTime + '' : 'No Questions Asked'"
+            :value="
+              avgWaitingTime !== 'Not Answered Yet'
+                ? avgWaitingTime + ''
+                : 'No Questions Asked'
+            "
             description="<span
                     class='text-sm font-weight-bolder text-warning'
                     ></span> Average Waiting Time"

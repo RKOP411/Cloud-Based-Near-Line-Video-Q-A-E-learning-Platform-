@@ -72,6 +72,8 @@ const GetQuestionTimes = DomainName + "dashboard/GetQuestionTimes";
 const GetDashboradQuestions = DomainName + "dashboard/stu/GetDashboradQuestions";
 const AnswerGetTotal = DomainName + "dashboard/stu/AnswerGetTotal";
 const AvgWaitingTime = DomainName + "dashboard/stu/AvgWaitingTime";
+const MostTypeAsked = DomainName + "dashboard/stu/MostTypeAsked";
+const GetQuestionPerTime = DomainName + "dashboard/stu/GetQuestionPerTime";
 
 //HeartBeat
 const SendStatus = DomainName + "status";
@@ -94,5 +96,5 @@ export {
     PauseQueue, CloseQueue, RunQueue, GetQueueStatus, GetQueueTimeryCreatorID,getTotalTakeTime,
     GetQueueByType,
     GetCourses,GetTop5Asking, GetEngagement,GetCategoryCount,getAnswer_QA_AvgTime,GetNumAns,GetQuestionTimes,
-    GetDashboradQuestions,AnswerGetTotal, AvgWaitingTime
+    GetDashboradQuestions,AnswerGetTotal, AvgWaitingTime, MostTypeAsked, GetQuestionPerTime
 };

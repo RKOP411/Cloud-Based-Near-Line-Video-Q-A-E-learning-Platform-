@@ -1061,4 +1061,55 @@ router.get('/stu/MostTypeAsked/:UserID', async (req, res) => {
     }
 });
 
+router.get('/stu/GetQuestionPerTime/:UserID', async (req, res) => {
+    try {
+        const { UserID } = req.params;
+
+        if (!UserID) {
+            return res.status(400).send('UserID is required');
+        }
+
+        const connection = await connectToDB();
+
+        const query = `
+            WITH MonthlyQuestionCount AS (
+                SELECT
+                    DATE_FORMAT(UploadTime, '%b') AS Time,
+                    COUNT(QAID) AS QuestionCount
+                FROM
+                    Question
+                WHERE
+                    UserID = ?
+                GROUP BY
+                    DATE_FORMAT(UploadTime, '%b')
+            )
+            SELECT
+                mq.Time,
+                mq.QuestionCount,
+                (SELECT COUNT(DISTINCT a.QAID)
+                FROM question q
+                JOIN answer a ON q.QAID = a.QAID
+                WHERE q.UserID = ?) AS AnswerGetCount
+            FROM
+                MonthlyQuestionCount mq
+            ORDER BY 
+                FIELD(mq.Time, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+        `;
+
+        connection.query(query, [UserID, UserID], (err, results) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            res.status(200).json(results);
+        });
+
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving questions per time:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 module.exports = router;
