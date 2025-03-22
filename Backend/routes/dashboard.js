@@ -5,6 +5,8 @@ const cors = require('cors')
 const app = express();
 app.use(cors());
 
+
+//============================================Teacher Dashboard ** Time-Based Performance Analysis - helps assess user activity ===============================================================
 router.get('/GetCourses/:userId', async function (req, res, next) {
     try {
         const connection = await connectToDB();
@@ -904,8 +906,8 @@ router.get('/GetQuestionTimes/:CourseID/:duration', async (req, res) => {
 
 
 
-//=================================================Student Dashboard=======================================================================================================
-router.get('/stu/GetQuestions/:UserID', async (req, res) => {
+//=================================================Student Dashboard - Comparative Temporal Performance Analysis=======================================================================================================
+router.get('/stu/GetDashboradQuestions/:UserID', async (req, res) => {
     try {
         const { UserID } = req.params;
 
@@ -934,6 +936,127 @@ router.get('/stu/GetQuestions/:UserID', async (req, res) => {
         connection.end();
     } catch (error) {
         console.error('Error retrieving question count:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.get('/stu/AnswerGetTotal/:UserID', async (req, res) => {
+    try {
+        const { UserID } = req.params;
+
+        if (!UserID) {
+            return res.status(400).send('UserID is required');
+        }
+
+        const connection = await connectToDB();
+
+        const query = `
+            SELECT COUNT(DISTINCT q.QAID) AS AnswerGetCount
+            FROM question q
+            JOIN answer a ON q.QAID = a.QAID
+            WHERE q.UserID = ?;
+        `;
+
+        connection.query(query, [UserID], (err, results) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            const response = results.length > 0 ? results[0] : { AnswerGetCount: 0 };
+            res.status(200).json(response);
+        });
+
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving answer count:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+router.get('/stu/AvgWaitingTime/:UserID', async (req, res) => {
+    try {
+        const { UserID } = req.params;
+
+        if (!UserID) {
+            return res.status(400).send('UserID is required');
+        }
+
+        const connection = await connectToDB();
+
+        const query = `
+            SELECT AVG(WaitingTime) AS AverageWaitingTime
+            FROM (
+                SELECT MIN(TIMESTAMPDIFF(SECOND, q.UploadTime, a.UploadTime)) AS WaitingTime
+                FROM question q
+                JOIN answer a ON q.QAID = a.QAID
+                WHERE q.UserID = ?
+                GROUP BY q.QAID
+            ) AS Subquery;
+        `;
+
+        connection.query(query, [UserID], (err, results) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            const response = results.length > 0 ? results[0] : { AverageWaitingTime: null };
+            res.status(200).json(response);
+        });
+
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving average waiting time:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
+router.get('/stu/MostTypeAsked/:UserID', async (req, res) => {
+    try {
+        const { UserID } = req.params;
+
+        if (!UserID) {
+            return res.status(400).send('UserID is required');
+        }
+
+        const connection = await connectToDB();
+
+        const query = `
+            SELECT 'Assignments' AS Type, 
+                   COUNT(*) AS Count 
+            FROM question 
+            WHERE UserID = ? AND Type = 'Assignments'
+            UNION ALL
+            SELECT 'Theory', 
+                   COUNT(*) 
+            FROM question 
+            WHERE UserID = ? AND Type = 'Theory'
+            UNION ALL
+            SELECT 'Lab-work', 
+                   COUNT(*) 
+            FROM question 
+            WHERE UserID = ? AND Type = 'Lab-work'
+            UNION ALL
+            SELECT 'Debugging', 
+                   COUNT(*) 
+            FROM question 
+            WHERE UserID = ? AND Type = 'Debugging';
+        `;
+
+        connection.query(query, [UserID, UserID, UserID, UserID], (err, results) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            res.status(200).json(results);
+        });
+
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving most asked types:', error);
         res.status(500).send('Server error');
     }
 });

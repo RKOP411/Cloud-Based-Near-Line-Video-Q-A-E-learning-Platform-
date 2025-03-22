@@ -2,24 +2,84 @@
 import MiniStatisticsCard from "@/examples/Cards/MiniStatisticsCard.vue";
 import { ref, onMounted } from "vue";
 import Chart from "chart.js/auto";
-
+import {
+  GetDashboradQuestions,
+  AnswerGetTotal,
+  AvgWaitingTime,
+} from "../../assets/Domain.js";
 
 const totalQuestions = ref(0);
 const totalAnswers = ref(0);
 const avgWaitingTime = ref(0);
 const totalWaitingTime = ref(0);
+const MostType = ref("");
 const optionsSelect = ref("total");
 const UserID = localStorage.getItem("UserID");
 console.log("UserID: " + UserID);
 
 const loadStats = async () => {
-  totalQuestions.value = 10;
-  totalAnswers.value = 5;
+  //   totalQuestions.value = 10;
+  //   totalAnswers.value = 5;
   avgWaitingTime.value = 15;
   totalWaitingTime.value = 150;
 };
 
 let chartInstance = null;
+
+const GetQuestion = () => {
+  fetch(`${GetDashboradQuestions}/${UserID}`, {
+    method: "get",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log(data);
+      totalQuestions.value = data.QuestionCount;
+    });
+};
+const GetTotalAnswer = () => {
+  fetch(`${AnswerGetTotal}/${UserID}`, {
+    method: "get",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log(data);
+      totalAnswers.value = data.AnswerGetCount;
+    });
+};
+
+const GetAvgTime = () => {
+  fetch(`${AvgWaitingTime}/${UserID}`, {
+    method: "get",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      avgWaitingTime.value = data.AverageWaitingTime;
+    if (data && data.AverageWaitingTime) {
+        let avgTime = parseFloat(data.AverageWaitingTime).toFixed(2);
+        if (avgTime < 60) {
+            avgWaitingTime.value = avgTime + " Sec";
+        } else if (avgTime >= 60 && avgTime < 3600) {
+            avgWaitingTime.value = (avgTime / 60).toFixed(2) + " Min";
+        } else if (avgTime >= 3600 && avgTime < 86400) {
+            avgWaitingTime.value = (avgTime / 3600).toFixed(2) + " Hour";
+        } else {
+            avgWaitingTime.value = (avgTime / 86400).toFixed(2) + " Day";
+        }
+    } else {
+        avgWaitingTime.value = "Not Answered Yet";
+    }
+    });
+};
 
 const loadChart = () => {
   const ctx = document.getElementById("dashboardChart").getContext("2d");
@@ -78,11 +138,17 @@ const loadChart = () => {
 const handleDurationChange = (event) => {
   optionsSelect.value = event.target.value;
   loadChart();
+  GetQuestion();
+  GetTotalAnswer();
+  GetAvgTime();
 };
 
 onMounted(() => {
   loadStats();
   loadChart();
+  GetQuestion();
+  GetTotalAnswer();
+  GetAvgTime();
 });
 </script>
 
@@ -134,7 +200,7 @@ onMounted(() => {
         <div class="col-lg-3 col-md-6 col-12">
           <mini-statistics-card
             title="Average Waiting Time"
-            :value="avgWaitingTime + ' mins'"
+            :value="avgWaitingTime !== 'Not Answered Yet' ? avgWaitingTime + '' : 'No Questions Asked'"
             description="<span
                     class='text-sm font-weight-bolder text-warning'
                     ></span> Average Waiting Time"
@@ -147,11 +213,11 @@ onMounted(() => {
         </div>
         <div class="col-lg-3 col-md-6 col-12">
           <mini-statistics-card
-            title="Participation Rate"
-            :value="participationRate + '%'"
+            title="Most Type"
+            :value="MostType + ''"
             description="<span
                     class='text-sm font-weight-bolder text-primary'
-                    ></span> Participation Rate"
+                    ></span> Most Type Asked"
             :icon="{
               component: 'fa fa-users',
               background: 'bg-gradient-success',
