@@ -1083,15 +1083,17 @@ router.get('/stu/GetQuestionPerTime/:UserID', async (req, res) => {
                 GROUP BY
                     DATE_FORMAT(UploadTime, '%b')
             )
+
             SELECT
                 mq.Time,
                 mq.QuestionCount,
-                (SELECT COUNT(DISTINCT a.QAID)
-                FROM question q
-                JOIN answer a ON q.QAID = a.QAID
-                WHERE q.UserID = ?) AS AnswerGetCount
+                COUNT(DISTINCT a.QAID) AS AnswerGetCount
             FROM
                 MonthlyQuestionCount mq
+            LEFT JOIN question q ON mq.Time = DATE_FORMAT(q.UploadTime, '%b') AND q.UserID = ?
+            LEFT JOIN answer a ON q.QAID = a.QAID
+            GROUP BY
+                mq.Time
             ORDER BY 
                 FIELD(mq.Time, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
         `;
