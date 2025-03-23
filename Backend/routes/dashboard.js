@@ -193,7 +193,7 @@ router.get('/GetTop5Asking/:userId/:courseId/:duration', async (req, res) => {
 });
 
 router.get('/GetAllAsking/:UserID/:CourseID/:duration', async (req, res) => {
-    const { UserID,CourseID, duration } = req.params;
+    const { UserID, CourseID, duration } = req.params;
 
     const connection = await connectToDB();
 
@@ -971,6 +971,122 @@ router.get('/GetQuestionTimes/:CourseID/:duration', async (req, res) => {
     }
 });
 
+router.get('/GetQuestionPerTimes/:CourseID/:duration', async (req, res) => {
+    try {
+        const { CourseID, duration } = req.params;
+
+        if (!CourseID) {
+            return res.status(400).send('CourseID is required');
+        }
+
+        const connection = await connectToDB();
+
+        if(duration == "month"){
+
+            const query = `
+           SET @currentYear = YEAR(CURDATE());
+            SET @currentMonth = MONTH(CURDATE());
+
+            WITH WeekRanges AS (
+                SELECT 
+                    1 AS WeekNumber,
+                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-01'), '%Y-%m-%d') AS WeekStart,
+                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-07'), '%Y-%m-%d') AS WeekEnd
+                UNION ALL
+                SELECT 
+                    2,
+                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-08'), '%Y-%m-%d'),
+                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-14'), '%Y-%m-%d')
+                UNION ALL
+                SELECT 
+                    3,
+                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-15'), '%Y-%m-%d'),
+                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-21'), '%Y-%m-%d')
+                UNION ALL
+                SELECT 
+                    4,
+                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-22'), '%Y-%m-%d'),
+                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-28'), '%Y-%m-%d')
+                UNION ALL
+                SELECT 
+                    5,
+                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-29'), '%Y-%m-%d'),
+                    LAST_DAY(CONCAT(@currentYear, '-', @currentMonth, '-01'))
+            )
+            SELECT
+                wr.WeekNumber,
+                COALESCE(COUNT(q.QAID), 0) AS QuestionCount
+            FROM
+                WeekRanges wr
+            LEFT JOIN
+                Question q ON q.UploadTime BETWEEN wr.WeekStart AND wr.WeekEnd
+            LEFT JOIN
+                queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE
+                ql.CourseID = ? OR ql.CourseID IS NULL
+            GROUP BY
+                wr.WeekNumber
+            ORDER BY
+                wr.WeekNumber;
+            `;
+
+            connection.query(query, [CourseID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+                res.status(200).json(results);
+            });
+        }
+
+
+
+        const query = `
+                WITH AllMonths AS (
+                    SELECT 'Jan' AS Month, 1 AS MonthNumber
+                    UNION SELECT 'Feb', 2
+                    UNION SELECT 'Mar', 3
+                    UNION SELECT 'Apr', 4
+                    UNION SELECT 'May', 5
+                    UNION SELECT 'Jun', 6
+                    UNION SELECT 'Jul', 7
+                    UNION SELECT 'Aug', 8
+                    UNION SELECT 'Sep', 9
+                    UNION SELECT 'Oct', 10
+                    UNION SELECT 'Nov', 11
+                    UNION SELECT 'Dec', 12
+                )
+                SELECT
+                    am.Month,
+                    COUNT(q.QAID) AS QuestionCount
+                FROM
+                    AllMonths am
+                LEFT JOIN
+                    Question q ON MONTH(q.UploadTime) = am.MonthNumber AND q.CourseID = ?
+                WHERE
+                    YEAR(q.UploadTime) = YEAR(CURDATE())
+                GROUP BY
+                    am.Month, am.MonthNumber
+                ORDER BY
+                    am.MonthNumber;
+            `;
+
+        connection.query(query, [CourseID], (err, results) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+            res.status(200).json(results);
+        });
+
+
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving question times:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 
 
 
@@ -1373,17 +1489,17 @@ router.get('/stu/GetQuestionPerTime/:UserID/:duration', async (req, res) => {
                     aw.Year, aw.Week
                 ORDER BY 
                     aw.Year, aw.Week;`
-                connection.query(query, [UserID], (err, results) => {
-                    if (err) {
-                        console.error('Error executing query:', err);
-                        return res.status(500).json({ error: 'Internal server error' });
-                    }
+            connection.query(query, [UserID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
 
-                    res.status(200).json(results);
-                });
-            }
-            else if (duration == "week") {
-                const query = `
+                res.status(200).json(results);
+            });
+        }
+        else if (duration == "week") {
+            const query = `
             -- Get the current week number in the month
             SET @currentWeek = CASE 
                 WHEN DAY(CURDATE()) <= 7 THEN 1
@@ -1462,13 +1578,13 @@ router.get('/stu/GetQuestionPerTime/:UserID/:duration', async (req, res) => {
                 dow.Time, dow.DayOfWeek, qc.QuestionCount  -- Include qc.QuestionCount in GROUP BY
             ORDER BY 
                 dow.DayOfWeek;`
-            
+
             connection.query(query, [UserID, UserID], (err, results) => {
                 if (err) {
                     console.error('Error executing query:', err);
                     return res.status(500).json({ error: 'Internal server error' });
                 }
-            
+
                 res.status(200).json(results);
             });
         }

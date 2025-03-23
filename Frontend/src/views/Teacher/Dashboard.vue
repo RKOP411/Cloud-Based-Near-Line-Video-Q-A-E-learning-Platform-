@@ -44,9 +44,14 @@ if (Email === null || Email === "") {
       </div>
       <div class="col-lg-12">
         <div class="row">
-          <div class="col-lg-3 col-md-6 col-12">
-            <mini-statistics-card
+          <div class="col-lg-3 col-md-6 col-12 Hover-Table">
+            <mini-statistics-card 
               title="Number of Answers"
+              @click="questiontimes()"
+              style="transition: transform 0.2s; cursor: pointer"
+              @mouseover="hover = true"
+              @mouseleave="hover = false"
+              :style="{ transform: hover ? 'scale(1.02)' : 'scale(1)' }"
               :value="NumberofAnswers > 0 ? NumberofAnswers : '0'"
               description="<span
                 class='text-sm font-weight-bolder text-success'
@@ -102,7 +107,9 @@ if (Email === null || Email === "") {
         <div class="row">
           <div class="col-lg-12 mb-lg">
             <!-- line chart -->
-            <div class="card z-index-2">
+            <div
+              class="card z-index-2 Hover-Table"
+            >
               <gradient-line-chart
                 v-if="QuestionTimesData.value && QuestionTimesLabel.value"
                 id="chart-line"
@@ -148,7 +155,7 @@ if (Email === null || Email === "") {
         <div class="row mt-4">
           <div class="col-lg-7 mb-lg-0 mb-4">
             <div
-              class="card Top5-Table"
+              class="card Hover-Table"
               @click="GetAllRecord()"
               style="transition: transform 0.2s; cursor: pointer"
               @mouseover="hover = true"
@@ -284,13 +291,22 @@ export default {
   },
 
   methods: {
+    async questiontimes() {
+      this.$router.push({
+        path: "/dashboard-default/questiontimesdashboard",
+        query: {
+          selectedCourseID: this.selectedCourseID,
+          optionsSelect: this.optionsSelect,
+        },
+      });
+    },
     async GetAllRecord() {
       this.$router.push({
-      path: "/dashboard-default/getallrecorddashboard",
-      query: {
-        selectedCourseID: this.selectedCourseID,
-        optionsSelect: this.optionsSelect,
-      },
+        path: "/dashboard-default/getallrecorddashboard",
+        query: {
+          selectedCourseID: this.selectedCourseID,
+          optionsSelect: this.optionsSelect,
+        },
       });
     },
     async GetQuestionTimes() {
@@ -509,7 +525,7 @@ export default {
 };
 </script>
 <style scoped>
-.Top5-Table:hover {
+.Hover-Table:hover {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 </style>
