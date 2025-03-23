@@ -1254,103 +1254,107 @@ router.get('/stu/GetQuestionPerTime/:UserID/:duration', async (req, res) => {
 
         if (duration == "month") {
             const query = `
+                WITH WeeklyQuestionCount AS (
+                    SELECT
+                        YEAR(UploadTime) AS Year,
+                        CASE 
+                            WHEN DAY(UploadTime) <= 7 THEN 1
+                            WHEN DAY(UploadTime) <= 14 THEN 2
+                            WHEN DAY(UploadTime) <= 21 THEN 3
+                            WHEN DAY(UploadTime) <= 28 THEN 4
+                            ELSE 5  -- This covers the 5th week
+                        END AS Week,
+                        COUNT(QAID) AS QuestionCount
+                    FROM
+                        Question
+                    WHERE
+                        UserID = ?
+                        AND MONTH(UploadTime) = MONTH(CURDATE()) 
+                        AND YEAR(UploadTime) = YEAR(CURDATE()) 
+                    GROUP BY
+                        YEAR(UploadTime), Week
+                ),
+
+                AllWeeks AS (
+                    SELECT YEAR(CURDATE()) AS Year, 1 AS Week  -- Starting week
+                    UNION ALL SELECT YEAR(CURDATE()), 2
+                    UNION ALL SELECT YEAR(CURDATE()), 3
+                    UNION ALL SELECT YEAR(CURDATE()), 4
+                    UNION ALL SELECT YEAR(CURDATE()), 5
+                )
+
+                SELECT
+                    CONCAT('Week ', aw.Week) AS Time,
+                    COALESCE(wq.QuestionCount, 0) AS QuestionCount,
+                    COALESCE(COUNT(DISTINCT a.QAID), 0) AS AnswerGetCount  -- Count distinct answers for questions in the same month and user
+                FROM
+                    AllWeeks aw
+                LEFT JOIN WeeklyQuestionCount wq ON aw.Year = wq.Year AND aw.Week = wq.Week
+                LEFT JOIN Question q ON aw.Year = YEAR(q.UploadTime) AND 
+                                    CASE 
+                                        WHEN DAY(q.UploadTime) <= 7 THEN 1
+                                        WHEN DAY(q.UploadTime) <= 14 THEN 2
+                                        WHEN DAY(q.UploadTime) <= 21 THEN 3
+                                        WHEN DAY(q.UploadTime) <= 28 THEN 4
+                                        ELSE 5
+                                    END = aw.Week 
+                                    AND MONTH(q.UploadTime) = MONTH(CURDATE()) 
+                                    AND YEAR(q.UploadTime) = YEAR(CURDATE())
+                LEFT JOIN Answer a ON q.QAID = a.QAID
+                GROUP BY
+                    aw.Year, aw.Week
+                ORDER BY 
+                    aw.Year, aw.Week;`
+                connection.query(query, [UserID], (err, results) => {
+                    if (err) {
+                        console.error('Error executing query:', err);
+                        return res.status(500).json({ error: 'Internal server error' });
+                    }
+
+                    res.status(200).json(results);
+                });
+            }
+            else if (duration == "week") {
+                const query = `
+            -- Get the current week number in the month
+            SET @currentWeek = CASE 
+                WHEN DAY(CURDATE()) <= 7 THEN 1
+                WHEN DAY(CURDATE()) <= 14 THEN 2
+                WHEN DAY(CURDATE()) <= 21 THEN 3
+                WHEN DAY(CURDATE()) <= 28 THEN 4
+                ELSE 5  -- Covers months with a 5th week
+            END;
+
+            -- Start and end of the current week
+            SET @weekStart = DATE_FORMAT(CURDATE() - INTERVAL (DAY(CURDATE()) - 1) DAY, '%Y-%m-%d'); -- Start of the month
+            SET @weekEnd = DATE_FORMAT(CURDATE() - INTERVAL (DAY(CURDATE()) - 1) DAY + INTERVAL 6 DAY, '%Y-%m-%d'); -- End of the month
+
+            -- CTE to count questions per day of the week
             WITH WeeklyQuestionCount AS (
                 SELECT
-                    YEAR(UploadTime) AS Year,
-                    CASE 
-                        WHEN DAY(UploadTime) <= 7 THEN 1
-                        WHEN DAY(UploadTime) <= 14 THEN 2
-                        WHEN DAY(UploadTime) <= 21 THEN 3
-                        WHEN DAY(UploadTime) <= 28 THEN 4
-                        ELSE 5  -- This covers the 5th week
-                    END AS Week,
+                    CASE DAYOFWEEK(UploadTime)
+                        WHEN 1 THEN 7  -- Sunday -> 7
+                        WHEN 2 THEN 1  -- Monday -> 1
+                        WHEN 3 THEN 2  -- Tuesday -> 2
+                        WHEN 4 THEN 3  -- Wednesday -> 3
+                        WHEN 5 THEN 4  -- Thursday -> 4
+                        WHEN 6 THEN 5  -- Friday -> 5
+                        WHEN 7 THEN 6  -- Saturday -> 6
+                    END AS DayOfWeek,
                     COUNT(QAID) AS QuestionCount
                 FROM
                     Question
                 WHERE
                     UserID = ?
-                    AND MONTH(UploadTime) = MONTH(CURDATE()) 
-                    AND YEAR(UploadTime) = YEAR(CURDATE()) 
-                GROUP BY
-                    YEAR(UploadTime), Week
-            ),
-
-            AllWeeks AS (
-                SELECT YEAR(CURDATE()) AS Year, 1 AS Week  -- Starting week
-                UNION ALL SELECT YEAR(CURDATE()), 2
-                UNION ALL SELECT YEAR(CURDATE()), 3
-                UNION ALL SELECT YEAR(CURDATE()), 4
-                UNION ALL SELECT YEAR(CURDATE()), 5
-            )
-
-            SELECT
-                CONCAT('Week ', aw.Week) AS Time,
-                COALESCE(wq.QuestionCount, 0) AS QuestionCount,
-                COALESCE(COUNT(DISTINCT a.QAID), 0) AS AnswerGetCount  -- Count distinct answers for questions in the same month and user
-            FROM
-                AllWeeks aw
-            LEFT JOIN WeeklyQuestionCount wq ON aw.Year = wq.Year AND aw.Week = wq.Week
-            LEFT JOIN Question q ON aw.Year = YEAR(q.UploadTime) AND 
-                                CASE 
-                                    WHEN DAY(q.UploadTime) <= 7 THEN 1
-                                    WHEN DAY(q.UploadTime) <= 14 THEN 2
-                                    WHEN DAY(q.UploadTime) <= 21 THEN 3
-                                    WHEN DAY(q.UploadTime) <= 28 THEN 4
-                                    ELSE 5
-                                END = aw.Week 
-                                AND MONTH(q.UploadTime) = MONTH(CURDATE()) 
-                                AND YEAR(q.UploadTime) = YEAR(CURDATE())
-            LEFT JOIN Answer a ON q.QAID = a.QAID
-            GROUP BY
-                aw.Year, aw.Week
-            ORDER BY 
-                aw.Year, aw.Week;`
-            connection.query(query, [UserID], (err, results) => {
-                if (err) {
-                    console.error('Error executing query:', err);
-                    return res.status(500).json({ error: 'Internal server error' });
-                }
-
-                res.status(200).json(results);
-            });
-        }
-        else if (duration == "week") {
-            const query = `
-            WITH RECURSIVE WeekInfo AS (
-                SELECT 
-                    CASE 
-                        WHEN DAY(CURDATE()) <= 7 THEN 1
-                        WHEN DAY(CURDATE()) <= 14 THEN 2
-                        WHEN DAY(CURDATE()) <= 21 THEN 3
-                        WHEN DAY(CURDATE()) <= 28 THEN 4
-                        ELSE 5
-                    END AS currentWeek,
-                    DATE_FORMAT(CURDATE() - INTERVAL (DAY(CURDATE()) - 1) DAY, '%Y-%m-%d') AS weekStart,
-                    DATE_FORMAT(CURDATE() - INTERVAL (DAY(CURDATE()) - 1) DAY + INTERVAL 6 DAY, '%Y-%m-%d') AS weekEnd
-            ),
-            WeeklyQuestionCount AS (
-                SELECT
-                    CASE DAYOFWEEK(UploadTime)
-                        WHEN 1 THEN 7
-                        WHEN 2 THEN 1
-                        WHEN 3 THEN 2
-                        WHEN 4 THEN 3
-                        WHEN 5 THEN 4
-                        WHEN 6 THEN 5
-                        WHEN 7 THEN 6
-                    END AS DayOfWeek,
-                    COUNT(QAID) AS QuestionCount
-                FROM
-                    Question, WeekInfo
-                WHERE
-                    UserID = ?
-                    AND UploadTime >= DATE_ADD(weekStart, INTERVAL ((currentWeek - 1) * 7) DAY) 
-                    AND UploadTime < DATE_ADD(weekStart, INTERVAL (currentWeek * 7) DAY)
+                    AND UploadTime >= DATE_ADD(@weekStart, INTERVAL ((@currentWeek - 1) * 7) DAY) 
+                    AND UploadTime < DATE_ADD(@weekStart, INTERVAL (@currentWeek * 7) DAY) 
                 GROUP BY
                     DayOfWeek
             ),
+
+            -- CTE to define days of the week (custom mapping: 1 = Mon, 2 = Tue, ..., 7 = Sun)
             DaysOfWeek AS (
-                SELECT 1 AS DayOfWeek, 'Mon' AS DayLabel
+                SELECT 1 AS DayOfWeek, 'Mon' AS Time
                 UNION ALL
                 SELECT 2, 'Tue'
                 UNION ALL
@@ -1364,29 +1368,30 @@ router.get('/stu/GetQuestionPerTime/:UserID/:duration', async (req, res) => {
                 UNION ALL
                 SELECT 7, 'Sun'
             )
-            
+
+            -- Main query to get question and answer counts
             SELECT
-                dow.DayLabel,
+                dow.Time,
                 COALESCE(qc.QuestionCount, 0) AS QuestionCount,
                 COALESCE(SUM(CASE WHEN a.QAID IS NOT NULL THEN 1 ELSE 0 END), 0) AS AnswerGetCount
             FROM
                 DaysOfWeek dow
             LEFT JOIN WeeklyQuestionCount qc ON dow.DayOfWeek = qc.DayOfWeek
             LEFT JOIN Question q ON dow.DayOfWeek = CASE DAYOFWEEK(q.UploadTime)
-                    WHEN 1 THEN 7
-                    WHEN 2 THEN 1
-                    WHEN 3 THEN 2
-                    WHEN 4 THEN 3
-                    WHEN 5 THEN 4
-                    WHEN 6 THEN 5
-                    WHEN 7 THEN 6
+                    WHEN 1 THEN 7  -- Sunday -> 7
+                    WHEN 2 THEN 1  -- Monday -> 1
+                    WHEN 3 THEN 2  -- Tuesday -> 2
+                    WHEN 4 THEN 3  -- Wednesday -> 3
+                    WHEN 5 THEN 4  -- Thursday -> 4
+                    WHEN 6 THEN 5  -- Friday -> 5
+                    WHEN 7 THEN 6  -- Saturday -> 6
                 END
                 AND q.UserID = ?
-                AND q.UploadTime >= (SELECT weekStart FROM WeekInfo)
-                AND q.UploadTime < (SELECT weekEnd FROM WeekInfo)
+                AND q.UploadTime >= DATE_ADD(@weekStart, INTERVAL ((@currentWeek - 1) * 7) DAY)
+                AND q.UploadTime < DATE_ADD(@weekStart, INTERVAL (@currentWeek * 7) DAY)
             LEFT JOIN Answer a ON q.QAID = a.QAID
             GROUP BY
-                dow.DayLabel, dow.DayOfWeek
+                dow.Time, dow.DayOfWeek, qc.QuestionCount  -- Include qc.QuestionCount in GROUP BY
             ORDER BY 
                 dow.DayOfWeek;`
             

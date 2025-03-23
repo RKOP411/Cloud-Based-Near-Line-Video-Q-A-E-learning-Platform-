@@ -49,6 +49,15 @@ const GetQuestionTime = () => {
         questionData.value.push(item.QuestionCount);
         answerData.value.push(item.AnswerGetCount);
       });
+      if (optionsSelect.value === "week") {
+        const results = data[data.length - 1];
+
+        results.forEach((item) => {
+          labelsData.value.push(item.Time);
+          questionData.value.push(item.QuestionCount);
+          answerData.value.push(item.AnswerGetCount);
+        });
+      }
       console.log(labelsData.value);
       console.log(questionData.value);
       console.log(answerData.value);
@@ -162,9 +171,9 @@ const loadChart = () => {
     questionsData = [...questionData.value];
     answersData = [...answerData.value];
   } else if (optionsSelect.value === "week") {
-    labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    questionsData = [5, 10, 15, 20, 25, 30, 35];
-    answersData = [3, 5, 7, 10, 12, 15, 18];
+    labels = [...labelsData.value];
+    questionsData = [...questionData.value];
+    answersData = [...answerData.value];
   }
 
   chartInstance = new Chart(ctx, {

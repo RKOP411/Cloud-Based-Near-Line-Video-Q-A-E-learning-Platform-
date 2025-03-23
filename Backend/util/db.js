@@ -6,7 +6,8 @@ async function connectToDB() {
         host: 'localhost', // Your database host
         user: 'root',      // Your database username
         password: 'root12', // Your database password
-        database: 'LearnPlatform' // Your database name
+        database: 'LearnPlatform',
+        multipleStatements: true
     });
 
     // Connect to MySQL
