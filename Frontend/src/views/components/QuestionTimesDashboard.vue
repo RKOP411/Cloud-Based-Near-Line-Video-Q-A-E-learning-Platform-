@@ -39,7 +39,7 @@
 
 <script>
 import { ref } from "vue";
-import { GetCourses } from "../../assets/Domain.js";
+import { GetCourses, GetQuestionPerTimes } from "../../assets/Domain.js";
 import Chart from "chart.js/auto";
 
 export default {
@@ -49,9 +49,33 @@ export default {
       Course: [],
       UserID: localStorage.getItem("UserID"),
       selectedCourseID: ref(""),
+      question: ref([]),
+      ans: ref([]),
+      labelsData: ref([]),
     };
   },
   methods: {
+    async GetQuestion() {
+      fetch(
+        `${GetQuestionPerTimes}/${this.selectedCourseID}/${this.optionsSelect}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          //console.log(data);
+          this.labelsData = data.map((item) => item.Time);
+          this.question = data.map((item) => item.QuestionCount);
+          this.ans = data.map((item) => item.AnswerGetCount);
+          if (this.optionsSelect === "week") {
+            const results = data[data.length - 1];
+            results.forEach((item) => {
+              this.labelsData.push(item.Time);
+              this.question.push(item.QuestionCount);
+              this.ans.push(item.AnswerGetCount);
+            });
+          }
+          this.initializeChart();
+        });
+    },
     async fetchCourses() {
       fetch(`${GetCourses}/${this.UserID}`)
         .then((response) => response.json())
@@ -63,17 +87,21 @@ export default {
           }
           console.log("selectedCourseID: " + this.selectedCourseID);
           this.getPushedData();
+          this.GetQuestion();
         });
     },
     handleDurationChange(event) {
       this.optionsSelect = event.target.value;
       console.log("optionsSelect: " + this.optionsSelect);
+      this.GetQuestion();
       this.initializeChart();
     },
     handleCourseChange() {
       this.selectedCourseID = event.target.value;
       // This method is kept as an update but v-model handles the changes.
       console.log("selectedCourseID: " + this.selectedCourseID);
+      this.GetQuestion();
+      this.initializeChart();
     },
     getPushedData() {
       if (
@@ -92,31 +120,22 @@ export default {
         this.chart.destroy();
       }
 
-      let data = [];
+      let question = [];
+      let ans = [];
       let labelsData = [];
 
       if (this.optionsSelect === "total") {
-        labelsData = [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ];
-        data = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120];
+        labelsData = this.labelsData;
+        question = this.question;
+        ans = this.ans;
       } else if (this.optionsSelect === "month") {
-        labelsData = ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"];
-        data = [15, 12, 24, 1, 32];
+        labelsData = this.labelsData;
+        question = this.question;
+        ans = this.ans;
       } else if (this.optionsSelect === "week") {
-        labelsData = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-        data = [5, 10, 15, 20, 25, 30, 35];
+        labelsData = this.labelsData;
+        question = this.question;
+        ans = this.ans;
       }
 
       this.chart = new Chart(ctx, {
@@ -126,9 +145,16 @@ export default {
           datasets: [
             {
               label: "Question",
-              data: data,
+              data: question,
               backgroundColor: "rgba(75, 192, 192, 0.2)",
               borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 1,
+            },
+            {
+              label: "Answer",
+              data: ans,
+              backgroundColor: "rgba(255, 99, 132, 0.2)",
+              borderColor: "rgba(255, 99, 132, 1)",
               borderWidth: 1,
             },
           ],

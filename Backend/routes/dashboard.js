@@ -981,56 +981,66 @@ router.get('/GetQuestionPerTimes/:CourseID/:duration', async (req, res) => {
 
         const connection = await connectToDB();
 
-        if(duration == "month"){
+        if (duration == "month") {
 
             const query = `
-           SET @currentYear = YEAR(CURDATE());
-            SET @currentMonth = MONTH(CURDATE());
+            WITH WeeklyQuestionCount AS (
+                SELECT
+                    YEAR(q.UploadTime) AS Year,
+                    CASE 
+                        WHEN DAY(q.UploadTime) <= 7 THEN 1
+                        WHEN DAY(q.UploadTime) <= 14 THEN 2
+                        WHEN DAY(q.UploadTime) <= 21 THEN 3
+                        WHEN DAY(q.UploadTime) <= 28 THEN 4
+                        ELSE 5  -- This covers the 5th week
+                    END AS Week,
+                    COUNT(q.QAID) AS QuestionCount
+                FROM
+                    Question q
+                JOIN 
+                    queue_list ql ON q.QueueListID = ql.QueueListID  -- Join with queue_list
+                WHERE
+                    ql.CourseID = ?
+                    AND MONTH(q.UploadTime) = MONTH(CURDATE()) 
+                    AND YEAR(q.UploadTime) = YEAR(CURDATE()) 
+                GROUP BY
+                    YEAR(q.UploadTime), Week
+            ),
 
-            WITH WeekRanges AS (
-                SELECT 
-                    1 AS WeekNumber,
-                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-01'), '%Y-%m-%d') AS WeekStart,
-                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-07'), '%Y-%m-%d') AS WeekEnd
-                UNION ALL
-                SELECT 
-                    2,
-                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-08'), '%Y-%m-%d'),
-                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-14'), '%Y-%m-%d')
-                UNION ALL
-                SELECT 
-                    3,
-                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-15'), '%Y-%m-%d'),
-                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-21'), '%Y-%m-%d')
-                UNION ALL
-                SELECT 
-                    4,
-                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-22'), '%Y-%m-%d'),
-                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-28'), '%Y-%m-%d')
-                UNION ALL
-                SELECT 
-                    5,
-                    DATE_FORMAT(CONCAT(@currentYear, '-', @currentMonth, '-29'), '%Y-%m-%d'),
-                    LAST_DAY(CONCAT(@currentYear, '-', @currentMonth, '-01'))
+            AllWeeks AS (
+                SELECT YEAR(CURDATE()) AS Year, 1 AS Week  -- Starting week
+                UNION ALL SELECT YEAR(CURDATE()), 2
+                UNION ALL SELECT YEAR(CURDATE()), 3
+                UNION ALL SELECT YEAR(CURDATE()), 4
+                UNION ALL SELECT YEAR(CURDATE()), 5
             )
+
             SELECT
-                wr.WeekNumber,
-                COALESCE(COUNT(q.QAID), 0) AS QuestionCount
+                CONCAT('Week ', aw.Week) AS Time,
+                COALESCE(wq.QuestionCount, 0) AS QuestionCount,
+                COALESCE(SUM(CASE WHEN a.QAID IS NOT NULL THEN 1 ELSE 0 END), 0) AS AnswerGetCount
             FROM
-                WeekRanges wr
-            LEFT JOIN
-                Question q ON q.UploadTime BETWEEN wr.WeekStart AND wr.WeekEnd
-            LEFT JOIN
-                queue_list ql ON q.QueueListID = ql.QueueListID
-            WHERE
-                ql.CourseID = ? OR ql.CourseID IS NULL
+                AllWeeks aw
+            LEFT JOIN WeeklyQuestionCount wq ON aw.Year = wq.Year AND aw.Week = wq.Week
+            LEFT JOIN Question q ON aw.Year = YEAR(q.UploadTime) AND 
+                                CASE 
+                                    WHEN DAY(q.UploadTime) <= 7 THEN 1
+                                    WHEN DAY(q.UploadTime) <= 14 THEN 2
+                                    WHEN DAY(q.UploadTime) <= 21 THEN 3
+                                    WHEN DAY(q.UploadTime) <= 28 THEN 4
+                                    ELSE 5
+                                END = aw.Week 
+                                AND MONTH(q.UploadTime) = MONTH(CURDATE()) 
+                                AND YEAR(q.UploadTime) = YEAR(CURDATE())
+            LEFT JOIN Answer a ON q.QAID = a.QAID
+            LEFT JOIN queue_list ql ON q.QueueListID = ql.QueueListID AND ql.CourseID = ?
             GROUP BY
-                wr.WeekNumber
-            ORDER BY
-                wr.WeekNumber;
+                aw.Year, aw.Week
+            ORDER BY 
+                aw.Year, aw.Week;
             `;
 
-            connection.query(query, [CourseID], (err, results) => {
+            connection.query(query, [CourseID,CourseID], (err, results) => {
                 if (err) {
                     console.error('Error executing query:', err);
                     return res.status(500).json({ error: 'Internal server error' });
@@ -1038,46 +1048,159 @@ router.get('/GetQuestionPerTimes/:CourseID/:duration', async (req, res) => {
                 res.status(200).json(results);
             });
         }
+        else if (duration == "week") {
+            const query = `
+            -- Get the current week number in the month
+            SET @currentWeek = CASE 
+                WHEN DAY(CURDATE()) <= 7 THEN 1
+                WHEN DAY(CURDATE()) <= 14 THEN 2
+                WHEN DAY(CURDATE()) <= 21 THEN 3
+                WHEN DAY(CURDATE()) <= 28 THEN 4
+                ELSE 5  -- Covers months with a 5th week
+            END;
 
+            -- Start and end of the current week
+            SET @weekStart = DATE_FORMAT(CURDATE() - INTERVAL (DAY(CURDATE()) - 1) DAY, '%Y-%m-%d'); -- Start of the month
+            SET @weekEnd = DATE_FORMAT(CURDATE() - INTERVAL (DAY(CURDATE()) - 1) DAY + INTERVAL 6 DAY, '%Y-%m-%d'); -- End of the month
 
-
-        const query = `
-                WITH AllMonths AS (
-                    SELECT 'Jan' AS Month, 1 AS MonthNumber
-                    UNION SELECT 'Feb', 2
-                    UNION SELECT 'Mar', 3
-                    UNION SELECT 'Apr', 4
-                    UNION SELECT 'May', 5
-                    UNION SELECT 'Jun', 6
-                    UNION SELECT 'Jul', 7
-                    UNION SELECT 'Aug', 8
-                    UNION SELECT 'Sep', 9
-                    UNION SELECT 'Oct', 10
-                    UNION SELECT 'Nov', 11
-                    UNION SELECT 'Dec', 12
+            WITH WeeklyQuestionCount AS (
+            SELECT
+            CASE DAYOFWEEK(q.UploadTime)
+            WHEN 1 THEN 7 -- Sunday -> 7
+            WHEN 2 THEN 1 -- Monday -> 1
+            WHEN 3 THEN 2 -- Tuesday -> 2
+            WHEN 4 THEN 3 -- Wednesday -> 3
+            WHEN 5 THEN 4 -- Thursday -> 4
+            WHEN 6 THEN 5 -- Friday -> 5
+            WHEN 7 THEN 6 -- Saturday -> 6
+            END AS DayOfWeek,
+            COUNT(q.QAID) AS QuestionCount
+            FROM
+            Question q
+            JOIN
+            queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE
+            ql.CourseID = 12
+            AND q.UploadTime >= DATE_ADD(@weekStart, INTERVAL ((@currentWeek - 1) * 7) DAY)
+            AND q.UploadTime < DATE_ADD(@weekStart, INTERVAL (@currentWeek * 7) DAY)
+            GROUP BY
+            DayOfWeek
+            ),
+                -- CTE to define days of the week (custom mapping: 1 = Mon, 2 = Tue, ..., 7 = Sun)
+                DaysOfWeek AS (
+                    SELECT 1 AS DayOfWeek, 'Mon' AS Time
+                    UNION ALL
+                    SELECT 2, 'Tue'
+                    UNION ALL
+                    SELECT 3, 'Wed'
+                    UNION ALL
+                    SELECT 4, 'Thu'
+                    UNION ALL
+                    SELECT 5, 'Fri'
+                    UNION ALL
+                    SELECT 6, 'Sat'
+                    UNION ALL
+                    SELECT 7, 'Sun'
                 )
+
+                -- Main query to get question and answer counts
                 SELECT
-                    am.Month,
-                    COUNT(q.QAID) AS QuestionCount
+                    dow.Time,
+                    COALESCE(qc.QuestionCount, 0) AS QuestionCount,
+                    COALESCE(SUM(CASE WHEN a.QAID IS NOT NULL THEN 1 ELSE 0 END), 0) AS AnswerGetCount
+                FROM
+                    DaysOfWeek dow
+                LEFT JOIN WeeklyQuestionCount qc ON dow.DayOfWeek = qc.DayOfWeek
+                LEFT JOIN Question q ON dow.DayOfWeek = CASE DAYOFWEEK(q.UploadTime)
+                        WHEN 1 THEN 7  -- Sunday -> 7
+                        WHEN 2 THEN 1  -- Monday -> 1
+                        WHEN 3 THEN 2  -- Tuesday -> 2
+                        WHEN 4 THEN 3  -- Wednesday -> 3
+                        WHEN 5 THEN 4  -- Thursday -> 4
+                        WHEN 6 THEN 5  -- Friday -> 5
+                        WHEN 7 THEN 6  -- Saturday -> 6
+                    END
+                LEFT JOIN queue_list ql ON q.QueueListID = ql.QueueListID AND ql.CourseID = 12
+                LEFT JOIN Answer a ON q.QAID = a.QAID
+                GROUP BY
+                    dow.Time, dow.DayOfWeek, qc.QuestionCount  -- Include qc.QuestionCount in GROUP BY
+                ORDER BY
+                    dow.DayOfWeek;`
+
+            connection.query(query, [CourseID, CourseID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+                res.status(200).json(results);
+            });
+        } else {
+
+
+
+            const query = `
+                WITH MonthlyQuestionCount AS (
+                    SELECT
+                        DATE_FORMAT(q.UploadTime, '%b') AS Time,
+                        COUNT(q.QAID) AS QuestionCount
+                    FROM
+                        Question q
+                    JOIN
+                        queue_list ql ON q.QueueListID = ql.QueueListID
+                    WHERE
+                        ql.CourseID = ?
+                    GROUP BY
+                        DATE_FORMAT(q.UploadTime, '%b')
+                ),
+
+                AllMonths AS (
+                    SELECT 'Jan' AS Month
+                    UNION SELECT 'Feb'
+                    UNION SELECT 'Mar'
+                    UNION SELECT 'Apr'
+                    UNION SELECT 'May'
+                    UNION SELECT 'Jun'
+                    UNION SELECT 'Jul'
+                    UNION SELECT 'Aug'
+                    UNION SELECT 'Sep'
+                    UNION SELECT 'Oct'
+                    UNION SELECT 'Nov'
+                    UNION SELECT 'Dec'
+                )
+
+                SELECT
+                    am.Month AS Time,
+                    COALESCE(mq.QuestionCount, 0) AS QuestionCount,
+                    COALESCE(a.AnswerCount, 0) AS AnswerGetCount
                 FROM
                     AllMonths am
-                LEFT JOIN
-                    Question q ON MONTH(q.UploadTime) = am.MonthNumber AND q.CourseID = ?
-                WHERE
-                    YEAR(q.UploadTime) = YEAR(CURDATE())
-                GROUP BY
-                    am.Month, am.MonthNumber
+                LEFT JOIN MonthlyQuestionCount mq ON am.Month = mq.Time
+                LEFT JOIN (
+                    SELECT
+                        DATE_FORMAT(q.UploadTime, '%b') AS Month,
+                        COUNT(DISTINCT a.QAID) AS AnswerCount
+                    FROM
+                        Question q
+                    JOIN
+                        queue_list ql ON q.QueueListID = ql.QueueListID
+                    LEFT JOIN Answer a ON q.QAID = a.QAID
+                    WHERE
+                        ql.CourseID = ?
+                    GROUP BY
+                        DATE_FORMAT(q.UploadTime, '%b')
+                ) a ON am.Month = a.Month
                 ORDER BY
-                    am.MonthNumber;
-            `;
+                    FIELD(am.Month, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+                            `;
 
-        connection.query(query, [CourseID], (err, results) => {
-            if (err) {
-                console.error('Error executing query:', err);
-                return res.status(500).json({ error: 'Internal server error' });
-            }
-            res.status(200).json(results);
-        });
+            connection.query(query, [CourseID,CourseID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+                res.status(200).json(results);
+            });
+        }
 
 
         connection.end();

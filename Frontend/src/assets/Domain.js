@@ -69,6 +69,7 @@ const GetNumAns = DomainName + "dashboard/GetNumAns";
 const GetQuestionTimes = DomainName + "dashboard/GetQuestionTimes";
 //Dashboard Extand
 const GetAllAsking = DomainName + "dashboard/GetAllAsking";
+const GetQuestionPerTimes = DomainName + "dashboard/GetQuestionPerTimes";
 
 //Student Dashboard
 const GetDashboradQuestions = DomainName + "dashboard/stu/GetDashboradQuestions";
@@ -99,5 +100,5 @@ export {
     GetQueueByType,
     GetCourses,GetTop5Asking, GetEngagement,GetCategoryCount,getAnswer_QA_AvgTime,GetNumAns,GetQuestionTimes,
     GetDashboradQuestions,AnswerGetTotal, AvgWaitingTime, MostTypeAsked, GetQuestionPerTime,
-    GetAllAsking,
+    GetAllAsking,GetQuestionPerTimes
 };
