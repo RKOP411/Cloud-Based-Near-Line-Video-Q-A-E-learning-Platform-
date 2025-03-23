@@ -192,6 +192,73 @@ router.get('/GetTop5Asking/:userId/:courseId/:duration', async (req, res) => {
     }
 });
 
+router.get('/GetAllAsking/:UserID/:CourseID/:duration', async (req, res) => {
+    const { UserID,CourseID, duration } = req.params;
+
+    const connection = await connectToDB();
+
+    let query = `
+            SELECT
+            u.UserID,
+            u.UserName,
+            COUNT(q.QAID) AS question_count,
+            ql.QueueListID,
+            c.CourseName,
+            (SELECT COUNT(*) FROM Queue_list WHERE CourseID = ? AND CreatorID = ?) AS total_count,
+            COUNT(DISTINCT CASE WHEN ql_inner.CreatorID IS NOT NULL THEN ql_inner.QueueListID END) AS joined_count
+            FROM
+            User u
+            JOIN
+            Question q ON u.UserID = q.UserID
+            JOIN
+            Queue_list ql ON q.QueueListID = ql.QueueListID
+            JOIN
+            Course c ON ql.CourseID = c.CourseID
+            LEFT JOIN
+            Queue_list ql_inner ON ql_inner.CourseID = c.CourseID AND ql_inner.CreatorID = u.UserID
+            WHERE
+            u.UserID <> ?
+            AND
+            c.CourseID = ?
+    `;
+
+    if (duration === 'month') {
+        query += `
+            AND MONTH(q.UploadTime) = MONTH(CURRENT_DATE())
+            AND YEAR(q.UploadTime) = YEAR(CURRENT_DATE())
+        `;
+    } else if (duration === 'week') {
+        query += `
+            AND YEARWEEK(q.UploadTime, 1) = YEARWEEK(CURDATE(), 1)
+        `;
+    }
+
+    query += `
+        GROUP BY
+        u.UserID,
+        u.UserName,
+        ql.QueueListID,
+        c.CourseName
+        ORDER BY
+        question_count DESC;
+    `;
+
+    try {
+        connection.query(query, [CourseID, UserID, UserID, CourseID], (err, results) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+            res.status(200).json(results);
+        });
+    } catch (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        connection.end(); // Ensure the connection is closed
+    }
+});
+
 router.get('/GetEngagement/:userId/:courseId/:duration', async (req, res) => {
     const { userId, courseId, duration } = req.params;
 
@@ -903,6 +970,7 @@ router.get('/GetQuestionTimes/:CourseID/:duration', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
 
 
 

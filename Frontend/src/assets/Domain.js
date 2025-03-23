@@ -67,6 +67,8 @@ const GetCategoryCount = DomainName + "dashboard/GetCategoryCount";
 const getAnswer_QA_AvgTime = DomainName + "dashboard/getAnswer_QA_AvgTime";
 const GetNumAns = DomainName + "dashboard/GetNumAns";
 const GetQuestionTimes = DomainName + "dashboard/GetQuestionTimes";
+//Dashboard Extand
+const GetAllAsking = DomainName + "dashboard/GetAllAsking";
 
 //Student Dashboard
 const GetDashboradQuestions = DomainName + "dashboard/stu/GetDashboradQuestions";
@@ -96,5 +98,6 @@ export {
     PauseQueue, CloseQueue, RunQueue, GetQueueStatus, GetQueueTimeryCreatorID,getTotalTakeTime,
     GetQueueByType,
     GetCourses,GetTop5Asking, GetEngagement,GetCategoryCount,getAnswer_QA_AvgTime,GetNumAns,GetQuestionTimes,
-    GetDashboradQuestions,AnswerGetTotal, AvgWaitingTime, MostTypeAsked, GetQuestionPerTime
+    GetDashboradQuestions,AnswerGetTotal, AvgWaitingTime, MostTypeAsked, GetQuestionPerTime,
+    GetAllAsking,
 };

@@ -130,12 +130,16 @@ if (Email === null || Email === "") {
                       x: {
                         title: {
                           display: true,
-                          text: optionsSelect === 'total' ? 'Total Duration' : optionsSelect === 'month' ? 'Monthly Duration' : 'Weekly Duration',
-                        },
+                          text:
+                            optionsSelect === 'total'
+                              ? 'Total Duration'
+                              : optionsSelect === 'month'
+                                ? 'Monthly Duration'
+                                : 'Weekly Duration',
                         },
                       },
                     },
-                
+                  },
                 }"
               />
             </div>
@@ -143,7 +147,14 @@ if (Email === null || Email === "") {
         </div>
         <div class="row mt-4">
           <div class="col-lg-7 mb-lg-0 mb-4">
-            <div class="card">
+            <div
+              class="card Top5-Table"
+              @click="GetAllRecord()"
+              style="transition: transform 0.2s; cursor: pointer"
+              @mouseover="hover = true"
+              @mouseleave="hover = false"
+              :style="{ transform: hover ? 'scale(1.02)' : 'scale(1)' }"
+            >
               <div class="p-3 pb-0 card-header">
                 <div class="d-flex justify-content-between">
                   <h6 class="mb-2">Participation Levels</h6>
@@ -151,15 +162,20 @@ if (Email === null || Email === "") {
               </div>
               <div class="table-responsive">
                 <table class="table align-items-center">
+                  <thead style="margin-left: 10px">
+                    <tr>
+                      <th class="w-30">Student</th>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  </thead>
                   <tbody>
                     <tr v-for="index in 5" :key="index">
                       <td class="w-30">
                         <div class="px-2 py-1 d-flex align-items-center">
                           <i class="fa fa-user-circle" aria-hidden="true"></i>
                           <div class="ms-4">
-                            <p class="mb-0 text-xs font-weight-bold">
-                              Student:
-                            </p>
+                            <p class="mb-0 text-xs font-weight-bold"></p>
                             <h6 class="mb-0 text-sm">
                               {{ Top5[index - 1]?.UserName || "No record" }}
                             </h6>
@@ -249,7 +265,6 @@ import {
 } from "../../assets/Domain.js";
 import { ref } from "vue";
 
-
 export default {
   data() {
     return {
@@ -268,22 +283,32 @@ export default {
     };
   },
 
-  
   methods: {
+    async GetAllRecord() {
+      this.$router.push({
+      path: "/dashboard-default/getallrecorddashboard",
+      query: {
+        selectedCourseID: this.selectedCourseID,
+        optionsSelect: this.optionsSelect,
+      },
+      });
+    },
     async GetQuestionTimes() {
-      fetch(`${GetQuestionTimes}/${this.selectedCourseID}/${this.optionsSelect}`)
+      fetch(
+        `${GetQuestionTimes}/${this.selectedCourseID}/${this.optionsSelect}`
+      )
         .then((response) => response.json())
         .then((data) => {
           this.QuestionTimesLabel.value = data.map(
             (item) => `${item.LastUploadTime}`
           );
-            this.QuestionTimesLabel.value = data.map(
+          this.QuestionTimesLabel.value = data.map(
             (item) => "Queue " + item.CourseWeek
-            );
-            this.QuestionDate.value = data.map(
-            (item) => new Date(item.LastUploadTime).toISOString().split('T')[0]
-            );
-            
+          );
+          this.QuestionDate.value = data.map(
+            (item) => new Date(item.LastUploadTime).toISOString().split("T")[0]
+          );
+
           this.QuestionTimesData.value = data.map((item) => item.QuestionCount);
 
           // console.log("Question Times Data: ", [
@@ -295,7 +320,9 @@ export default {
         });
     },
     async GetNumAnswers() {
-      fetch(`${GetNumAns}/${this.UserID}/${this.selectedCourseID}/${this.optionsSelect}`)
+      fetch(
+        `${GetNumAns}/${this.UserID}/${this.selectedCourseID}/${this.optionsSelect}`
+      )
         .then((response) => response.json())
         .then((data) => {
           this.NumberofAnswers = data.Answer_Count;
@@ -306,7 +333,9 @@ export default {
         });
     },
     async getAnswerTImer() {
-      fetch(`${getAnswer_QA_AvgTime}/${this.UserID}/${this.selectedCourseID}/${this.optionsSelect}`)
+      fetch(
+        `${getAnswer_QA_AvgTime}/${this.UserID}/${this.selectedCourseID}/${this.optionsSelect}`
+      )
         .then((response) => response.json())
         .then((data) => {
           if (data && data.Avg) {
@@ -392,7 +421,9 @@ export default {
     },
 
     async GetEngagement(UserID) {
-      fetch(`${GetEngagement}/${UserID}/${this.selectedCourseID}/${this.optionsSelect}`)
+      fetch(
+        `${GetEngagement}/${UserID}/${this.selectedCourseID}/${this.optionsSelect}`
+      )
         .then((response) => response.json())
         .then((data) => {
           const userIndex = this.Top5.findIndex(
@@ -408,7 +439,7 @@ export default {
             this.Top5[userIndex].Engagement = Math.round(
               this.Top5[userIndex].Engagement * 100
             );
-           // console.log("Top5_2", this.Top5);
+            // console.log("Top5_2", this.Top5);
           }
         });
     },
@@ -477,3 +508,8 @@ export default {
   },
 };
 </script>
+<style scoped>
+.Top5-Table:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+</style>

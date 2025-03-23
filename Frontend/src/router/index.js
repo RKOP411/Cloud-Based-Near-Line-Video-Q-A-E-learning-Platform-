@@ -25,6 +25,7 @@ import AskForRank from "../views/Teacher/AskForRank.vue";
 import AnswerQuestion from "../views/Teacher/AnswerQuestion.vue";
 import CourseManage from "../views/Teacher/CourseManage.vue";
 import Stu_Dashboard from "../views/Student/Stu_Dashboard.vue";
+import GetAllRecordDashboard from "../views/components/GetAllRecordDashboard.vue";
 
 
 const routes = [
@@ -166,6 +167,11 @@ const routes = [
     name: "Student Dashboard",
     component: Stu_Dashboard,
   },
+  {
+    path: "/dashboard-default/getallrecorddashboard",
+    name: "Engagement Record Dashboard",
+    component: GetAllRecordDashboard,
+  }
 
 ];
 
