@@ -92,7 +92,7 @@ defineProps({
             >
               {{ typeof title === "string" ? title : title.text }}
             </p>
-            <h5 :class="`mb-0 font-weight-bolder ${value.color}`">
+            <h5 :class="`mb-0 font-weight-bolder ${value?.color || ''}`">
               {{
                 (value && typeof value === "string") ||
                 (value && typeof value === "number")

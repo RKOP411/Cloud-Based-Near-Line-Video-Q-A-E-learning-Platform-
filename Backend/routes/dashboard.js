@@ -907,31 +907,64 @@ router.get('/GetQuestionTimes/:CourseID/:duration', async (req, res) => {
 
 
 //=================================================Student Dashboard - Comparative Temporal Performance Analysis=======================================================================================================
-router.get('/stu/GetDashboradQuestions/:UserID', async (req, res) => {
+router.get('/stu/GetDashboradQuestions/:UserID/:duration', async (req, res) => {
     try {
-        const { UserID } = req.params;
+        const { UserID, duration } = req.params;
 
         if (!UserID) {
             return res.status(400).send('UserID is required');
         }
 
         const connection = await connectToDB();
-
-        const query = `
+        if (duration == "month") {
+            const query = `
             SELECT COUNT(QAID) AS QuestionCount
             FROM Question
-            WHERE UserID = ?;
+            WHERE UserID = ?
+            AND UploadTime >= DATE_FORMAT(NOW(), '%Y-%m-01');
+        `;
+            connection.query(query, [UserID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+                const response = results.length > 0 ? results : [];
+                res.status(200).json(response);
+            });
+        }
+        else if (duration == "week") {
+            const query = `
+                SELECT COUNT(QAID) AS QuestionCount
+                FROM Question
+                WHERE UserID = ?
+                AND YEARWEEK(UploadTime, 1) = YEARWEEK(NOW(), 1);
+            `;
+            connection.query(query, [UserID], (err, results) => {
+                if (err) {
+
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+                const response = results.length > 0 ? results : [];
+                res.status(200).json(response);
+            });
+        } else {
+            const query = `
+                SELECT COUNT(QAID) AS QuestionCount
+                FROM Question
+                WHERE UserID = ?;
         `;
 
-        connection.query(query, [UserID], (err, results) => {
-            if (err) {
-                console.error('Error executing query:', err);
-                return res.status(500).json({ error: 'Internal server error' });
-            }
+            connection.query(query, [UserID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
 
-            const response = results.length > 0 ? results[0] : { QuestionCount: 0 };
-            res.status(200).json(response);
-        });
+                const response = results.length > 0 ? results[0] : { QuestionCount: 0 };
+                res.status(200).json(response);
+            });
+        }
 
         connection.end();
     } catch (error) {
@@ -940,9 +973,9 @@ router.get('/stu/GetDashboradQuestions/:UserID', async (req, res) => {
     }
 });
 
-router.get('/stu/AnswerGetTotal/:UserID', async (req, res) => {
+router.get('/stu/AnswerGetTotal/:UserID/:duration', async (req, res) => {
     try {
-        const { UserID } = req.params;
+        const { UserID, duration } = req.params;
 
         if (!UserID) {
             return res.status(400).send('UserID is required');
@@ -950,23 +983,67 @@ router.get('/stu/AnswerGetTotal/:UserID', async (req, res) => {
 
         const connection = await connectToDB();
 
-        const query = `
+        // const query = `
+        //     SELECT COUNT(DISTINCT q.QAID) AS AnswerGetCount
+        //     FROM question q
+        //     JOIN answer a ON q.QAID = a.QAID
+        //     WHERE q.UserID = ?;
+        // `;
+
+        if (duration == "month") {
+            const query = `
             SELECT COUNT(DISTINCT q.QAID) AS AnswerGetCount
             FROM question q
             JOIN answer a ON q.QAID = a.QAID
-            WHERE q.UserID = ?;
+            WHERE q.UserID = ?
+            AND a.UploadTime >= DATE_FORMAT(NOW(), '%Y-%m-01');
+        `;
+            connection.query(query, [UserID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+                const response = results.length > 0 ? results[0] : { AnswerGetCount: 0 };
+                res.status(200).json(response);
+            });
+        }
+        else if (duration == "week") {
+            const query = `
+                SELECT COUNT(DISTINCT q.QAID) AS AnswerGetCount
+                FROM question q
+                JOIN answer a ON q.QAID = a.QAID
+                WHERE q.UserID = ?
+                AND YEARWEEK(a.UploadTime, 1) = YEARWEEK(NOW(), 1);
+            `;
+            connection.query(query, [UserID], (err, results) => {
+                if (err) {
+
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+                const response = results.length > 0 ? results[0] : { AnswerGetCount: 0 };
+                res.status(200).json(response);
+            });
+        }
+        else {
+            const query = `
+                SELECT COUNT(DISTINCT q.QAID) AS AnswerGetCount
+                FROM question q
+                JOIN answer a ON q.QAID = a.QAID
+                WHERE q.UserID = ?;
         `;
 
-        connection.query(query, [UserID], (err, results) => {
-            if (err) {
-                console.error('Error executing query:', err);
-                return res.status(500).json({ error: 'Internal server error' });
-            }
 
-            const response = results.length > 0 ? results[0] : { AnswerGetCount: 0 };
-            res.status(200).json(response);
-        });
+            connection.query(query, [UserID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
 
+                const response = results.length > 0 ? results[0] : { AnswerGetCount: 0 };
+                res.status(200).json(response);
+            });
+        }
         connection.end();
     } catch (error) {
         console.error('Error retrieving answer count:', error);
@@ -974,17 +1051,59 @@ router.get('/stu/AnswerGetTotal/:UserID', async (req, res) => {
     }
 });
 
-router.get('/stu/AvgWaitingTime/:UserID', async (req, res) => {
+router.get('/stu/AvgWaitingTime/:UserID/:duration', async (req, res) => {
     try {
-        const { UserID } = req.params;
+        const { UserID, duration } = req.params;
 
         if (!UserID) {
             return res.status(400).send('UserID is required');
         }
 
         const connection = await connectToDB();
-
-        const query = `
+        if (duration == "month") {
+            const query = `
+            SELECT AVG(WaitingTime) AS AverageWaitingTime
+            FROM (
+                SELECT MIN(TIMESTAMPDIFF(SECOND, q.UploadTime, a.UploadTime)) AS WaitingTime
+                FROM question q
+                JOIN answer a ON q.QAID = a.QAID
+                WHERE q.UserID = ?
+                AND a.UploadTime >= DATE_FORMAT(NOW(), '%Y-%m-01')
+                GROUP BY q.QAID
+            ) AS Subquery;
+        `;
+            connection.query(query, [UserID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+                const response = results.length > 0 ? results[0] : { AverageWaitingTime: null };
+                res.status(200).json(response);
+            });
+        }
+        else if (duration == "week") {
+            const query = `
+            SELECT AVG(WaitingTime) AS AverageWaitingTime
+            FROM (
+                SELECT MIN(TIMESTAMPDIFF(SECOND, q.UploadTime, a.UploadTime)) AS WaitingTime
+                FROM question q
+                JOIN answer a ON q.QAID = a.QAID
+                WHERE q.UserID = ?
+                AND YEARWEEK(a.UploadTime, 1) = YEARWEEK(NOW(), 1)
+                GROUP BY q.QAID
+            ) AS Subquery;
+        `;
+            connection.query(query, [UserID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+                const response = results.length > 0 ? results[0] : { AverageWaitingTime: null };
+                res.status(200).json(response);
+            });
+        }
+        else {
+            const query = `
             SELECT AVG(WaitingTime) AS AverageWaitingTime
             FROM (
                 SELECT MIN(TIMESTAMPDIFF(SECOND, q.UploadTime, a.UploadTime)) AS WaitingTime
@@ -995,16 +1114,16 @@ router.get('/stu/AvgWaitingTime/:UserID', async (req, res) => {
             ) AS Subquery;
         `;
 
-        connection.query(query, [UserID], (err, results) => {
-            if (err) {
-                console.error('Error executing query:', err);
-                return res.status(500).json({ error: 'Internal server error' });
-            }
+            connection.query(query, [UserID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
 
-            const response = results.length > 0 ? results[0] : { AverageWaitingTime: null };
-            res.status(200).json(response);
-        });
-
+                const response = results.length > 0 ? results[0] : { AverageWaitingTime: null };
+                res.status(200).json(response);
+            });
+        }
         connection.end();
     } catch (error) {
         console.error('Error retrieving average waiting time:', error);
@@ -1013,9 +1132,9 @@ router.get('/stu/AvgWaitingTime/:UserID', async (req, res) => {
 });
 
 
-router.get('/stu/MostTypeAsked/:UserID', async (req, res) => {
+router.get('/stu/MostTypeAsked/:UserID/:duration', async (req, res) => {
     try {
-        const { UserID } = req.params;
+        const { UserID, duration } = req.params;
 
         if (!UserID) {
             return res.status(400).send('UserID is required');
@@ -1023,7 +1142,68 @@ router.get('/stu/MostTypeAsked/:UserID', async (req, res) => {
 
         const connection = await connectToDB();
 
-        const query = `
+        if (duration == "month") {
+            const query = `
+            SELECT 'Assignments' AS Type, 
+                   COUNT(*) AS Count 
+            FROM question 
+            WHERE UserID = ? AND Type = 'Assignments' AND UploadTime >= DATE_FORMAT(NOW(), '%Y-%m-01')
+            UNION ALL
+            SELECT 'Theory', 
+                   COUNT(*) 
+            FROM question 
+            WHERE UserID = ? AND Type = 'Theory' AND UploadTime >= DATE_FORMAT(NOW(), '%Y-%m-01')
+            UNION ALL
+            SELECT 'Lab-work', 
+                   COUNT(*) 
+            FROM question 
+            WHERE UserID = ? AND Type = 'Lab-work' AND UploadTime >= DATE_FORMAT(NOW(), '%Y-%m-01')
+            UNION ALL
+            SELECT 'Debugging', 
+                   COUNT(*) 
+            FROM question 
+            WHERE UserID = ? AND Type = 'Debugging' AND UploadTime >= DATE_FORMAT(NOW(), '%Y-%m-01');
+        `;
+            connection.query(query, [UserID, UserID, UserID, UserID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+                res.status(200).json(results);
+            });
+        }
+        else if (duration == "week") {
+            const query = `
+            SELECT 'Assignments' AS Type, 
+                   COUNT(*) AS Count 
+            FROM question 
+            WHERE UserID = ? AND Type = 'Assignments' AND YEARWEEK(UploadTime, 1) = YEARWEEK(NOW(), 1)
+            UNION ALL
+            SELECT 'Theory', 
+                   COUNT(*) 
+            FROM question 
+            WHERE UserID = ? AND Type = 'Theory' AND YEARWEEK(UploadTime, 1) = YEARWEEK(NOW(), 1)
+            UNION ALL
+            SELECT 'Lab-work', 
+                   COUNT(*) 
+            FROM question 
+            WHERE UserID = ? AND Type = 'Lab-work' AND YEARWEEK(UploadTime, 1) = YEARWEEK(NOW(), 1)
+            UNION ALL
+            SELECT 'Debugging', 
+                   COUNT(*) 
+            FROM question 
+            WHERE UserID = ? AND Type = 'Debugging' AND YEARWEEK(UploadTime, 1) = YEARWEEK(NOW(), 1);
+        `;
+            connection.query(query, [UserID, UserID, UserID, UserID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+                res.status(200).json(results);
+            });
+        }
+        else {
+            const query = `
             SELECT 'Assignments' AS Type, 
                    COUNT(*) AS Count 
             FROM question 
@@ -1045,14 +1225,15 @@ router.get('/stu/MostTypeAsked/:UserID', async (req, res) => {
             WHERE UserID = ? AND Type = 'Debugging';
         `;
 
-        connection.query(query, [UserID, UserID, UserID, UserID], (err, results) => {
-            if (err) {
-                console.error('Error executing query:', err);
-                return res.status(500).json({ error: 'Internal server error' });
-            }
+            connection.query(query, [UserID, UserID, UserID, UserID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
 
-            res.status(200).json(results);
-        });
+                res.status(200).json(results);
+            });
+        }
 
         connection.end();
     } catch (error) {
@@ -1061,9 +1242,9 @@ router.get('/stu/MostTypeAsked/:UserID', async (req, res) => {
     }
 });
 
-router.get('/stu/GetQuestionPerTime/:UserID', async (req, res) => {
+router.get('/stu/GetQuestionPerTime/:UserID/:duration', async (req, res) => {
     try {
-        const { UserID } = req.params;
+        const { UserID, duration } = req.params;
 
         if (!UserID) {
             return res.status(400).send('UserID is required');
@@ -1071,7 +1252,155 @@ router.get('/stu/GetQuestionPerTime/:UserID', async (req, res) => {
 
         const connection = await connectToDB();
 
-        const query = `
+        if (duration == "month") {
+            const query = `
+            WITH WeeklyQuestionCount AS (
+                SELECT
+                    YEAR(UploadTime) AS Year,
+                    CASE 
+                        WHEN DAY(UploadTime) <= 7 THEN 1
+                        WHEN DAY(UploadTime) <= 14 THEN 2
+                        WHEN DAY(UploadTime) <= 21 THEN 3
+                        WHEN DAY(UploadTime) <= 28 THEN 4
+                        ELSE 5  -- This covers the 5th week
+                    END AS Week,
+                    COUNT(QAID) AS QuestionCount
+                FROM
+                    Question
+                WHERE
+                    UserID = ?
+                    AND MONTH(UploadTime) = MONTH(CURDATE()) 
+                    AND YEAR(UploadTime) = YEAR(CURDATE()) 
+                GROUP BY
+                    YEAR(UploadTime), Week
+            ),
+
+            AllWeeks AS (
+                SELECT YEAR(CURDATE()) AS Year, 1 AS Week  -- Starting week
+                UNION ALL SELECT YEAR(CURDATE()), 2
+                UNION ALL SELECT YEAR(CURDATE()), 3
+                UNION ALL SELECT YEAR(CURDATE()), 4
+                UNION ALL SELECT YEAR(CURDATE()), 5
+            )
+
+            SELECT
+                CONCAT('Week ', aw.Week) AS Time,
+                COALESCE(wq.QuestionCount, 0) AS QuestionCount,
+                COALESCE(COUNT(DISTINCT a.QAID), 0) AS AnswerGetCount  -- Count distinct answers for questions in the same month and user
+            FROM
+                AllWeeks aw
+            LEFT JOIN WeeklyQuestionCount wq ON aw.Year = wq.Year AND aw.Week = wq.Week
+            LEFT JOIN Question q ON aw.Year = YEAR(q.UploadTime) AND 
+                                CASE 
+                                    WHEN DAY(q.UploadTime) <= 7 THEN 1
+                                    WHEN DAY(q.UploadTime) <= 14 THEN 2
+                                    WHEN DAY(q.UploadTime) <= 21 THEN 3
+                                    WHEN DAY(q.UploadTime) <= 28 THEN 4
+                                    ELSE 5
+                                END = aw.Week 
+                                AND MONTH(q.UploadTime) = MONTH(CURDATE()) 
+                                AND YEAR(q.UploadTime) = YEAR(CURDATE())
+            LEFT JOIN Answer a ON q.QAID = a.QAID
+            GROUP BY
+                aw.Year, aw.Week
+            ORDER BY 
+                aw.Year, aw.Week;`
+            connection.query(query, [UserID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+
+                res.status(200).json(results);
+            });
+        }
+        else if (duration == "week") {
+            const query = `
+            WITH RECURSIVE WeekInfo AS (
+                SELECT 
+                    CASE 
+                        WHEN DAY(CURDATE()) <= 7 THEN 1
+                        WHEN DAY(CURDATE()) <= 14 THEN 2
+                        WHEN DAY(CURDATE()) <= 21 THEN 3
+                        WHEN DAY(CURDATE()) <= 28 THEN 4
+                        ELSE 5
+                    END AS currentWeek,
+                    DATE_FORMAT(CURDATE() - INTERVAL (DAY(CURDATE()) - 1) DAY, '%Y-%m-%d') AS weekStart,
+                    DATE_FORMAT(CURDATE() - INTERVAL (DAY(CURDATE()) - 1) DAY + INTERVAL 6 DAY, '%Y-%m-%d') AS weekEnd
+            ),
+            WeeklyQuestionCount AS (
+                SELECT
+                    CASE DAYOFWEEK(UploadTime)
+                        WHEN 1 THEN 7
+                        WHEN 2 THEN 1
+                        WHEN 3 THEN 2
+                        WHEN 4 THEN 3
+                        WHEN 5 THEN 4
+                        WHEN 6 THEN 5
+                        WHEN 7 THEN 6
+                    END AS DayOfWeek,
+                    COUNT(QAID) AS QuestionCount
+                FROM
+                    Question, WeekInfo
+                WHERE
+                    UserID = ?
+                    AND UploadTime >= DATE_ADD(weekStart, INTERVAL ((currentWeek - 1) * 7) DAY) 
+                    AND UploadTime < DATE_ADD(weekStart, INTERVAL (currentWeek * 7) DAY)
+                GROUP BY
+                    DayOfWeek
+            ),
+            DaysOfWeek AS (
+                SELECT 1 AS DayOfWeek, 'Mon' AS DayLabel
+                UNION ALL
+                SELECT 2, 'Tue'
+                UNION ALL
+                SELECT 3, 'Wed'
+                UNION ALL
+                SELECT 4, 'Thu'
+                UNION ALL
+                SELECT 5, 'Fri'
+                UNION ALL
+                SELECT 6, 'Sat'
+                UNION ALL
+                SELECT 7, 'Sun'
+            )
+            
+            SELECT
+                dow.DayLabel,
+                COALESCE(qc.QuestionCount, 0) AS QuestionCount,
+                COALESCE(SUM(CASE WHEN a.QAID IS NOT NULL THEN 1 ELSE 0 END), 0) AS AnswerGetCount
+            FROM
+                DaysOfWeek dow
+            LEFT JOIN WeeklyQuestionCount qc ON dow.DayOfWeek = qc.DayOfWeek
+            LEFT JOIN Question q ON dow.DayOfWeek = CASE DAYOFWEEK(q.UploadTime)
+                    WHEN 1 THEN 7
+                    WHEN 2 THEN 1
+                    WHEN 3 THEN 2
+                    WHEN 4 THEN 3
+                    WHEN 5 THEN 4
+                    WHEN 6 THEN 5
+                    WHEN 7 THEN 6
+                END
+                AND q.UserID = ?
+                AND q.UploadTime >= (SELECT weekStart FROM WeekInfo)
+                AND q.UploadTime < (SELECT weekEnd FROM WeekInfo)
+            LEFT JOIN Answer a ON q.QAID = a.QAID
+            GROUP BY
+                dow.DayLabel, dow.DayOfWeek
+            ORDER BY 
+                dow.DayOfWeek;`
+            
+            connection.query(query, [UserID, UserID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+            
+                res.status(200).json(results);
+            });
+        }
+        else {
+            const query = `
             WITH MonthlyQuestionCount AS (
                 SELECT
                     DATE_FORMAT(UploadTime, '%b') AS Time,
@@ -1082,31 +1411,55 @@ router.get('/stu/GetQuestionPerTime/:UserID', async (req, res) => {
                     UserID = ?
                 GROUP BY
                     DATE_FORMAT(UploadTime, '%b')
+            ),
+
+            AllMonths AS (
+                SELECT 'Jan' AS Month
+                UNION SELECT 'Feb'
+                UNION SELECT 'Mar'
+                UNION SELECT 'Apr'
+                UNION SELECT 'May'
+                UNION SELECT 'Jun'
+                UNION SELECT 'Jul'
+                UNION SELECT 'Aug'
+                UNION SELECT 'Sep'
+                UNION SELECT 'Oct'
+                UNION SELECT 'Nov'
+                UNION SELECT 'Dec'
             )
 
             SELECT
-                mq.Time,
-                mq.QuestionCount,
-                COUNT(DISTINCT a.QAID) AS AnswerGetCount
+                am.Month AS Time,
+                COALESCE(mq.QuestionCount, 0) AS QuestionCount,
+                COALESCE(a.AnswerCount, 0) AS AnswerGetCount
             FROM
-                MonthlyQuestionCount mq
-            LEFT JOIN question q ON mq.Time = DATE_FORMAT(q.UploadTime, '%b') AND q.UserID = ?
-            LEFT JOIN answer a ON q.QAID = a.QAID
-            GROUP BY
-                mq.Time
-            ORDER BY 
-                FIELD(mq.Time, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+                AllMonths am
+            LEFT JOIN MonthlyQuestionCount mq ON am.Month = mq.Time
+            LEFT JOIN (
+                SELECT
+                    DATE_FORMAT(q.UploadTime, '%b') AS Month,
+                    COUNT(DISTINCT a.QAID) AS AnswerCount
+                FROM
+                    Question q
+                LEFT JOIN Answer a ON q.QAID = a.QAID
+                WHERE
+                    q.UserID = ?
+                GROUP BY
+                    DATE_FORMAT(q.UploadTime, '%b')
+            ) a ON am.Month = a.Month
+            ORDER BY
+                FIELD(am.Month, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
         `;
 
-        connection.query(query, [UserID, UserID], (err, results) => {
-            if (err) {
-                console.error('Error executing query:', err);
-                return res.status(500).json({ error: 'Internal server error' });
-            }
+            connection.query(query, [UserID, UserID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
 
-            res.status(200).json(results);
-        });
-
+                res.status(200).json(results);
+            });
+        }
         connection.end();
     } catch (error) {
         console.error('Error retrieving questions per time:', error);

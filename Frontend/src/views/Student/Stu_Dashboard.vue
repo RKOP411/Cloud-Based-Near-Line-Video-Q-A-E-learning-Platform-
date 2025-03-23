@@ -32,7 +32,7 @@ const loadStats = async () => {
 let chartInstance = null;
 
 const GetQuestionTime = () => {
-  fetch(`${GetQuestionPerTime}/${UserID}`, {
+  fetch(`${GetQuestionPerTime}/${UserID}/${optionsSelect.value}`, {
     method: "get",
     headers: {
       "Content-Type": "application/json",
@@ -40,23 +40,24 @@ const GetQuestionTime = () => {
   })
     .then((response) => response.json())
     .then((data) => {
-    //console.log(data);
-    labelsData.value = [];
-    questionData.value = [];
-    answerData.value = [];
-    data.forEach((item) => {
-      labelsData.value.push(item.Time);
-      questionData.value.push(item.QuestionCount);
-      answerData.value.push(item.AnswerGetCount);
-    });
-    loadChart();
+      //console.log(data);
+      labelsData.value = [];
+      questionData.value = [];
+      answerData.value = [];
+      data.forEach((item) => {
+        labelsData.value.push(item.Time);
+        questionData.value.push(item.QuestionCount);
+        answerData.value.push(item.AnswerGetCount);
+      });
+      console.log(labelsData.value);
+      console.log(questionData.value);
+      console.log(answerData.value);
+      loadChart();
     });
 };
 
-
-
 const GetMostType = () => {
-  fetch(`${MostTypeAsked}/${UserID}`, {
+  fetch(`${MostTypeAsked}/${UserID}/${optionsSelect.value}`, {
     method: "get",
     headers: {
       "Content-Type": "application/json",
@@ -64,7 +65,7 @@ const GetMostType = () => {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
+      //console.log(data);
       let maxCount = 0;
       let mostAskedType = "None";
 
@@ -80,7 +81,7 @@ const GetMostType = () => {
 };
 
 const GetQuestion = () => {
-  fetch(`${GetDashboradQuestions}/${UserID}`, {
+  fetch(`${GetDashboradQuestions}/${UserID}/${optionsSelect.value}`, {
     method: "get",
     headers: {
       "Content-Type": "application/json",
@@ -89,11 +90,20 @@ const GetQuestion = () => {
     .then((response) => response.json())
     .then((data) => {
       //console.log(data);
-      totalQuestions.value = data.QuestionCount;
+      if (data.length > 0) {
+        totalQuestions.value = data[0].QuestionCount;
+        //console.log("Total Questions: " + totalQuestions.value);
+      } else {
+        //console.log(data.QuestinCount);
+        totalQuestions.value = data.QuestionCount;
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching questions:", error);
     });
 };
 const GetTotalAnswer = () => {
-  fetch(`${AnswerGetTotal}/${UserID}`, {
+  fetch(`${AnswerGetTotal}/${UserID}/${optionsSelect.value}`, {
     method: "get",
     headers: {
       "Content-Type": "application/json",
@@ -148,9 +158,9 @@ const loadChart = () => {
     questionsData = [...questionData.value];
     answersData = [...answerData.value];
   } else if (optionsSelect.value === "month") {
-    labels = ["Week 1", "Week 2", "Week 3", "Week 4"];
-    questionsData = [15, 25, 35, 45];
-    answersData = [10, 15, 20, 25];
+    labels = [...labelsData.value];
+    questionsData = [...questionData.value];
+    answersData = [...answerData.value];
   } else if (optionsSelect.value === "week") {
     labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     questionsData = [5, 10, 15, 20, 25, 30, 35];
@@ -276,7 +286,7 @@ onMounted(() => {
         <div class="col-lg-3 col-md-6 col-12">
           <mini-statistics-card
             title="Most Type"
-            :value="MostType + ''"
+            :value="MostType !== 'None' ? MostType + '' : 'Not Asked Yet'"
             description="<span
                     class='text-sm font-weight-bolder text-primary'
                     ></span> Most Type Asked"
