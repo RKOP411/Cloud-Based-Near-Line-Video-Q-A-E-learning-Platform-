@@ -2,14 +2,106 @@
 import MiniStatisticsCard from "@/examples/Cards/MiniStatisticsCard.vue";
 import GradientLineChart from "@/examples/Charts/GradientLineChart.vue";
 import CategoriesList from "../components/CategoriesList.vue";
-
+import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import { computed } from "vue";
+const store = useStore();
+// state
+const lan = computed(() => store.state.lan);
 const router = useRouter();
 let Email = localStorage.getItem("Email");
 
 if (Email === null || Email === "") {
   router.push("/signin");
 }
+
+// // Translation function
+// const translate = (key) => {
+//   const translations = {
+//     "Number of Answers": {
+//       zh: "回答數量",
+//       "zh-TW": "回答數量",
+//       en: "Number of Answers",
+//     },
+//     "Total Answers Submitted": {
+//       zh: "提交的總回答",
+//       "zh-TW": "提交的總回答",
+//       en: "Total Answers Submitted",
+//     },
+//     "Answer Duration": {
+//       zh: "回答時長",
+//       "zh-TW": "回答時長",
+//       en: "Answer Duration",
+//     },
+//     "Timer Duration for Answer": {
+//       zh: "回答的計時器時長",
+//       "zh-TW": "回答的計時器時長",
+//       en: "Timer Duration for Answer",
+//     },
+//     "Most Topic": {
+//       zh: "最多的主題",
+//       "zh-TW": "最多的主題",
+//       en: "Most Topic",
+//     },
+//     "Today's Topic": {
+//       zh: "今天的主題",
+//       "zh-TW": "今天的主題",
+//       en: "Today's Topic",
+//     },
+//     "Common Type": {
+//       zh: "常見類型",
+//       "zh-TW": "常見類型",
+//       en: "Common Type",
+//     },
+//     "Highest Type Inquiry Rates": {
+//       zh: "最高類型查詢率",
+//       "zh-TW": "最高類型查詢率",
+//       en: "Highest Type Inquiry Rates",
+//     },
+//     "Participation Levels": {
+//       zh: "參與水平",
+//       "zh-TW": "參與水平",
+//       en: "Participation Levels",
+//     },
+//     Student: {
+//       zh: "學生",
+//       "zh-TW": "學生",
+//       en: "Student",
+//     },
+//     Question: {
+//       zh: "問題",
+//       "zh-TW": "問題",
+//       en: "Question",
+//     },
+//     Engagement: {
+//       zh: "參與度",
+//       "zh-TW": "參與度",
+//       en: "Engagement",
+//     },
+//     Theory: {
+//       zh: "理論",
+//       "zh-TW": "理論",
+//       en: "Theory",
+//     },
+//     "Lab Work": {
+//       zh: "實驗工作",
+//       "zh-TW": "實驗工作",
+//       en: "Lab Work",
+//     },
+//     Debugging: {
+//       zh: "調試",
+//       "zh-TW": "除錯",
+//       en: "Debugging",
+//     },
+//     Assignments: {
+//       zh: "作業",
+//       "zh-TW": "作業",
+//       en: "Assignments",
+//     },
+//   };
+
+//   return translations[key]?.[lan.value] || key;
+// };
 </script>
 <template>
   <div class="py-4 container-fluid">
@@ -22,9 +114,15 @@ if (Email === null || Email === "") {
           v-model="optionsSelect"
           style="width: 100px; margin-bottom: 3px"
         >
-          <option selected value="total">Total</option>
-          <option value="month">Month</option>
-          <option value="week">Week</option>
+            <option selected value="total">
+            {{ lan === 'zh' ? '總計' : lan === 'zh-TW' ? '總計' : 'Total' }}
+            </option>
+            <option value="month">
+            {{ lan === 'zh' ? '月' : lan === 'zh-TW' ? '月' : 'Month' }}
+            </option>
+            <option value="week">
+            {{ lan === 'zh' ? '週' : lan === 'zh-TW' ? '週' : 'Week' }}
+            </option>
         </select>
       </div>
       <div>
@@ -46,16 +144,14 @@ if (Email === null || Email === "") {
         <div class="row">
           <div class="col-lg-3 col-md-6 col-12 Hover-Table">
             <mini-statistics-card 
-              title="Number of Answers"
+                :title="lan === 'zh' ? '回答數量' : lan === 'zh-TW' ? '回答數量' : 'Number of Answers'"
               @click="questiontimes()"
               style="transition: transform 0.2s; cursor: pointer"
               @mouseover="hover = true"
               @mouseleave="hover = false"
               :style="{ transform: hover ? 'scale(1.02)' : 'scale(1)' }"
               :value="NumberofAnswers > 0 ? NumberofAnswers : '0'"
-              description="<span
-                class='text-sm font-weight-bolder text-success'
-                ></span> Total Answers Submitted"
+                :description="lan === 'zh' ? '<span class=\'text-sm font-weight-bolder text-success\'></span> 提交的總回答' : lan === 'zh-TW' ? '<span class=\'text-sm font-weight-bolder text-success\'></span> 提交的總回答' : '<span class=\'text-sm font-weight-bolder text-success\'></span> Total Answers Submitted'"
               :icon="{
                 component: 'fa fa-question',
                 background: 'bg-gradient-primary',
@@ -65,11 +161,9 @@ if (Email === null || Email === "") {
           </div>
           <div class="col-lg-3 col-md-6 col-12">
             <mini-statistics-card
-              title="Answer Duration"
-              :value="AvgAnswerTimer"
-              description="<span
-                class='text-sm font-weight-bolder text-success'
-                ></span>Timer Duration for Answer"
+                :title="lan === 'zh' ? '回答時長' : lan === 'zh-TW' ? '回答時長' : 'Answer Duration'"
+                :value="AvgAnswerTimer"
+                :description="lan === 'zh' ? '回答的計時器時長' : lan === 'zh-TW' ? '回答的計時器時長' : 'Timer Duration for Answer'"
               :icon="{
                 component: 'fa fa-users',
                 background: 'bg-gradient-danger',
@@ -79,11 +173,9 @@ if (Email === null || Email === "") {
           </div>
           <div class="col-lg-3 col-md-6 col-12">
             <mini-statistics-card
-              title="Most Topic"
-              value="vertex-cover"
-              description="Today's Topic: '<span
-                class='text-sm font-weight-bolder text-success'
-                >graph theory</span>'"
+                :title="lan === 'zh' ? '最多的主題' : lan === 'zh-TW' ? '最多的主題' : 'Most Topic'"
+                :value="'vertex-cover'"
+                :description="lan === 'zh' ? '今天的主題: <span class=\'text-sm font-weight-bolder text-success\'>vertex-cover</span>' : lan === 'zh-TW' ? '今天的主題: <span class=\'text-sm font-weight-bolder text-success\'>vertex-cover</span>' : 'Today\'s Topic: <span class=\'text-sm font-weight-bolder text-success\'>graph theory</span>'"
               :icon="{
                 component: 'ni ni-paper-diploma',
                 background: 'bg-gradient-success',
@@ -93,9 +185,9 @@ if (Email === null || Email === "") {
           </div>
           <div class="col-lg-3 col-md-6 col-12">
             <mini-statistics-card
-              title="Common Type"
+                :title="lan === 'zh' ? '常見類型' : lan === 'zh-TW' ? '常見類型' : 'Common Type'"
               :value="MostTypeAsked"
-              description="Highest Type Inquiry Rates"
+                :description="lan === 'zh' ? '最高類型查詢率' : lan === 'zh-TW' ? '最高類型查詢率' : 'Highest Type Inquiry Rates'"
               :icon="{
                 component: 'ni ni-tag',
                 background: 'bg-gradient-warning',
@@ -113,7 +205,7 @@ if (Email === null || Email === "") {
               <gradient-line-chart
                 v-if="QuestionTimesData.value && QuestionTimesLabel.value"
                 id="chart-line"
-                title="Question Times"
+                :title="lan === 'zh' ? '問題次數' : lan === 'zh-TW' ? '問題次數' : 'Question Times'"
                 :chart="{
                   labels: QuestionTimesLabel.value,
                   datasets: [
@@ -171,7 +263,9 @@ if (Email === null || Email === "") {
                 <table class="table align-items-center">
                   <thead style="margin-left: 10px">
                     <tr>
-                      <th class="w-30">Student</th>
+                        <th class="w-30">
+                        {{ lan === 'zh' ? '學生' : lan === 'zh-TW' ? '學生' : 'Student' }}
+                        </th>
                       <th></th>
                       <th></th>
                     </tr>
@@ -191,7 +285,9 @@ if (Email === null || Email === "") {
                       </td>
                       <td>
                         <div class="text-center">
-                          <p class="mb-0 text-xs font-weight-bold">Question:</p>
+                            <p class="mb-0 text-xs font-weight-bold">
+                            {{ lan === 'zh' ? '問題' : lan === 'zh-TW' ? '問題' : 'Question' }}:
+                            </p>
                           <h6 class="mb-0 text-sm">
                             {{ Top5[index - 1]?.question_count || "0" }}
                           </h6>
@@ -200,7 +296,7 @@ if (Email === null || Email === "") {
                       <td class="text-sm align-middle">
                         <div class="text-center col">
                           <p class="mb-0 text-xs font-weight-bold">
-                            Engagement:
+                            {{ lan === 'zh' ? '參與度' : lan === 'zh-TW' ? '參與度' : 'Engagement' }}:
                           </p>
                           <h6 class="mb-0 text-sm">
                             {{
@@ -225,7 +321,7 @@ if (Email === null || Email === "") {
                     component: 'fa fa-book',
                     background: 'dark',
                   },
-                  label: 'Theory',
+                    label: lan === 'zh' ? '理論' : lan === 'zh-TW' ? '理論' : 'Theory',
                   description: `Total: <strong>${CoursesCategoryCount.theory || 0}</strong>`,
                 },
                 {
@@ -233,7 +329,7 @@ if (Email === null || Email === "") {
                     component: 'fa fa-flask',
                     background: 'dark',
                   },
-                  label: 'Lab Work',
+                    label: lan === 'zh' ? '實驗工作' : lan === 'zh-TW' ? '實驗工作' : 'Lab Work',
                   description: `Total: <strong>${CoursesCategoryCount.labWork || 0}</strong>`,
                 },
                 {
@@ -241,7 +337,7 @@ if (Email === null || Email === "") {
                     component: 'fa fa-bug',
                     background: 'dark',
                   },
-                  label: 'Debugging',
+                    label: lan === 'zh' ? '調試' : lan === 'zh-TW' ? '除錯' : 'Debugging',
                   description: `Total: <strong>${CoursesCategoryCount.debugging || 0}</strong>`,
                 },
                 {
@@ -249,7 +345,7 @@ if (Email === null || Email === "") {
                     component: 'fa fa-tasks',
                     background: 'dark',
                   },
-                  label: 'Assignments',
+                    label: lan === 'zh' ? '作業' : lan === 'zh-TW' ? '作業' : 'Assignments',
                   description: `Total: <strong>${CoursesCategoryCount.assignments || 0}</strong>`,
                 },
               ]"

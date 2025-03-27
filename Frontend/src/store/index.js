@@ -45,6 +45,9 @@ export default createStore({
         state.isNavFixed = false;
       }
     },
+    setLanguage(state, payload) {
+      state.lan = payload;
+    },
   },
   actions: {
     toggleSidebarColor({ commit }, payload) {

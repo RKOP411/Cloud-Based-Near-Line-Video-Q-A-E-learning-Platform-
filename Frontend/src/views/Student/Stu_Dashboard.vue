@@ -9,7 +9,11 @@ import {
   MostTypeAsked,
   GetQuestionPerTime,
 } from "../../assets/Domain.js";
-
+import { useStore } from "vuex";
+import { computed } from "vue";
+const store = useStore();
+// state
+const lan = computed(() => store.state.lan);
 const totalQuestions = ref(0);
 const totalAnswers = ref(0);
 const avgWaitingTime = ref(0);
@@ -241,19 +245,36 @@ onMounted(() => {
           v-model="optionsSelect"
           style="width: 100px; margin-bottom: 3px"
         >
-          <option selected value="total">Total</option>
-          <option value="month">Month</option>
-          <option value="week">Week</option>
+            <option selected value="total">
+            {{ lan === "zh" ? "总计" : lan === "zh-TW" ? "總計" : "Total" }}
+            </option>
+            <option value="month">
+            {{ lan === "zh" ? "月" : lan === "zh-TW" ? "月" : "Month" }}
+            </option>
+            <option value="week">
+            {{ lan === "zh" ? "周" : lan === "zh-TW" ? "週" : "Week" }}
+          </option>
         </select>
       </div>
       <div class="row">
         <div class="col-lg-3 col-md-6 col-12">
           <mini-statistics-card
-            title="Received of Answers"
+            :title="
+              lan === 'zh'
+                ? '收到的答案'
+                : lan === 'zh-TW'
+                  ? '收到的答案'
+                  : 'Received Answers'
+            "
             :value="totalAnswers"
-            description="<span
-                class='text-sm font-weight-bolder text-success'
-                ></span> Number of Answers Received"
+            :description="
+              '<span class=\'text-sm font-weight-bolder text-success\'></span> ' +
+              (lan === 'zh'
+                ? '收到的答案数量'
+                : lan === 'zh-TW'
+                  ? '收到的答案數量'
+                  : 'Answers Received Number')
+            "
             :icon="{
               component: 'fa fa-question',
               background: 'bg-gradient-primary',
@@ -263,11 +284,22 @@ onMounted(() => {
         </div>
         <div class="col-lg-3 col-md-6 col-12">
           <mini-statistics-card
-            title="Questions Asked"
+            :title="
+              lan === 'zh'
+                ? '提出的问题'
+                : lan === 'zh-TW'
+                  ? '提出的問題'
+                  : 'Questions Asked'
+            "
             :value="totalQuestions"
-            description="<span
-                    class='text-sm font-weight-bolder text-info'
-                    ></span> Questions Asked Number"
+            :description="
+              '<span class=\'text-sm font-weight-bolder text-info\'></span> ' +
+              (lan === 'zh'
+                ? '提出的问题数量'
+                : lan === 'zh-TW'
+                  ? '提出的問題數量'
+                  : 'Questions Asked Number')
+            "
             :icon="{
               component: 'fa fa-question-circle',
               background: 'bg-gradient-info',
@@ -277,15 +309,21 @@ onMounted(() => {
         </div>
         <div class="col-lg-3 col-md-6 col-12">
           <mini-statistics-card
-            title="Average Waiting Time"
+            :title="
+              lan === 'zh'
+                ? '平均等待时间'
+                : lan === 'zh-TW'
+                  ? '平均等待时间'
+                  : 'Average Waiting Time'
+            "
             :value="
               avgWaitingTime !== 'Not Answered Yet'
                 ? avgWaitingTime + ''
                 : 'No Questions Asked'
             "
-            description="<span
-                    class='text-sm font-weight-bolder text-warning'
-                    ></span> Average Waiting Time"
+            :description="`<span
+                class='text-sm font-weight-bolder text-warning'
+                ></span> ${lan === 'zh' ? '等待时间' : lan === 'zh-TW' ? '平均等待时间' : 'Average Waiting Time'}`"
             :icon="{
               component: 'fa fa-clock',
               background: 'bg-gradient-warning',
@@ -295,11 +333,30 @@ onMounted(() => {
         </div>
         <div class="col-lg-3 col-md-6 col-12">
           <mini-statistics-card
-            title="Most Type"
-            :value="MostType !== 'None' ? MostType + '' : 'Not Asked Yet'"
-            description="<span
-                    class='text-sm font-weight-bolder text-primary'
-                    ></span> Most Type Asked"
+            :title="
+              lan === 'zh'
+                ? '最多类型'
+                : lan === 'zh-TW'
+                  ? '最多類型'
+                  : 'Most Type'
+            "
+            :value="
+              MostType !== 'None'
+                ? MostType + ''
+                : lan === 'zh'
+                  ? '尚未詢問'
+                  : lan === 'zh-TW'
+                    ? '尚未詢問'
+                    : 'Not Asked Yet'
+            "
+            :description="
+              '<span class=\'text-sm font-weight-bolder text-success\'></span> ' +
+              (lan === 'zh'
+                ? '最多问题类型'
+                : lan === 'zh-TW'
+                  ? '最多問題類型'
+                  : 'Most Asked Type')
+            "
             :icon="{
               component: 'fa fa-users',
               background: 'bg-gradient-success',

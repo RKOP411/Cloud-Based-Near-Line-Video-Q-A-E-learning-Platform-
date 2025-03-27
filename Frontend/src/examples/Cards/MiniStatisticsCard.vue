@@ -129,5 +129,8 @@ defineProps({
 .icon {
   width: 60px;              /* Optional: set appropriate width */
   height: 60px;             /* Optional: set appropriate height */
+  font-size: 48px;           /* Ensure the icon size fits nicely in the circle */
+  color: white;              /* Define the icon color */
+  line-height: 1;            /* To prevent extra spacing */
 }
 </style>
