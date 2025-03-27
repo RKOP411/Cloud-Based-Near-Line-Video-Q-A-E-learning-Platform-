@@ -16,6 +16,7 @@ export default createStore({
     showNavbar: true,
     showFooter: true,
     showMain: true,
+    lan: "en",
     layout: "default",
   },
   mutations: {

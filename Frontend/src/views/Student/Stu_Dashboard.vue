@@ -58,9 +58,9 @@ const GetQuestionTime = () => {
           answerData.value.push(item.AnswerGetCount);
         });
       }
-      console.log(labelsData.value);
-      console.log(questionData.value);
-      console.log(answerData.value);
+      // console.log(labelsData.value);
+      // console.log(questionData.value);
+      // console.log(answerData.value);
       loadChart();
     });
 };
@@ -126,7 +126,7 @@ const GetTotalAnswer = () => {
 };
 
 const GetAvgTime = () => {
-  fetch(`${AvgWaitingTime}/${UserID}`, {
+  fetch(`${AvgWaitingTime}/${UserID}/${optionsSelect.value}`, {
     method: "get",
     headers: {
       "Content-Type": "application/json",
@@ -150,6 +150,7 @@ const GetAvgTime = () => {
       } else {
         avgWaitingTime.value = "Not Answered Yet";
       }
+      console.log("Average Waiting Time: " + avgWaitingTime.value);
     });
 };
 

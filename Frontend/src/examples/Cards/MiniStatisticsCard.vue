@@ -65,21 +65,19 @@ defineProps({
 <template>
   <div class="mb-3 card">
     <div class="p-3 card-body">
-      <div
-        class="d-flex"
-        :class="rowReverse ? '' : 'flex-row-reverse justify-content-between'"
-      >
+      <!-- Apply the parent class here -->
+      <div class="parent" :class="rowReverse ? '' : 'flex-row-reverse justify-content-between'">
         <div
           class="text-center shadow icon icon-shape"
           :class="[
             typeof icon === 'object'
               ? `${icon.background} ${icon.shape}`
               : 'border-radius-md',
-            rowReverse ? 'me-2' : '',
+            rowReverse ? 'me-1' : '',
           ]"
         >
           <i
-            class="text-lg opacity-10"
+            class="text-lg opacity-20"
             :class="typeof icon === 'string' ? icon : icon.component"
             aria-hidden="true"
           ></i>
@@ -122,6 +120,14 @@ defineProps({
 </template>
 
 <style scoped>
-
-
+.parent {
+  display: flex;
+  justify-content: center;  /* centers horizontally */
+  align-items: center;      /* centers vertically */
+  min-height: 100px;        /* Optional: adjust according to your design */
+}
+.icon {
+  width: 60px;              /* Optional: set appropriate width */
+  height: 60px;             /* Optional: set appropriate height */
+}
 </style>

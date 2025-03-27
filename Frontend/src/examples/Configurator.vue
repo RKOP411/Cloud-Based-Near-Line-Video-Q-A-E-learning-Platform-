@@ -2,10 +2,12 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
 import { activateDarkMode, deactivateDarkMode } from "@/assets/js/dark-mode";
+import "@/assets/css/nucleo-icons.css";
+import "@/assets/css/nucleo-svg.css";
 
 const store = useStore();
 // state
-const isRTL = computed(() => store.state.isRTL);
+const lan = computed(() => store.state.lan);
 const isNavFixed = computed(() => store.state.isNavFixed);
 const sidebarType = computed(() => store.state.sidebarType);
 const toggleConfigurator = () => store.commit("toggleConfigurator");
@@ -32,7 +34,14 @@ const darkMode = () => {
 };
 </script>
 <template>
-  <div class="fixed-plugin">
+  <div class="fixed-plugin" >
+    <button v-if="store.state.showConfig"
+      class="btn btn-link text-dark position-fixed"
+      style="top: 10px; right: 10px; z-index: 1031"
+      @click="toggleConfigurator"
+    >
+      <i class="fa fa-times"></i>
+    </button>
     <a
       class="px-3 py-2 fixed-plugin-button text-dark position-fixed"
       @click="toggleConfigurator"
@@ -41,14 +50,29 @@ const darkMode = () => {
     </a>
     <div class="shadow-lg card">
       <div class="pt-3 pb-0 bg-transparent card-header">
-        <div class="" :class="isRTL ? 'float-end' : 'float-start'">
-          <h5 class="mt-3 mb-0">Argon Configurator</h5>
-          <p>See our dashboard options.</p>
+        <div
+          class=""
+          :class="lan === 'zh' || lan === 'zh-tw' ? 'float-end' : 'float-start'"
+        >
+          <h5 class="mt-3 mb-0">
+            {{
+              lan === "zh" ? "設定" : lan === "zh-tw" ? "設定" : "Configurator"
+            }}
+          </h5>
+          <p>
+            {{
+              lan === "zh"
+                ? "查看我们的仪表板选项。"
+                : lan === "zh-tw"
+                  ? "查看我們的儀表板選項。"
+                  : "See our dashboard options."
+            }}
+          </p>
         </div>
         <div
           class="mt-4"
           @click="toggleConfigurator"
-          :class="isRTL ? 'float-start' : 'float-end'"
+          :class="lan === 'zh' || lan === 'zh-tw' ? 'float-start' : 'float-end'"
         >
           <button class="p-0 btn btn-link text-dark fixed-plugin-close-button">
             <i class="fa fa-close"></i>
@@ -60,12 +84,20 @@ const darkMode = () => {
       <div class="pt-0 card-body pt-sm-3">
         <!-- Sidebar Backgrounds -->
         <div>
-          <h6 class="mb-0">Sidebar Colors</h6>
+          <h6 class="mb-0">
+            {{
+              lan === "zh"
+                ? "侧边栏颜色"
+                : lan === "zh-tw"
+                  ? "側邊欄顏色"
+                  : "Sidebar Colors"
+            }}
+          </h6>
         </div>
         <a href="#" class="switch-trigger background-color">
           <div
             class="my-2 badge-colors"
-            :class="isRTL ? 'text-end' : ' text-start'"
+            :class="lan === 'zh' || lan === 'zh-tw' ? 'text-end' : 'text-start'"
           >
             <span
               class="badge filter bg-gradient-primary active"
@@ -101,8 +133,24 @@ const darkMode = () => {
         </a>
         <!-- Sidenav Type -->
         <div class="mt-3">
-          <h6 class="mb-0">Sidenav Type</h6>
-          <p class="text-sm">Choose between 2 different sidenav types.</p>
+          <h6 class="mb-0">
+            {{
+              lan === "zh"
+                ? "侧边导航类型"
+                : lan === "zh-tw"
+                  ? "側邊導航類型"
+                  : "Sidenav Type"
+            }}
+          </h6>
+          <p class="text-sm">
+            {{
+              lan === "zh"
+                ? "选择两种不同的侧边导航类型之一。"
+                : lan === "zh-tw"
+                  ? "選擇兩種不同的側邊導航類型之一。"
+                  : "Choose between 2 different sidenav types."
+            }}
+          </p>
         </div>
         <div class="d-flex gap-2">
           <button
@@ -115,7 +163,7 @@ const darkMode = () => {
             "
             @click="setSidebarType('bg-white')"
           >
-            White
+            {{ lan === "zh" ? "白色" : lan === "zh-tw" ? "白色" : "White" }}
           </button>
           <button
             id="btn-dark"
@@ -127,20 +175,37 @@ const darkMode = () => {
             "
             @click="setSidebarType('bg-default')"
           >
-            Dark
+            {{ lan === "zh" ? "黑色" : lan === "zh-tw" ? "黑色" : "Dark" }}
           </button>
         </div>
         <p class="mt-2 text-sm d-xl-none d-block">
-          You can change the sidenav type just on desktop view.
+          {{
+            lan === "zh"
+              ? "您只能在桌面视图上更改侧边导航类型。"
+              : lan === "zh-tw"
+                ? "您只能在桌面視圖上更改側邊導航類型。"
+                : "You can change the sidenav type just on desktop view."
+          }}
         </p>
         <!-- Navbar Fixed -->
-        <!-- Navbar Fixed -->
         <div class="mt-3 d-flex">
-          <h6 class="mb-0">Navbar Fixed</h6>
+          <h6 class="mb-0">
+            {{
+              lan === "zh"
+                ? "固定导航栏"
+                : lan === "zh-tw"
+                  ? "固定導航欄"
+                  : "Navbar Fixed"
+            }}
+          </h6>
           <div class="form-check form-switch ps-0 ms-auto my-auto">
             <input
               class="mt-1 form-check-input"
-              :class="isRTL ? 'float-end  me-auto' : ' ms-auto'"
+              :class="
+                lan === 'zh' || lan === 'zh-tw'
+                  ? 'float-end  me-auto'
+                  : 'ms-auto'
+              "
               type="checkbox"
               id="navbarFixed"
               :checked="isNavFixed"
@@ -151,7 +216,18 @@ const darkMode = () => {
 
         <hr class="horizontal dark my-4" />
         <div class="mt-2 mb-5 d-flex">
-          <h6 class="mb-0" :class="isRTL ? 'ms-2' : ''">Light / Dark</h6>
+          <h6
+            class="mb-0"
+            :class="lan === 'zh' || lan === 'zh-tw' ? 'ms-2' : ''"
+          >
+            {{
+              lan === "zh"
+                ? "浅色 / 深色"
+                : lan === "zh-tw"
+                  ? "淺色 / 深色"
+                  : "Light / Dark"
+            }}
+          </h6>
           <div class="form-check form-switch ps-0 ms-auto my-auto">
             <input
               class="form-check-input mt-1 ms-auto"
@@ -161,41 +237,25 @@ const darkMode = () => {
             />
           </div>
         </div>
-        <a
-          class="btn bg-gradient-dark w-100"
-          href="https://www.creative-tim.com/product/vue-argon-dashboard"
-          >Free Download</a
-        >
-        <a
-          class="btn btn-outline-dark w-100"
-          href="https://www.creative-tim.com/learning-lab/vue/overview/argon-dashboard/"
-          >View documentation</a
-        >
-        <div class="text-center w-100">
-          <a
-            class="github-button"
-            href="https://github.com/creativetimofficial/vue-argon-dashboard"
-            data-icon="octicon-star"
-            data-size="large"
-            data-show-count="true"
-            aria-label="Star creativetimofficial/vue-argon-dashboard on GitHub"
-            >Star</a
+        <!-- Set Language -->
+        <div class="mt-2 mb-5 d-flex">
+          <h6
+            class="mb-0"
+            :class="lan === 'zh' || lan === 'zh-tw' ? 'ms-2' : ''"
           >
-          <h6 class="mt-3">Thank you for sharing!</h6>
-          <a
-            href="https://twitter.com/intent/tweet?text=Check%20Vue%20Argon%20Dashboard%202%20made%20by%20%40CreativeTim%20%23webdesign%20%23dashboard%20%vuejs3&amp;url=https%3A%2F%2Fwww.creative-tim.com%2Fproduct%vue-argon-dashboard"
-            class="mb-0 btn btn-dark me-2"
-            target="_blank"
-          >
-            <i class="fab fa-twitter me-1" aria-hidden="true"></i> Tweet
-          </a>
-          <a
-            href="https://www.facebook.com/sharer/sharer.php?u=https://www.creative-tim.com/product/vue-argon-dashboard"
-            class="mb-0 btn btn-dark me-2"
-            target="_blank"
-          >
-            <i class="fab fa-facebook-square me-1" aria-hidden="true"></i> Share
-          </a>
+            {{ lan === "zh" ? "语言" : lan === "zh-tw" ? "語言" : "Language" }}
+          </h6>
+          <div class="form-check form-switch ps-0 ms-auto my-auto">
+            <select
+              class="form-select"
+              v-model="store.state.lan"
+              @change="store.commit('setLanguage', store.state.lan)"
+            >
+              <option value="en">English</option>
+              <option value="zh">中文</option>
+              <option value="zh-tw">台灣(正體中文)</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
