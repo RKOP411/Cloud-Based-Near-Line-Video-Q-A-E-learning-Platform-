@@ -123,4 +123,40 @@ router.post('/UpdateRankByUserID', async function (req, res, next) {
     }
 });
 
+router.post('/changePasswordByEmail', async function (req, res, next) {
+    const { Email, NewPassword } = req.body;
+
+    // Simple validation
+    if (!Email || !NewPassword) {
+        return res.status(400).send('Missing required fields');
+    }
+
+    try {
+        const connection = await connectToDB();
+
+        const sql = `UPDATE User SET Password = ? WHERE Email = ?`;
+
+        const values = [NewPassword, Email];
+
+        connection.query(sql, values, (err, results) => {
+            if (err) {
+                console.error('Error updating password:', err);
+                return res.status(500).send('Database error');
+            }
+            if (results.affectedRows === 0) {
+                return res.status(404).send('User not found');
+            }
+            console.log('Password updated for Email:', Email);
+            res.status(200).send('Password updated successfully');
+        });
+
+        // Close the connection
+        connection.end();
+
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 module.exports = router;

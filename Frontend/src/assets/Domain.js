@@ -2,6 +2,7 @@ const DomainName = "http://localhost:3000/";
 
 
 //Account
+const changePasswordByEmail = "http://localhost:3000/account/changePasswordByEmail";
 const registerDomain = DomainName + "account/register";
 const verifyEmailDomain = DomainName + "account/verifyEmail";
 const UpdateRankByUserID = DomainName + "account/UpdateRankByUserID/";
@@ -86,7 +87,7 @@ const GetStatus = DomainName + "GetStatus";
 
 export {
     DomainName,
-    registerDomain, verifyEmailDomain, UpdateRankByUserID,
+    registerDomain, verifyEmailDomain, UpdateRankByUserID, changePasswordByEmail,
     GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment,
     GetAllCourses, GetCoursesByUserID, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse, CreateForumWithVideo,
     ForumLikes, AddLike, CheckUserLiked, DeleteLike,

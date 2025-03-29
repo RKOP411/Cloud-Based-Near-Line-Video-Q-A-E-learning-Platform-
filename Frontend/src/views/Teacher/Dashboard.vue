@@ -203,15 +203,15 @@ if (Email === null || Email === "") {
               class="card z-index-2 Hover-Table"
             >
               <gradient-line-chart
-                v-if="QuestionTimesData.value && QuestionTimesLabel.value"
+                
                 id="chart-line"
                 :title="lan === 'zh' ? '問題次數' : lan === 'zh-TW' ? '問題次數' : 'Question Times'"
                 :chart="{
-                  labels: QuestionTimesLabel.value,
+                    labels: QuestionTimesLabel.value ? QuestionTimesLabel.value : [0],
                   datasets: [
                     {
                       label: 'Question Times',
-                      data: QuestionTimesData.value,
+                        data: QuestionTimesData.value ? QuestionTimesData.value : [0],
                       borderColor: 'rgba(75, 192, 192, 1)',
                       backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     },
@@ -518,6 +518,10 @@ export default {
       fetch(`${GetCourses}/${this.UserID}`)
         .then((response) => response.json())
         .then((data) => {
+          if(data.length === 0) {
+            console.log("No courses found for this user.");
+            return;
+          }
           this.Course = data.map((course) => course);
           //console.log(this.Course);
           this.selectedCourseID = data[0].CourseID;

@@ -69,7 +69,7 @@ onBeforeUnmount(() => {
                       checked
                       >Remember me</argon-switch
                     >
-                    <a href="javascript:;" class="text-primary text-gradient"
+                    <a href="/forgetpsw" class="text-primary text-gradient"
                       >Forget Password</a
                     >
                     <div class="text-center">

@@ -36,36 +36,37 @@ onBeforeUnmount(() => {
                   <h4 class="font-weight-bolder">Forgot Password</h4>
                 </div>
                 <div class="card-body">
-                  <form role="form">
-                    <div class="mb-3">
-                      <argon-input
-                        id="email"
-                        type="email"
-                        placeholder="Email"
-                        name="email"
-                        size="lg"
-                      />
-                    </div>
+                  <div class="mb-3">
+                    <argon-input
+                      id="email"
+                      type="email"
+                      placeholder="Email"
+                      name="email"
+                      v-model="email"
+                      size="lg"
+                    />
+                  </div>
 
-                    <div class="text-center">
-                      <argon-button
-                        class="mt-4"
-                        variant="gradient"
-                        color="success"
-                        fullWidth
-                        size="lg"
-                        >Reset Password</argon-button
-                      >
-                    </div>
-                  </form>
+                  <div class="text-center">
+                    <argon-button
+                      class="mt-4"
+                      variant="gradient"
+                      color="success"
+                      fullWidth
+                      size="lg"
+                      @click="sendEmail()"
+                      >Reset Password</argon-button
+                    >
+                  </div>
                 </div>
                 <div class="px-1 pt-0 text-center card-footer px-lg-2">
                   <p class="mx-auto mb-4 text-sm">
                     Don't have an account?
                     <a
-                      href="javascript:;"
+                      href="/signup"
                       class="text-success text-gradient font-weight-bold"
-                      >Sign up</a>
+                      >Sign up</a
+                    >
                   </p>
                 </div>
               </div>
@@ -86,10 +87,8 @@ onBeforeUnmount(() => {
                 >
                   "An investment in knowledge pays the best interest."
                 </h4>
-                <br/>
-                <p class="text-white position-relative">
-                    — Benjamin Franklins
-                </p>
+                <br />
+                <p class="text-white position-relative">— Benjamin Franklins</p>
               </div>
             </div>
           </div>
@@ -98,3 +97,70 @@ onBeforeUnmount(() => {
     </section>
   </main>
 </template>
+<script>
+import { VerifyEmail } from "../assets/Verify.js";
+import { changePasswordByEmail } from "../assets/Domain.js";
+import { useRouter } from "vue-router";
+import { ref } from "vue";
+
+export default {
+  setup() {
+    const router = useRouter();
+    return { router };
+  },
+  name: "ForgetPassword",
+  components: {
+    ArgonInput,
+    ArgonButton,
+  },
+  data() {
+    return {
+      email: ref(""),
+    };
+  },
+  methods: {
+    async sendEmail() {
+      const data = await VerifyEmail(this.email);
+      if (data.length !== 0) {
+        alert("Password: " + data[0]?.Password);
+        const newPassword = prompt("Enter your new password:");
+        if (newPassword) {
+          // console.log(newPassword === null);
+          // console.log(newPassword);
+          await fetch(`${changePasswordByEmail}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              Email: this.email,
+              NewPassword: newPassword,
+            }),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Failed to update password");
+              }
+              return response.text();
+            })
+            .then((message) => {
+              alert(message);
+            })
+            .then(() => {
+              alert("Your password has been successfully updated.");
+              this.$router.push("/signin");
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Error updating password.");
+            });
+        } else {
+          alert("Password update canceled.");
+        }
+      } else {
+        alert("Email not found");
+      }
+    },
+  },
+};
+</script>

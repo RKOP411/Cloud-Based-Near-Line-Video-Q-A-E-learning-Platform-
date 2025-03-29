@@ -595,6 +595,7 @@ export default {
   beforeUnmount() {
     clearInterval(this.queueInterval);
     clearInterval(this.teacherStatusInterval);
+
   },
 };
 </script>

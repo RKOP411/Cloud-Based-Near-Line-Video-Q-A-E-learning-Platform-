@@ -46,6 +46,11 @@ const routes = [
     component: Tables,
   },
   {
+    path: "/forgetpsw",
+    name: "Forget Password",
+    component: ForgetPassword,
+  },
+  {
     path: "/tables/forum",
     name: "Forum",
     component: Forum,
@@ -86,12 +91,6 @@ const routes = [
     path: "/questionlist",
     name: "Queue",
     component: Question_List_Stu,
-  }
-  ,
-  {
-    path: "/forgetpassword",
-    name: "Forget Password",
-    component: ForgetPassword,
   },
   {
     path: "/userList",

@@ -566,6 +566,7 @@ export default {
         JSON.stringify({ userId: userId, status: "Idle" })
       );
       clearInterval(this.heartbeatInterval); // Clear the interval
+      clearInterval(this.heartbeatInterval); // Stop the heartbeat interval
     });
   },
 };
