@@ -87,7 +87,15 @@
     </div>
     <!-- Teacher Information End -->
     <!-- Queue -->
-    <div class="container mt-5">
+    <div class="container mt-2">
+      <a
+        @click="ClearQuestionType()"
+        style="cursor: pointer"
+        @mouseover="hover = true"
+        @mouseleave="hover = false"
+        :style="{ color: hover ? '#00796b' : 'inherit' }"
+        >Clear Filter</a
+      >
       <div class="row mt-4 justify-content-between">
         <div
           class="col-6 col-md-3 Block-hover"
@@ -146,7 +154,10 @@
     <!-- Timer-->
     <div class="mt-4 text-center" id="timerDisplay">
       <h3>
-        <span v-if="TotalWaitTime">Estimated Time: <span id="timeRemaining">{{ TotalWaitTime }}</span></span>
+        <span v-if="TotalWaitTime"
+          >Estimated Time:
+          <span id="timeRemaining">{{ TotalWaitTime }}</span></span
+        >
         <span v-else>No estimated time available</span>
       </h3>
     </div>
@@ -274,6 +285,10 @@ export default {
     };
   },
   methods: {
+    ClearQuestionType() {
+      this.CurrentChoiceType = "";
+      this.getQuestions();
+    },
     Calculate_Timeout(time) {
       let result = [];
       let days, hours, minutes, seconds;
@@ -407,7 +422,7 @@ export default {
       fetch(`${GetAllQuestionWithType}/${this.QueueListID}/${Type}`)
         .then((response) => response.json())
         .then((data) => {
-           this.questions = data;
+          this.questions = data;
           for (let i = 0; i < data.length; i++) {
             data[i].UploadTime = this.Calculate_LastUpdate(data[i].UploadTime);
           }
@@ -446,11 +461,13 @@ export default {
           this.questions = await data.questions;
           // console.log(this.questions);
           // console.log(this.questions.length);
-          if(this.questions.length == 0){
-            this.questions =  await data.question;
+          if (this.questions.length == 0) {
+            this.questions = await data.question;
           }
           for (let i = 0; i < this.questions.length; i++) {
-            this.questions[i].UploadTime = this.Calculate_LastUpdate(this.questions[i].UploadTime);
+            this.questions[i].UploadTime = this.Calculate_LastUpdate(
+              this.questions[i].UploadTime
+            );
           }
           this.TeacherUserID = this.questions[0].TeacherUserID;
           this.CourseName = this.questions[0].CourseName;

@@ -22,9 +22,17 @@
       <input type="text" class="form-control" :placeholder="'Type here...'" />
     </div>
     <!-- Search Bar End-->
-    <div class="card-body pt-4 p-3">
+    <div class="card-body pt-2 p-2">
       <!-- Queue -->
-      <div class="container mt-5">
+      <div class="container mt-2">
+        <a
+          @click="ClearQuestionType()"
+          style="cursor: pointer;"
+          @mouseover="hover = true"
+          @mouseleave="hover = false"
+          :style="{ color: hover ? '#00796b' : 'inherit' }"
+          >Clear Filter</a
+        >
         <div class="row mt-4 justify-content-between">
           <div
             class="col-6 col-md-3 Block-hover"
@@ -238,6 +246,10 @@ export default {
     };
   },
   methods: {
+    ClearQuestionType() {
+      this.CurrentChoiceType = "";
+      this.getQuestions();
+    },
     async GetQuestionWithType(Type) {
       const urlParams = new URLSearchParams(window.location.search);
       const QueueListID = urlParams.get("QueueListID");
@@ -444,16 +456,17 @@ export default {
           return response.json();
         })
         .then(async (data) => {
-          this.questions = await data.questions; 
+          this.questions = await data.questions;
           console.log("questions:", this.questions);
           for (let i = 0; i < this.questions.length; i++) {
-            this.questions[i].UploadTime = this.Calculate_LastUpdate(this.questions[i].UploadTime);
+            this.questions[i].UploadTime = this.Calculate_LastUpdate(
+              this.questions[i].UploadTime
+            );
           }
           console.log("Data: " + data[0]);
-          if(this.questions[0] != null){
+          if (this.questions[0] != null) {
             this.AccessCode = this.questions[0].AccessCode;
-          }
-          else{
+          } else {
             this.AccessCode = await data.question[0].AccessCode;
           }
 
@@ -554,7 +567,6 @@ export default {
       );
       clearInterval(this.heartbeatInterval); // Clear the interval
     });
-
   },
 };
 </script>
