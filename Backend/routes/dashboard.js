@@ -983,157 +983,90 @@ router.get('/GetQuestionPerTimes/:CourseID/:duration', async (req, res) => {
 
         if (duration == "month") {
 
-            const query = `
-            WITH WeeklyQuestionCount AS (
-                SELECT
-                    YEAR(q.UploadTime) AS Year,
-                    CASE 
-                        WHEN DAY(q.UploadTime) <= 7 THEN 1
-                        WHEN DAY(q.UploadTime) <= 14 THEN 2
-                        WHEN DAY(q.UploadTime) <= 21 THEN 3
-                        WHEN DAY(q.UploadTime) <= 28 THEN 4
-                        ELSE 5  -- This covers the 5th week
-                    END AS Week,
-                    COUNT(q.QAID) AS QuestionCount
-                FROM
-                    Question q
-                JOIN 
-                    queue_list ql ON q.QueueListID = ql.QueueListID  -- Join with queue_list
-                WHERE
-                    ql.CourseID = ?
-                    AND MONTH(q.UploadTime) = MONTH(CURDATE()) 
-                    AND YEAR(q.UploadTime) = YEAR(CURDATE()) 
-                GROUP BY
-                    YEAR(q.UploadTime), Week
-            ),
+            const ThisMonthQuestion = `SELECT q.*
+                FROM Question q
+                JOIN queue_list ql ON q.QueueListID = ql.QueueListID
+                WHERE ql.CourseID = ?
+                AND MONTH(q.UploadTime) = MONTH(CURDATE()) 
+                AND YEAR(q.UploadTime) = YEAR(CURDATE());`
 
-            AllWeeks AS (
-                SELECT YEAR(CURDATE()) AS Year, 1 AS Week  -- Starting week
-                UNION ALL SELECT YEAR(CURDATE()), 2
-                UNION ALL SELECT YEAR(CURDATE()), 3
-                UNION ALL SELECT YEAR(CURDATE()), 4
-                UNION ALL SELECT YEAR(CURDATE()), 5
-            )
+            const ThisMonthAnswer = `
+                SELECT q.QAID,
+                    MAX(a.UserID) AS UserID,
+                    MAX(a.Text) AS Text,          
+                    MAX(a.UploadTime) AS UploadTime,
+                    SUM(a.TakeTime) AS TotalTakeTime,
+                    qu.CourseID
+                FROM Answer a
+                JOIN Question q ON a.QAID = q.QAID
+                JOIN queue_list qu ON q.QueueListID = qu.QueueListID
+                WHERE qu.CourseID = ?
+                AND MONTH(q.UploadTime) = MONTH(CURDATE()) 
+                AND YEAR(q.UploadTime) = YEAR(CURDATE()) 
+                GROUP BY q.QAID, qu.CourseID;`
 
-            SELECT
-                CONCAT('Week ', aw.Week) AS Time,
-                COALESCE(wq.QuestionCount, 0) AS QuestionCount,
-                COALESCE(SUM(CASE WHEN a.QAID IS NOT NULL THEN 1 ELSE 0 END), 0) AS AnswerGetCount
-            FROM
-                AllWeeks aw
-            LEFT JOIN WeeklyQuestionCount wq ON aw.Year = wq.Year AND aw.Week = wq.Week
-            LEFT JOIN Question q ON aw.Year = YEAR(q.UploadTime) AND 
-                                CASE 
-                                    WHEN DAY(q.UploadTime) <= 7 THEN 1
-                                    WHEN DAY(q.UploadTime) <= 14 THEN 2
-                                    WHEN DAY(q.UploadTime) <= 21 THEN 3
-                                    WHEN DAY(q.UploadTime) <= 28 THEN 4
-                                    ELSE 5
-                                END = aw.Week 
-                                AND MONTH(q.UploadTime) = MONTH(CURDATE()) 
-                                AND YEAR(q.UploadTime) = YEAR(CURDATE())
-            LEFT JOIN Answer a ON q.QAID = a.QAID
-            LEFT JOIN queue_list ql ON q.QueueListID = ql.QueueListID AND ql.CourseID = ?
-            GROUP BY
-                aw.Year, aw.Week
-            ORDER BY 
-                aw.Year, aw.Week;
-            `;
-
-            connection.query(query, [CourseID,CourseID], (err, results) => {
-                if (err) {
-                    console.error('Error executing query:', err);
-                    return res.status(500).json({ error: 'Internal server error' });
-                }
-                res.status(200).json(results);
-            });
+            const results = await Promise.all([
+                new Promise((resolve, reject) => {
+                    connection.query(ThisMonthQuestion, [CourseID], (err, results) => {
+                        if (err) return reject(err);
+                        resolve(results);
+                    });
+                }),
+                new Promise((resolve, reject) => {
+                    connection.query(ThisMonthAnswer, [CourseID], (err, results) => {
+                        if (err) return reject(err);
+                        resolve(results);
+                    });
+                })
+            ]);
+            const response = {
+                ThisMonthQuestion: results[0],
+                ThisMonthAnswer: results[1]
+            };
+            res.status(200).json(response);
         }
         else if (duration == "week") {
-            const query = `
-            -- Get the current week number in the month
-            SET @currentWeek = CASE 
-                WHEN DAY(CURDATE()) <= 7 THEN 1
-                WHEN DAY(CURDATE()) <= 14 THEN 2
-                WHEN DAY(CURDATE()) <= 21 THEN 3
-                WHEN DAY(CURDATE()) <= 28 THEN 4
-                ELSE 5  -- Covers months with a 5th week
-            END;
+            const ThisWeekQuestion = `SELECT q.*
+            FROM Question q
+            JOIN queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE ql.CourseID = ?
+            AND q.UploadTime >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
+            AND q.UploadTime < DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 7 DAY);`
 
-            -- Start and end of the current week
-            SET @weekStart = DATE_FORMAT(CURDATE() - INTERVAL (DAY(CURDATE()) - 1) DAY, '%Y-%m-%d'); -- Start of the month
-            SET @weekEnd = DATE_FORMAT(CURDATE() - INTERVAL (DAY(CURDATE()) - 1) DAY + INTERVAL 6 DAY, '%Y-%m-%d'); -- End of the month
+            const ThisWeekAnswer = `SELECT q.QAID,
+            MAX(a.UserID) AS UserID,
+            MAX(a.Text) AS Text,          
+            MAX(a.UploadTime) AS UploadTime,
+            SUM(a.TakeTime) AS TotalTakeTime,
+            qu.CourseID
+            FROM Answer a
+            JOIN Question q ON a.QAID = q.QAID
+            JOIN queue_list qu ON q.QueueListID = qu.QueueListID
+            WHERE qu.CourseID = ?
+            AND a.UploadTime >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
+            AND a.UploadTime < DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 7 DAY)
+            GROUP BY q.QAID, qu.CourseID;`
 
-            WITH WeeklyQuestionCount AS (
-            SELECT
-            CASE DAYOFWEEK(q.UploadTime)
-            WHEN 1 THEN 7 -- Sunday -> 7
-            WHEN 2 THEN 1 -- Monday -> 1
-            WHEN 3 THEN 2 -- Tuesday -> 2
-            WHEN 4 THEN 3 -- Wednesday -> 3
-            WHEN 5 THEN 4 -- Thursday -> 4
-            WHEN 6 THEN 5 -- Friday -> 5
-            WHEN 7 THEN 6 -- Saturday -> 6
-            END AS DayOfWeek,
-            COUNT(q.QAID) AS QuestionCount
-            FROM
-            Question q
-            JOIN
-            queue_list ql ON q.QueueListID = ql.QueueListID
-            WHERE
-            ql.CourseID = 12
-            AND q.UploadTime >= DATE_ADD(@weekStart, INTERVAL ((@currentWeek - 1) * 7) DAY)
-            AND q.UploadTime < DATE_ADD(@weekStart, INTERVAL (@currentWeek * 7) DAY)
-            GROUP BY
-            DayOfWeek
-            ),
-                -- CTE to define days of the week (custom mapping: 1 = Mon, 2 = Tue, ..., 7 = Sun)
-                DaysOfWeek AS (
-                    SELECT 1 AS DayOfWeek, 'Mon' AS Time
-                    UNION ALL
-                    SELECT 2, 'Tue'
-                    UNION ALL
-                    SELECT 3, 'Wed'
-                    UNION ALL
-                    SELECT 4, 'Thu'
-                    UNION ALL
-                    SELECT 5, 'Fri'
-                    UNION ALL
-                    SELECT 6, 'Sat'
-                    UNION ALL
-                    SELECT 7, 'Sun'
-                )
 
-                -- Main query to get question and answer counts
-                SELECT
-                    dow.Time,
-                    COALESCE(qc.QuestionCount, 0) AS QuestionCount,
-                    COALESCE(SUM(CASE WHEN a.QAID IS NOT NULL THEN 1 ELSE 0 END), 0) AS AnswerGetCount
-                FROM
-                    DaysOfWeek dow
-                LEFT JOIN WeeklyQuestionCount qc ON dow.DayOfWeek = qc.DayOfWeek
-                LEFT JOIN Question q ON dow.DayOfWeek = CASE DAYOFWEEK(q.UploadTime)
-                        WHEN 1 THEN 7  -- Sunday -> 7
-                        WHEN 2 THEN 1  -- Monday -> 1
-                        WHEN 3 THEN 2  -- Tuesday -> 2
-                        WHEN 4 THEN 3  -- Wednesday -> 3
-                        WHEN 5 THEN 4  -- Thursday -> 4
-                        WHEN 6 THEN 5  -- Friday -> 5
-                        WHEN 7 THEN 6  -- Saturday -> 6
-                    END
-                LEFT JOIN queue_list ql ON q.QueueListID = ql.QueueListID AND ql.CourseID = 12
-                LEFT JOIN Answer a ON q.QAID = a.QAID
-                GROUP BY
-                    dow.Time, dow.DayOfWeek, qc.QuestionCount  -- Include qc.QuestionCount in GROUP BY
-                ORDER BY
-                    dow.DayOfWeek;`
-
-            connection.query(query, [CourseID, CourseID], (err, results) => {
-                if (err) {
-                    console.error('Error executing query:', err);
-                    return res.status(500).json({ error: 'Internal server error' });
-                }
-                res.status(200).json(results);
-            });
+            const results = await Promise.all([
+                new Promise((resolve, reject) => {
+                    connection.query(ThisWeekQuestion, [CourseID], (err, results) => {
+                        if (err) return reject(err);
+                        resolve(results);
+                    });
+                }),
+                new Promise((resolve, reject) => {
+                    connection.query(ThisWeekAnswer, [CourseID], (err, results) => {
+                        if (err) return reject(err);
+                        resolve(results);
+                    });
+                })
+            ]);
+            const response = {
+                ThisWeekQuestion: results[0],
+                ThisWeekAnswer: results[1]
+            };
+            res.status(200).json(response);
         } else {
 
 
@@ -1193,7 +1126,7 @@ router.get('/GetQuestionPerTimes/:CourseID/:duration', async (req, res) => {
                     FIELD(am.Month, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
                             `;
 
-            connection.query(query, [CourseID,CourseID], (err, results) => {
+            connection.query(query, [CourseID, CourseID], (err, results) => {
                 if (err) {
                     console.error('Error executing query:', err);
                     return res.status(500).json({ error: 'Internal server error' });

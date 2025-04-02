@@ -62,16 +62,229 @@ export default {
         .then((response) => response.json())
         .then((data) => {
           //console.log(data);
-          this.labelsData = data.map((item) => item.Time);
-          this.question = data.map((item) => item.QuestionCount);
-          this.ans = data.map((item) => item.AnswerGetCount);
-          if (this.optionsSelect === "week") {
-            const results = data[data.length - 1];
-            results.forEach((item) => {
-              this.labelsData.push(item.Time);
-              this.question.push(item.QuestionCount);
-              this.ans.push(item.AnswerGetCount);
+          if (this.optionsSelect === "month") {
+            this.labelsData = [
+              "Jan",
+              "Feb",
+              "Mar",
+              "Apr",
+              "May",
+              "Jun",
+              "Jul",
+              "Aug",
+              "Sep",
+              "Oct",
+              "Nov",
+              "Dec",
+            ];
+            let monthCount = {
+              Jan: 0,
+              Feb: 0,
+              Mar: 0,
+              Apr: 0,
+              May: 0,
+              Jun: 0,
+              Jul: 0,
+              Aug: 0,
+              Sep: 0,
+              Oct: 0,
+              Nov: 0,
+              Dec: 0,
+            };
+            data.ThisMonthQuestion.forEach((question) => {
+              const uploadDate = new Date(question.UploadTime);
+              const monthIndex = uploadDate.getUTCMonth(); // Get the month index (0 = Jan, 1 = Feb, ..., 11 = Dec)
+
+              // Map the index to the correct month
+              switch (monthIndex) {
+                case 0:
+                  monthCount.Jan++;
+                  break;
+                case 1:
+                  monthCount.Feb++;
+                  break;
+                case 2:
+                  monthCount.Mar++;
+                  break;
+                case 3:
+                  monthCount.Apr++;
+                  break;
+                case 4:
+                  monthCount.May++;
+                  break;
+                case 5:
+                  monthCount.Jun++;
+                  break;
+                case 6:
+                  monthCount.Jul++;
+                  break;
+                case 7:
+                  monthCount.Aug++;
+                  break;
+                case 8:
+                  monthCount.Sep++;
+                  break;
+                case 9:
+                  monthCount.Oct++;
+                  break;
+                case 10:
+                  monthCount.Nov++;
+                  break;
+                case 11:
+                  monthCount.Dec++;
+                  break;
+              }
             });
+
+            this.question = Object.values(monthCount);
+            monthCount = {
+              Jan: 0,
+              Feb: 0,
+              Mar: 0,
+              Apr: 0,
+              May: 0,
+              Jun: 0,
+              Jul: 0,
+              Aug: 0,
+              Sep: 0,
+              Oct: 0,
+              Nov: 0,
+              Dec: 0,
+            };
+
+            data.ThisMonthAnswer.forEach((answer) => {
+              const uploadDate = new Date(answer.UploadTime);
+              const monthIndex = uploadDate.getUTCMonth(); // Get the month index (0 = Jan, 1 = Feb, ..., 11 = Dec)
+
+              // Map the index to the correct month
+              switch (monthIndex) {
+                case 0:
+                  monthCount.Jan++;
+                  break;
+                case 1:
+                  monthCount.Feb++;
+                  break;
+                case 2:
+                  monthCount.Mar++;
+                  break;
+                case 3:
+                  monthCount.Apr++;
+                  break;
+                case 4:
+                  monthCount.May++;
+                  break;
+                case 5:
+                  monthCount.Jun++;
+                  break;
+                case 6:
+                  monthCount.Jul++;
+                  break;
+                case 7:
+                  monthCount.Aug++;
+                  break;
+                case 8:
+                  monthCount.Sep++;
+                  break;
+                case 9:
+                  monthCount.Oct++;
+                  break;
+                case 10:
+                  monthCount.Nov++;
+                  break;
+                case 11:
+                  monthCount.Dec++;
+                  break;
+              }
+            });
+            this.ans = Object.values(monthCount);
+          } else if (this.optionsSelect === "week") {
+            this.labelsData = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+            let dayCount = {
+              Mon: 0,
+              Tue: 0,
+              Wed: 0,
+              Thu: 0,
+              Fri: 0,
+              Sat: 0,
+              Sun: 0,
+            };
+            data.ThisWeekQuestion.forEach((question) => {
+              const uploadDate = new Date(question.UploadTime);
+              const dayIndex = uploadDate.getUTCDay();
+
+              // Map the index to the correct day
+              switch (dayIndex) {
+                case 0:
+                  dayCount.Sun++;
+                  break;
+                case 1:
+                  dayCount.Mon++;
+                  break;
+                case 2:
+                  dayCount.Tue++;
+                  break;
+                case 3:
+                  dayCount.Wed++;
+                  break;
+                case 4:
+                  dayCount.Thu++;
+                  break;
+                case 5:
+                  dayCount.Fri++;
+                  break;
+                case 6:
+                  dayCount.Sat++;
+                  break;
+              }
+            });
+            this.question = Object.values(dayCount);
+            dayCount = {
+              Mon: 0,
+              Tue: 0,
+              Wed: 0,
+              Thu: 0,
+              Fri: 0,
+              Sat: 0,
+              Sun: 0,
+            };
+
+            data.ThisWeekAnswer.forEach((answer) => {
+              const uploadDate = new Date(answer.UploadTime);
+              const dayIndex = uploadDate.getUTCDay(); // Get the day index (0 = Sun, 1 = Mon, ..., 6 = Sat)
+
+              // Map the index to the correct day
+              switch (dayIndex) {
+                case 0:
+                  dayCount.Sun++;
+                  break;
+                case 1:
+                  dayCount.Mon++;
+                  break;
+                case 2:
+                  dayCount.Tue++;
+                  break;
+                case 3:
+                  dayCount.Wed++;
+                  break;
+                case 4:
+                  dayCount.Thu++;
+                  break;
+                case 5:
+                  dayCount.Fri++;
+                  break;
+                case 6:
+                  dayCount.Sat++;
+                  break;
+              }
+            });
+            this.ans = Object.values(dayCount);
+
+            // console.log("question: " + this.question);
+            // console.log("ans: " + this.ans);
+          } else {
+            this.labelsData = data.map((item) => item.Time);
+            this.question = data.map((item) => item.QuestionCount);
+            this.ans = data.map((item) => item.AnswerGetCount);
           }
           this.initializeChart();
         });
