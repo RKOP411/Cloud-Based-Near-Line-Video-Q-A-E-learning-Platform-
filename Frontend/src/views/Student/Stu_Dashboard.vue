@@ -24,7 +24,7 @@ const questionData = ref([]);
 const labelsData = ref([]);
 const answerData = ref([]);
 const UserID = localStorage.getItem("UserID");
-console.log("UserID: " + UserID);
+// console.log("UserID: " + UserID);
 
 const loadStats = async () => {
   //   totalQuestions.value = 10;
@@ -45,18 +45,231 @@ const GetQuestionTime = () => {
     .then((response) => response.json())
     .then((data) => {
       //console.log(data);
-      labelsData.value = [];
-      questionData.value = [];
-      answerData.value = [];
-      data.forEach((item) => {
-        labelsData.value.push(item.Time);
-        questionData.value.push(item.QuestionCount);
-        answerData.value.push(item.AnswerGetCount);
-      });
-      if (optionsSelect.value === "week") {
-        const results = data[data.length - 1];
+      if (optionsSelect.value === "month") {
+        labelsData.value = ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5"];
 
-        results.forEach((item) => {
+        let weekCount = {
+          "Week 1": 0,
+          "Week 2": 0,
+          "Week 3": 0,
+          "Week 4": 0,
+          "Week 5": 0,
+        };
+
+        // Get the current month's date
+        const today = new Date(); // Use the current date
+        const currentMonth = today.getMonth(); // Current month (0-11)
+        const currentYear = today.getFullYear(); // Current year
+
+        // Calculate how many days in the current month
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+        // Iterate over this month's questions and count the weeks
+        data.ThisMonthQuestion.forEach((question) => {
+          const uploadDate = new Date(question.UploadTime);
+
+          // Check if the upload date is in the specified month and year
+          if (
+        uploadDate.getFullYear() === currentYear &&
+        uploadDate.getMonth() === currentMonth
+          ) {
+        // Calculate the week of the month
+        const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+        const firstDayOfMonthOffset = firstDayOfMonth.getDay(); // Day of the week for the 1st of the month
+
+        // Calculate the week of the month
+        const weekOfMonth = Math.ceil(
+          (uploadDate.getDate() + firstDayOfMonthOffset) / 7
+        );
+
+        // Increment the corresponding week count based on weekOfMonth
+        switch (weekOfMonth) {
+          case 1:
+            weekCount["Week 1"]++;
+            break;
+          case 2:
+            weekCount["Week 2"]++;
+            break;
+          case 3:
+            weekCount["Week 3"]++;
+            break;
+          case 4:
+            weekCount["Week 4"]++;
+            break;
+          case 5:
+            weekCount["Week 5"]++;
+            break;
+        }
+          }
+        });
+
+        questionData.value = Object.values(weekCount);
+
+        // Reset weekCount for answers
+        weekCount = {
+          "Week 1": 0,
+          "Week 2": 0,
+          "Week 3": 0,
+          "Week 4": 0,
+          "Week 5": 0,
+        };
+
+        // Iterate over this month's answers and count the weeks
+        data.ThisMonthAnswer.forEach((answer) => {
+          const uploadDate = new Date(answer.UploadTime);
+
+          // Check if the upload date is in the specified month and year
+          if (
+        uploadDate.getFullYear() === currentYear &&
+        uploadDate.getMonth() === currentMonth
+          ) {
+        // Calculate the week of the month
+        const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+        const firstDayOfMonthOffset = firstDayOfMonth.getDay(); // Day of the week for the 1st of the month
+
+        // Calculate the week of the month
+        const weekOfMonth = Math.ceil(
+          (uploadDate.getDate() + firstDayOfMonthOffset) / 7
+        );
+
+        // Increment the corresponding week count based on weekOfMonth
+        switch (weekOfMonth) {
+          case 1:
+            weekCount["Week 1"]++;
+            break;
+          case 2:
+            weekCount["Week 2"]++;
+            break;
+          case 3:
+            weekCount["Week 3"]++;
+            break;
+          case 4:
+            weekCount["Week 4"]++;
+            break;
+          case 5:
+            weekCount["Week 5"]++;
+            break;
+        }
+          }
+        });
+
+        answerData.value = Object.values(weekCount);
+      } else if (optionsSelect.value === "week") {
+        labelsData.value = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        let dayCount = {
+          Mon: 0,
+          Tue: 0,
+          Wed: 0,
+          Thu: 0,
+          Fri: 0,
+          Sat: 0,
+          Sun: 0,
+        };
+        data.ThisWeekQuestion.forEach((question) => {
+          const uploadDate = new Date(question.UploadTime);
+          const dayIndex = uploadDate.getUTCDay();
+
+          // Map the index to the correct day
+          switch (dayIndex) {
+            case 0:
+              dayCount.Sun++;
+              break;
+            case 1:
+              dayCount.Mon++;
+              break;
+            case 2:
+              dayCount.Tue++;
+              break;
+            case 3:
+              dayCount.Wed++;
+              break;
+            case 4:
+              dayCount.Thu++;
+              break;
+            case 5:
+              dayCount.Fri++;
+              break;
+            case 6:
+              dayCount.Sat++;
+              break;
+          }
+        });
+        data.ThisWeekAnswer.forEach((answer) => {
+          const uploadDate = new Date(answer.UploadTime);
+          const dayIndex = uploadDate.getUTCDay();
+
+          // Map the index to the correct day
+          switch (dayIndex) {
+            case 0:
+              dayCount.Sun++;
+              break;
+            case 1:
+              dayCount.Mon++;
+              break;
+            case 2:
+              dayCount.Tue++;
+              break;
+            case 3:
+              dayCount.Wed++;
+              break;
+            case 4:
+              dayCount.Thu++;
+              break;
+            case 5:
+              dayCount.Fri++;
+              break;
+            case 6:
+              dayCount.Sat++;
+              break;
+          }
+        });
+
+        questionData.value = Object.values(dayCount);
+
+        dayCount = {
+          Mon: 0,
+          Tue: 0,
+          Wed: 0,
+          Thu: 0,
+          Fri: 0,
+          Sat: 0,
+          Sun: 0,
+        };
+        data.ThisWeekAnswer.forEach((answer) => {
+          const uploadDate = new Date(answer.UploadTime);
+          const dayIndex = uploadDate.getUTCDay();
+
+          // Map the index to the correct day
+          switch (dayIndex) {
+            case 0:
+              dayCount.Sun++;
+              break;
+            case 1:
+              dayCount.Mon++;
+              break;
+            case 2:
+              dayCount.Tue++;
+              break;
+            case 3:
+              dayCount.Wed++;
+              break;
+            case 4:
+              dayCount.Thu++;
+              break;
+            case 5:
+              dayCount.Fri++;
+              break;
+            case 6:
+              dayCount.Sat++;
+              break;
+          }
+        });
+        answerData.value = Object.values(dayCount);
+      } else {
+        labelsData.value = [];
+        questionData.value = [];
+        answerData.value = [];
+        data.forEach((item) => {
           labelsData.value.push(item.Time);
           questionData.value.push(item.QuestionCount);
           answerData.value.push(item.AnswerGetCount);
@@ -245,13 +458,13 @@ onMounted(() => {
           v-model="optionsSelect"
           style="width: 100px; margin-bottom: 3px"
         >
-            <option selected value="total">
+          <option selected value="total">
             {{ lan === "zh" ? "总计" : lan === "zh-TW" ? "總計" : "Total" }}
-            </option>
-            <option value="month">
+          </option>
+          <option value="month">
             {{ lan === "zh" ? "月" : lan === "zh-TW" ? "月" : "Month" }}
-            </option>
-            <option value="week">
+          </option>
+          <option value="week">
             {{ lan === "zh" ? "周" : lan === "zh-TW" ? "週" : "Week" }}
           </option>
         </select>

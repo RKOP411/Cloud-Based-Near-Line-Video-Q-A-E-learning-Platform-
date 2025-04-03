@@ -63,140 +63,102 @@ export default {
         .then((data) => {
           //console.log(data);
           if (this.optionsSelect === "month") {
-            this.labelsData = [
-              "Jan",
-              "Feb",
-              "Mar",
-              "Apr",
-              "May",
-              "Jun",
-              "Jul",
-              "Aug",
-              "Sep",
-              "Oct",
-              "Nov",
-              "Dec",
-            ];
-            let monthCount = {
-              Jan: 0,
-              Feb: 0,
-              Mar: 0,
-              Apr: 0,
-              May: 0,
-              Jun: 0,
-              Jul: 0,
-              Aug: 0,
-              Sep: 0,
-              Oct: 0,
-              Nov: 0,
-              Dec: 0,
+            this.labelsData = ["Week 1", "Week 2", "Week 3", "Week 4"];
+            let weekCount = {
+              "Week 1": 0,
+              "Week 2": 0,
+              "Week 3": 0,
+              "Week 4": 0,
+              "Week 5": 0,
             };
+
+            // Get the current month's date
+            const today = new Date();
+
+            // Extracting the relevant year and month for the uploaded questions
+            const year = today.getFullYear(); // Year from current date
+            const month = today.getMonth(); // Month from current date (0-11)
+
+            // Iterate over this month's questions and count the weeks
             data.ThisMonthQuestion.forEach((question) => {
               const uploadDate = new Date(question.UploadTime);
-              const monthIndex = uploadDate.getUTCMonth(); // Get the month index (0 = Jan, 1 = Feb, ..., 11 = Dec)
 
-              // Map the index to the correct month
-              switch (monthIndex) {
-                case 0:
-                  monthCount.Jan++;
-                  break;
-                case 1:
-                  monthCount.Feb++;
-                  break;
-                case 2:
-                  monthCount.Mar++;
-                  break;
-                case 3:
-                  monthCount.Apr++;
-                  break;
-                case 4:
-                  monthCount.May++;
-                  break;
-                case 5:
-                  monthCount.Jun++;
-                  break;
-                case 6:
-                  monthCount.Jul++;
-                  break;
-                case 7:
-                  monthCount.Aug++;
-                  break;
-                case 8:
-                  monthCount.Sep++;
-                  break;
-                case 9:
-                  monthCount.Oct++;
-                  break;
-                case 10:
-                  monthCount.Nov++;
-                  break;
-                case 11:
-                  monthCount.Dec++;
-                  break;
+              // Check if the upload date is in the specified month and year
+              if (
+                uploadDate.getFullYear() === year &&
+                uploadDate.getMonth() === month
+              ) {
+                // Using the formula to determine the week of the month:
+                const weekOfMonth = Math.ceil(
+                  (uploadDate.getDate() + new Date(year, month, 1).getDay()) / 7
+                );
+
+                // Increment the corresponding week count based on weekOfMonth
+                switch (weekOfMonth) {
+                  case 1:
+                    weekCount["Week 1"]++;
+                    break;
+                  case 2:
+                    weekCount["Week 2"]++;
+                    break;
+                  case 3:
+                    weekCount["Week 3"]++;
+                    break;
+                  case 4:
+                    weekCount["Week 4"]++;
+                    break;
+                  case 5:
+                    weekCount["Week 5"]++;
+                    break;
+                }
               }
             });
 
-            this.question = Object.values(monthCount);
-            monthCount = {
-              Jan: 0,
-              Feb: 0,
-              Mar: 0,
-              Apr: 0,
-              May: 0,
-              Jun: 0,
-              Jul: 0,
-              Aug: 0,
-              Sep: 0,
-              Oct: 0,
-              Nov: 0,
-              Dec: 0,
+            this.question = Object.values(weekCount);
+
+            weekCount = {
+              "Week 1": 0,
+              "Week 2": 0,
+              "Week 3": 0,
+              "Week 4": 0,
+              "Week 5": 0,
             };
 
             data.ThisMonthAnswer.forEach((answer) => {
               const uploadDate = new Date(answer.UploadTime);
-              const monthIndex = uploadDate.getUTCMonth(); // Get the month index (0 = Jan, 1 = Feb, ..., 11 = Dec)
 
-              // Map the index to the correct month
-              switch (monthIndex) {
-                case 0:
-                  monthCount.Jan++;
-                  break;
-                case 1:
-                  monthCount.Feb++;
-                  break;
-                case 2:
-                  monthCount.Mar++;
-                  break;
-                case 3:
-                  monthCount.Apr++;
-                  break;
-                case 4:
-                  monthCount.May++;
-                  break;
-                case 5:
-                  monthCount.Jun++;
-                  break;
-                case 6:
-                  monthCount.Jul++;
-                  break;
-                case 7:
-                  monthCount.Aug++;
-                  break;
-                case 8:
-                  monthCount.Sep++;
-                  break;
-                case 9:
-                  monthCount.Oct++;
-                  break;
-                case 10:
-                  monthCount.Nov++;
-                  break;
-                case 11:
-                  monthCount.Dec++;
-                  break;
+              // Check if the upload date is in the specified month and year
+              if (
+                uploadDate.getFullYear() === year &&
+                uploadDate.getMonth() === month
+              ) {
+                // Using the formula to determine the week of the month:
+                const weekOfMonth = Math.ceil(
+                  (uploadDate.getDate() + new Date(year, month, 1).getDay()) / 7
+                );
+
+                // Increment the corresponding week count based on weekOfMonth
+                switch (weekOfMonth) {
+                  case 1:
+                    weekCount["Week 1"]++;
+                    break;
+                  case 2:
+                    weekCount["Week 2"]++;
+                    break;
+                  case 3:
+                    weekCount["Week 3"]++;
+                    break;
+                  case 4:
+                    weekCount["Week 4"]++;
+                    break;
+                  case 5:
+                    weekCount["Week 5"]++;
+                    break;
+                }
               }
             });
-            this.ans = Object.values(monthCount);
+
+            this.ans = Object.values(weekCount);
           } else if (this.optionsSelect === "week") {
             this.labelsData = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
             let dayCount = {

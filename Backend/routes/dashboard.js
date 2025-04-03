@@ -1493,156 +1493,93 @@ router.get('/stu/GetQuestionPerTime/:UserID/:duration', async (req, res) => {
         const connection = await connectToDB();
 
         if (duration == "month") {
-            const query = `
-                WITH WeeklyQuestionCount AS (
-                    SELECT
-                        YEAR(UploadTime) AS Year,
-                        CASE 
-                            WHEN DAY(UploadTime) <= 7 THEN 1
-                            WHEN DAY(UploadTime) <= 14 THEN 2
-                            WHEN DAY(UploadTime) <= 21 THEN 3
-                            WHEN DAY(UploadTime) <= 28 THEN 4
-                            ELSE 5  -- This covers the 5th week
-                        END AS Week,
-                        COUNT(QAID) AS QuestionCount
-                    FROM
-                        Question
-                    WHERE
-                        UserID = ?
-                        AND MONTH(UploadTime) = MONTH(CURDATE()) 
-                        AND YEAR(UploadTime) = YEAR(CURDATE()) 
-                    GROUP BY
-                        YEAR(UploadTime), Week
-                ),
+            const ThisMonthQuestion = `SELECT q.*
+                FROM Question q
+                JOIN queue_list ql ON q.QueueListID = ql.QueueListID
+                WHERE q.UserID = ?
+                AND MONTH(q.UploadTime) = MONTH(CURDATE()) 
+                AND YEAR(q.UploadTime) = YEAR(CURDATE());`
 
-                AllWeeks AS (
-                    SELECT YEAR(CURDATE()) AS Year, 1 AS Week  -- Starting week
-                    UNION ALL SELECT YEAR(CURDATE()), 2
-                    UNION ALL SELECT YEAR(CURDATE()), 3
-                    UNION ALL SELECT YEAR(CURDATE()), 4
-                    UNION ALL SELECT YEAR(CURDATE()), 5
-                )
+            const ThisMonthAnswer = `SELECT q.QAID,
+                MAX(a.UserID) AS UserID,
+                MAX(a.Text) AS Text,          
+                MAX(a.UploadTime) AS UploadTime,
+                SUM(a.TakeTime) AS TotalTakeTime,
+                qu.CourseID,
+                q.UserID AS QuestionUserID
+                FROM Answer a
+                JOIN Question q ON a.QAID = q.QAID
+                JOIN queue_list qu ON q.QueueListID = qu.QueueListID
+                WHERE q.UserID = ?
+                AND MONTH(q.UploadTime) = MONTH(CURDATE()) 
+                AND YEAR(q.UploadTime) = YEAR(CURDATE()) 
+                GROUP BY q.QAID, qu.CourseID;`
 
-                SELECT
-                    CONCAT('Week ', aw.Week) AS Time,
-                    COALESCE(wq.QuestionCount, 0) AS QuestionCount,
-                    COALESCE(COUNT(DISTINCT a.QAID), 0) AS AnswerGetCount  -- Count distinct answers for questions in the same month and user
-                FROM
-                    AllWeeks aw
-                LEFT JOIN WeeklyQuestionCount wq ON aw.Year = wq.Year AND aw.Week = wq.Week
-                LEFT JOIN Question q ON aw.Year = YEAR(q.UploadTime) AND 
-                                    CASE 
-                                        WHEN DAY(q.UploadTime) <= 7 THEN 1
-                                        WHEN DAY(q.UploadTime) <= 14 THEN 2
-                                        WHEN DAY(q.UploadTime) <= 21 THEN 3
-                                        WHEN DAY(q.UploadTime) <= 28 THEN 4
-                                        ELSE 5
-                                    END = aw.Week 
-                                    AND MONTH(q.UploadTime) = MONTH(CURDATE()) 
-                                    AND YEAR(q.UploadTime) = YEAR(CURDATE())
-                LEFT JOIN Answer a ON q.QAID = a.QAID
-                GROUP BY
-                    aw.Year, aw.Week
-                ORDER BY 
-                    aw.Year, aw.Week;`
-            connection.query(query, [UserID], (err, results) => {
-                if (err) {
-                    console.error('Error executing query:', err);
-                    return res.status(500).json({ error: 'Internal server error' });
-                }
+            const results = await Promise.all([
+                new Promise((resolve, reject) => {
+                    connection.query(ThisMonthQuestion, [UserID], (err, results) => {
+                        if (err) return reject(err);
+                        resolve(results);
+                    });
+                }),
+                new Promise((resolve, reject) => {
+                    connection.query(ThisMonthAnswer, [UserID], (err, results) => {
+                        if (err) return reject(err);
+                        resolve(results);
+                    });
+                })
+            ]);
 
-                res.status(200).json(results);
-            });
+            const response = {
+                ThisMonthQuestion: results[0],
+                ThisMonthAnswer: results[1]
+            };
+            res.status(200).json(response);
         }
         else if (duration == "week") {
-            const query = `
-            -- Get the current week number in the month
-            SET @currentWeek = CASE 
-                WHEN DAY(CURDATE()) <= 7 THEN 1
-                WHEN DAY(CURDATE()) <= 14 THEN 2
-                WHEN DAY(CURDATE()) <= 21 THEN 3
-                WHEN DAY(CURDATE()) <= 28 THEN 4
-                ELSE 5  -- Covers months with a 5th week
-            END;
+            const ThisWeekQuestion = `SELECT q.*
+                FROM Question q
+                JOIN queue_list ql ON q.QueueListID = ql.QueueListID
+                WHERE q.UserID = ?
+                AND q.UploadTime >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
+                AND q.UploadTime < DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 7 DAY);
+                `
 
-            -- Start and end of the current week
-            SET @weekStart = DATE_FORMAT(CURDATE() - INTERVAL (DAY(CURDATE()) - 1) DAY, '%Y-%m-%d'); -- Start of the month
-            SET @weekEnd = DATE_FORMAT(CURDATE() - INTERVAL (DAY(CURDATE()) - 1) DAY + INTERVAL 6 DAY, '%Y-%m-%d'); -- End of the month
+            const ThisWeekAnswer = `SELECT 
+                q.QAID,
+                MAX(a.UserID) AS UserID,
+                MAX(a.Text) AS Text,          
+                MAX(a.UploadTime) AS UploadTime,
+                SUM(a.TakeTime) AS TotalTakeTime,
+                qu.CourseID,
+                q.UserID AS QuestionUserID
+            FROM Answer a
+            JOIN Question q ON a.QAID = q.QAID
+            JOIN queue_list qu ON q.QueueListID = qu.QueueListID
+            WHERE q.UserID = ?
+            AND a.UploadTime >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY) -- Monday of current week
+            AND a.UploadTime < DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 7 DAY) -- Next Monday (exclusive)
+            GROUP BY q.QAID, qu.CourseID, q.UserID;`
 
-            -- CTE to count questions per day of the week
-            WITH WeeklyQuestionCount AS (
-                SELECT
-                    CASE DAYOFWEEK(UploadTime)
-                        WHEN 1 THEN 7  -- Sunday -> 7
-                        WHEN 2 THEN 1  -- Monday -> 1
-                        WHEN 3 THEN 2  -- Tuesday -> 2
-                        WHEN 4 THEN 3  -- Wednesday -> 3
-                        WHEN 5 THEN 4  -- Thursday -> 4
-                        WHEN 6 THEN 5  -- Friday -> 5
-                        WHEN 7 THEN 6  -- Saturday -> 6
-                    END AS DayOfWeek,
-                    COUNT(QAID) AS QuestionCount
-                FROM
-                    Question
-                WHERE
-                    UserID = ?
-                    AND UploadTime >= DATE_ADD(@weekStart, INTERVAL ((@currentWeek - 1) * 7) DAY) 
-                    AND UploadTime < DATE_ADD(@weekStart, INTERVAL (@currentWeek * 7) DAY) 
-                GROUP BY
-                    DayOfWeek
-            ),
-
-            -- CTE to define days of the week (custom mapping: 1 = Mon, 2 = Tue, ..., 7 = Sun)
-            DaysOfWeek AS (
-                SELECT 1 AS DayOfWeek, 'Mon' AS Time
-                UNION ALL
-                SELECT 2, 'Tue'
-                UNION ALL
-                SELECT 3, 'Wed'
-                UNION ALL
-                SELECT 4, 'Thu'
-                UNION ALL
-                SELECT 5, 'Fri'
-                UNION ALL
-                SELECT 6, 'Sat'
-                UNION ALL
-                SELECT 7, 'Sun'
-            )
-
-            -- Main query to get question and answer counts
-            SELECT
-                dow.Time,
-                COALESCE(qc.QuestionCount, 0) AS QuestionCount,
-                COALESCE(SUM(CASE WHEN a.QAID IS NOT NULL THEN 1 ELSE 0 END), 0) AS AnswerGetCount
-            FROM
-                DaysOfWeek dow
-            LEFT JOIN WeeklyQuestionCount qc ON dow.DayOfWeek = qc.DayOfWeek
-            LEFT JOIN Question q ON dow.DayOfWeek = CASE DAYOFWEEK(q.UploadTime)
-                    WHEN 1 THEN 7  -- Sunday -> 7
-                    WHEN 2 THEN 1  -- Monday -> 1
-                    WHEN 3 THEN 2  -- Tuesday -> 2
-                    WHEN 4 THEN 3  -- Wednesday -> 3
-                    WHEN 5 THEN 4  -- Thursday -> 4
-                    WHEN 6 THEN 5  -- Friday -> 5
-                    WHEN 7 THEN 6  -- Saturday -> 6
-                END
-                AND q.UserID = ?
-                AND q.UploadTime >= DATE_ADD(@weekStart, INTERVAL ((@currentWeek - 1) * 7) DAY)
-                AND q.UploadTime < DATE_ADD(@weekStart, INTERVAL (@currentWeek * 7) DAY)
-            LEFT JOIN Answer a ON q.QAID = a.QAID
-            GROUP BY
-                dow.Time, dow.DayOfWeek, qc.QuestionCount  -- Include qc.QuestionCount in GROUP BY
-            ORDER BY 
-                dow.DayOfWeek;`
-
-            connection.query(query, [UserID, UserID], (err, results) => {
-                if (err) {
-                    console.error('Error executing query:', err);
-                    return res.status(500).json({ error: 'Internal server error' });
-                }
-
-                res.status(200).json(results);
-            });
+            const results = await Promise.all([
+                new Promise((resolve, reject) => {
+                    connection.query(ThisWeekQuestion, [UserID], (err, results) => {
+                        if (err) return reject(err);
+                        resolve(results);
+                    });
+                }),
+                new Promise((resolve, reject) => {
+                    connection.query(ThisWeekAnswer, [UserID], (err, results) => {
+                        if (err) return reject(err);
+                        resolve(results);
+                    });
+                })
+            ]);
+            const response = {
+                ThisWeekQuestion: results[0],
+                ThisWeekAnswer: results[1]
+            };
+            res.status(200).json(response);
         }
         else {
             const query = `

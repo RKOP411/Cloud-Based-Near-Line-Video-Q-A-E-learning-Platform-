@@ -96,4 +96,36 @@ router.get('/GetStatus/:userId', async (req, res) => {
   });
 });
 
+router.get('/getUser', async (req, res) => {
+  const connection = await connectToDB();
+  const sql = `SELECT * FROM User`;
+
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching users:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+
+    res.status(200).json(results);
+    connection.end(); // End the connection after the query
+  });
+});
+
+router.get('/getMedia', async (req, res) => {
+  const connection = await connectToDB();
+  const sql = `SELECT * FROM Media`;
+
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching media:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+
+    res.status(200).json(results);
+    connection.end(); // End the connection after the query
+  });
+});
+
 module.exports = router;

@@ -1,5 +1,9 @@
 const DomainName = "http://localhost:3000/";
 
+//Admin
+const getUser = DomainName + "getUser";
+const getMedia = DomainName + "getMedia";
+
 
 //Account
 const changePasswordByEmail = "http://localhost:3000/account/changePasswordByEmail";
@@ -87,6 +91,7 @@ const GetStatus = DomainName + "GetStatus";
 
 export {
     DomainName,
+    getUser, getMedia,
     registerDomain, verifyEmailDomain, UpdateRankByUserID, changePasswordByEmail,
     GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment,
     GetAllCourses, GetCoursesByUserID, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse, CreateForumWithVideo,
