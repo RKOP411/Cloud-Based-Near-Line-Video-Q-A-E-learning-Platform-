@@ -4,6 +4,9 @@ const DomainName = "http://localhost:3000/";
 const getUser = DomainName + "getUser";
 const getMedia = DomainName + "getMedia";
 
+//Notfication
+const getNotifications = DomainName + "getNotifications";
+const removeNotificationByNotificationID = DomainName + "removeNotificationByNotificationID";
 
 //Account
 const changePasswordByEmail = "http://localhost:3000/account/changePasswordByEmail";
@@ -58,7 +61,7 @@ const QuitQueue = DomainName + "queue/QuitQueue";
 const getCurrentJoins = DomainName + "queue/getCurrentJoins";
 const PauseQueue = DomainName + "queue/PauseQueue";
 const CloseQueue = DomainName + "queue/CloseQueue";
-const RunQueue = DomainName + "queue/RunQueue"; 
+const RunQueue = DomainName + "queue/RunQueue";
 const GetQueueStatus = DomainName + "queue/GetQueueStatus";
 const GetQueueTimeryCreatorID = DomainName + "queue/GetQueueTimeryCreatorID";
 const getTotalTakeTime = DomainName + "queue/getTotalTakeTime";
@@ -72,6 +75,7 @@ const GetCategoryCount = DomainName + "dashboard/GetCategoryCount";
 const getAnswer_QA_AvgTime = DomainName + "dashboard/getAnswer_QA_AvgTime";
 const GetNumAns = DomainName + "dashboard/GetNumAns";
 const GetQuestionTimes = DomainName + "dashboard/GetQuestionTimes";
+const getAllQuestionByCourseID = DomainName + "dashboard/getAllQuestionByCourseID";
 //Dashboard Extand
 const GetAllAsking = DomainName + "dashboard/GetAllAsking";
 const GetQuestionPerTimes = DomainName + "dashboard/GetQuestionPerTimes";
@@ -92,6 +96,7 @@ const GetStatus = DomainName + "GetStatus";
 export {
     DomainName,
     getUser, getMedia,
+    getNotifications, removeNotificationByNotificationID,
     registerDomain, verifyEmailDomain, UpdateRankByUserID, changePasswordByEmail,
     GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment,
     GetAllCourses, GetCoursesByUserID, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse, CreateForumWithVideo,
@@ -102,9 +107,9 @@ export {
     AddQueue, AddCustomrQueue, GetQueue, CreateQueue_list, GetQueue_listByCreatorID, FindQueueByAccessCode, getAvgTakeTimeByUserID,
     SendStatus, GetStatus,
     JoinQueue, QuitQueue, getCurrentJoins,
-    PauseQueue, CloseQueue, RunQueue, GetQueueStatus, GetQueueTimeryCreatorID,getTotalTakeTime,
+    PauseQueue, CloseQueue, RunQueue, GetQueueStatus, GetQueueTimeryCreatorID, getTotalTakeTime,
     GetQueueByType,
-    GetCourses,GetTop5Asking, GetEngagement,GetCategoryCount,getAnswer_QA_AvgTime,GetNumAns,GetQuestionTimes,
-    GetDashboradQuestions,AnswerGetTotal, AvgWaitingTime, MostTypeAsked, GetQuestionPerTime,
-    GetAllAsking,GetQuestionPerTimes
+    GetCourses, GetTop5Asking, GetEngagement, GetCategoryCount, getAnswer_QA_AvgTime, GetNumAns, GetQuestionTimes,
+    GetDashboradQuestions, AnswerGetTotal, AvgWaitingTime, MostTypeAsked, GetQuestionPerTime,
+    GetAllAsking, GetQuestionPerTimes,getAllQuestionByCourseID
 };

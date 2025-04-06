@@ -17,11 +17,18 @@ router.post('/AddAnswerByQuestionID', async function (req, res) {
         const sql = `INSERT INTO Answer (UserID, QAID, Text, UploadTime, TakeTime) VALUES (?, ?, ?, NOW(), ?)`;
         connection.query(sql, [UserID, QAID, Answer, Timer]);
 
+
         const sql2 = `UPDATE Question SET Replied = 1 WHERE QAID = ?`;
         connection.query(sql2, [QAID])
 
+
         const sql3 = `UPDATE Customer_queue SET Status = 'solved' WHERE QAID = ?`;
         connection.query(sql3, [QAID]);
+
+
+        const sql4 = `INSERT INTO notifications (UserID, QAID, Message, IsRead, CreatedAt) VALUES (?, ?, ?, FALSE, NOW())`;
+        connection.query(sql4, [UserID, QAID, 'Your question has been answered.']);
+
 
         res.status(200).json({ message: 'Answer added successfully' });
         // Close the connection after the query is executed

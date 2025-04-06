@@ -89,7 +89,7 @@ CREATE TABLE Answer(
   UserID int,
   Text LONGTEXT,
   UploadTime datetime,
-    TakeTime INT DEFAULT 0,
+  TakeTime INT DEFAULT 0,
   PRIMARY KEY (ASID),
   FOREIGN KEY (QAID) REFERENCES Question(QAID),
   FOREIGN KEY (UserID) REFERENCES User(UserID)
@@ -177,3 +177,14 @@ CREATE TABLE CourseJoin(
   PRIMARY KEY (CourseJoinID)
 );
 
+
+CREATE TABLE notifications (
+    NotificationID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT,
+    QAID INT,
+    Message VARCHAR(255),
+    IsRead BOOLEAN DEFAULT FALSE,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES User(UserID),
+    FOREIGN KEY (QAID) REFERENCES question(QAID)
+);	

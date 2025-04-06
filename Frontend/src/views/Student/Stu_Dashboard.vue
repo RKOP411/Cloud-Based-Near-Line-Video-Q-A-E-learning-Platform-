@@ -9,6 +9,7 @@ import {
   MostTypeAsked,
   GetQuestionPerTime,
 } from "../../assets/Domain.js";
+
 import { useStore } from "vuex";
 import { computed } from "vue";
 const store = useStore();

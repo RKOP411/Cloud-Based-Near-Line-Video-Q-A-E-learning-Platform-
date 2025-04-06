@@ -1145,6 +1145,39 @@ router.get('/GetQuestionPerTimes/:CourseID/:duration', async (req, res) => {
 
 
 
+router.get('/getAllQuestionByCourseID/:CourseID', async (req, res) => {
+    try {
+        const { CourseID } = req.params;
+
+        if (!CourseID) {
+            return res.status(400).send('CourseID is required');
+        }
+
+        const connection = await connectToDB();
+
+        const query = `
+            SELECT *
+            FROM question q
+            JOIN queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE ql.CourseID = ?;
+        `;
+
+        connection.query(query, [CourseID], (err, results) => {
+            if (err) {
+                console.error('Error executing query:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            res.status(200).json(results);
+        });
+
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving questions:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 
 //=================================================Student Dashboard - Comparative Temporal Performance Analysis=======================================================================================================
 router.get('/stu/GetDashboradQuestions/:UserID/:duration', async (req, res) => {

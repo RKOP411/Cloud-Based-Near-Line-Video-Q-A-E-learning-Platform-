@@ -528,8 +528,11 @@ export default {
 
       return lastUpdatedTime;
     },
+    
+    
   },
   mounted() {
+
     this.getJoins();
     this.getQuestions();
     this.GetAllQueue();
