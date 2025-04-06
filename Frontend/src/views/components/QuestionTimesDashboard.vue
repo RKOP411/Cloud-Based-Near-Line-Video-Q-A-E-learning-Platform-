@@ -339,7 +339,7 @@ export default {
           plugins: {
             title: {
               display: true,
-              text: "Questions per Time",
+              text: "Questions Metrics",
               font: {
                 size: 24,
               },

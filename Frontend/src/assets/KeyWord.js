@@ -32,6 +32,14 @@ function countKeywords(text) {
         "can", "Can", "could", "Could", "will", "Will",
         "would", "Would", "shall", "Shall", "should", "Should",
         "may", "May", "might", "Might", "must", "Must",
+        "will", "Will", "would", "Would", "shall", "Shall",
+        "should", "Should", "may", "May", "might", "Might",
+        "must", "Must",
+        "ought", "Ought", "used", "Used",
+        "need", "Need", "dare", "Dare",
+        "want", "Want", "wish", "Wish", "like", "Like",
+        "prefer", "Prefer", "love", "Love", "hate", "Hate",
+
 
         // Adverbs & Misc
         "very", "Very", "really", "Really", "quite", "Quite", "just", "Just",
@@ -40,6 +48,14 @@ function countKeywords(text) {
         "here", "Here", "there", "There", "where", "Where", "when", "When",
         "why", "Why", "how", "How",
         "this", "This", "that", "That", "these", "These", "those", "Those",
+        "such", "Such", "some", "Some", "any", "Any",
+        "all", "All", "both", "Both", "each", "Each",
+        "every", "Every", "few", "Few", "many", "Many",
+        "most", "Most", "other", "Other", "several", "Several",
+        "own", "Own", "same", "Same", "so", "So",
+        "then", "Then", "thus", "Thus",
+        "Can", "can", "Could", "could", "Will", "will",
+        "Would", "would", "Shall", "shall", "Should", "should",
 
         // Other
         "as", "As", "like", "Like", "than", "Than", "such", "Such",
@@ -55,28 +71,79 @@ function countKeywords(text) {
         "whose", "Whose", "where", "Where", "when", "When",
         "why", "Why", "how", "How",
         "that", "That", "what", "What", "which", "Which",
+        "of", "Of", "to", "To", "in", "In", "on", "On",
+        "at", "At", "for", "For", "with", "With", "about", "About",
+        "against", "Against", "between", "Between", "under", "Under",
+        "over", "Over", "after", "After", "before", "Before",
+        "help", "Help", "need", "Need", "want", "Want",
+        "time", "Time", "day", "Day", "year", "Year",
+        "week", "Week", "month", "Month", "hour", "Hour", 
+        "minute", "Minute", "second", "Second",
+        "thing", "Thing", "place", "Place", "person", "Person",
+        "takes", "Takes", "makes", "Makes", "goes", "Goes",
+        "comes", "Comes", "says", "Says", "sees", "Sees",
+        "wants", "Wants", "needs", "Needs", "likes", "Likes",
+
+        //html tags
+        "html", "head", "body", "title", "meta", "link", "script",
+        "style", "div", "span", "p", "a", "img", "ul", "ol",
+        "li", "table", "tr", "td", "th", "thead", "tbody",
+        "footer", "header", "section", "article", "aside",
+        "nav", "form", "input", "button", "select", "option",
+        "label", "textarea", "br", "hr", "blockquote", "code",
+        "pre", "iframe", "canvas", "svg", "path", "circle",
+        "rect", "line", "polyline", "polygon", "ellipse",
+        "g", "defs", "use", "symbol", "text", "tspan",
+        "tref", "textPath", "marker", "linearGradient",
+        "radialGradient", "stop", "pattern", "filter",
+        "href", "src", "alt", "title", "class", "id",
+        "hr", "br", "div", "span", "strong", "em",
+        "b", "i", "u", "s", "mark", "small",
     ]);
-    // Normalize the text by lowering case and removing punctuation and numbers
+
+    // Define multi-word keywords to count
+    const keywords = [
+        "big o", 
+        "time complexity", 
+        "space complexity", 
+        "dynamic programming", 
+        "depth-first search", 
+        "breadth-first search", 
+        "divide and conquer", 
+        "greedy algorithms", 
+        "a* algorithm"
+    ];
+
+    // Normalize the text
     const normalizedText = text
         .toLowerCase()
         .replace(/[0-9]+/g, '') // Remove numbers
         .replace(/[\W_]+/g, ' ') // Replace non-word characters with spaces
         .trim();
 
-    // Split the text into words
-    const words = normalizedText.split(/\s+/);
+    // Create an object to hold the keyword counts
+    const keywordCount = {};
 
-    // Create an object to hold the word counts
-    const wordCount = {};
-
-    // Count the occurrences of each word
-    words.forEach(word => {
-        if (!commonWords.has(word) && word.length > 0) { // Ignore common words
-            wordCount[word] = (wordCount[word] || 0) + 1;
+    // Count occurrences of multi-word keywords first
+    keywords.forEach(keyword => {
+        const regex = new RegExp(`\\b${keyword}\\b`, 'g'); // Create a regex for the keyword
+        const matches = normalizedText.match(regex); // Match the keyword in the text
+        if (matches) {
+            keywordCount[keyword] = matches.length; // Count occurrences
         }
     });
 
-    return wordCount;
+    // Split the text into words for single word counting, avoiding counted keywords
+    const words = normalizedText.split(/\s+/);
+
+    // Count occurrences of single words, excluding keywords
+    words.forEach(word => {
+        if (!commonWords.has(word) && word.length > 0 && !keywords.includes(word)) { // Ignore common words and keyword phrases
+            keywordCount[word] = (keywordCount[word] || 0) + 1;
+        }
+    });
+
+    return keywordCount;
 }
 
 export { countKeywords };

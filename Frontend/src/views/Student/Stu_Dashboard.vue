@@ -195,35 +195,6 @@ const GetQuestionTime = () => {
               break;
           }
         });
-        data.ThisWeekAnswer.forEach((answer) => {
-          const uploadDate = new Date(answer.UploadTime);
-          const dayIndex = uploadDate.getUTCDay();
-
-          // Map the index to the correct day
-          switch (dayIndex) {
-            case 0:
-              dayCount.Sun++;
-              break;
-            case 1:
-              dayCount.Mon++;
-              break;
-            case 2:
-              dayCount.Tue++;
-              break;
-            case 3:
-              dayCount.Wed++;
-              break;
-            case 4:
-              dayCount.Thu++;
-              break;
-            case 5:
-              dayCount.Fri++;
-              break;
-            case 6:
-              dayCount.Sat++;
-              break;
-          }
-        });
 
         questionData.value = Object.values(dayCount);
 

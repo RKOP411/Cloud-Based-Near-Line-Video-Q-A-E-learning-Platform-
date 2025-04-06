@@ -1145,9 +1145,9 @@ router.get('/GetQuestionPerTimes/:CourseID/:duration', async (req, res) => {
 
 
 
-router.get('/getAllQuestionByCourseID/:CourseID', async (req, res) => {
+router.get('/getAllQuestionByCourseID/:CourseID/:dureation', async (req, res) => {
     try {
-        const { CourseID } = req.params;
+        const { CourseID, dureation } = req.params;
 
         if (!CourseID) {
             return res.status(400).send('CourseID is required');
@@ -1155,22 +1155,59 @@ router.get('/getAllQuestionByCourseID/:CourseID', async (req, res) => {
 
         const connection = await connectToDB();
 
-        const query = `
+        if (dureation == "month") {
+            const query = `
+            SELECT *
+            FROM question q
+            JOIN queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE ql.CourseID = ?
+            AND MONTH(q.UploadTime) = MONTH(CURRENT_DATE())
+            AND YEAR(q.UploadTime) = YEAR(CURRENT_DATE());
+        `;
+            connection.query(query, [CourseID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+
+                res.status(200).json(results);
+            }
+            )
+        } else if (dureation == "week") {
+            const query = `
+            SELECT *
+            FROM question q
+            JOIN queue_list ql ON q.QueueListID = ql.QueueListID
+            WHERE ql.CourseID = ?
+            AND q.UploadTime >= CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY;
+        `;
+            connection.query(query, [CourseID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+
+                res.status(200).json(results);
+            }
+            )
+        }
+        else {
+            const query = `
             SELECT *
             FROM question q
             JOIN queue_list ql ON q.QueueListID = ql.QueueListID
             WHERE ql.CourseID = ?;
         `;
 
-        connection.query(query, [CourseID], (err, results) => {
-            if (err) {
-                console.error('Error executing query:', err);
-                return res.status(500).json({ error: 'Internal server error' });
-            }
+            connection.query(query, [CourseID], (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
 
-            res.status(200).json(results);
-        });
-
+                res.status(200).json(results);
+            });
+        }
         connection.end();
     } catch (error) {
         console.error('Error retrieving questions:', error);
@@ -1544,8 +1581,8 @@ router.get('/stu/GetQuestionPerTime/:UserID/:duration', async (req, res) => {
                 JOIN Question q ON a.QAID = q.QAID
                 JOIN queue_list qu ON q.QueueListID = qu.QueueListID
                 WHERE q.UserID = ?
-                AND MONTH(q.UploadTime) = MONTH(CURDATE()) 
-                AND YEAR(q.UploadTime) = YEAR(CURDATE()) 
+                AND MONTH(a.UploadTime) = MONTH(CURDATE()) 
+                AND YEAR(a.UploadTime) = YEAR(CURDATE()) 
                 GROUP BY q.QAID, qu.CourseID;`
 
             const results = await Promise.all([

@@ -27,6 +27,7 @@ import CourseManage from "../views/Teacher/CourseManage.vue";
 import Stu_Dashboard from "../views/Student/Stu_Dashboard.vue";
 import GetAllRecordDashboard from "../views/components/GetAllRecordDashboard.vue";
 import QuestionTimesDashboard from "../views/components/QuestionTimesDashboard.vue";
+import ShowKeyWord_DashBoard from "../views/components/ShowKeyWord_DashBoard.vue";
 
 
 const routes = [
@@ -174,9 +175,14 @@ const routes = [
   },
   {
     path: "/dashboard-default/questiontimesdashboard",
-    name: "Question Per Times Dashboard",
+    name: "Question Metrics",
     component: QuestionTimesDashboard,
   },
+  {
+    path: "/dashboard-default/showkeyword_dashboard",
+    name: "Show KeyWord Dashboard",
+    component: ShowKeyWord_DashBoard,
+  }
 
 ];
 

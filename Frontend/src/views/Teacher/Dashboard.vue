@@ -204,13 +204,13 @@ if (Email === null || Email === "") {
                     ? '最多的主題'
                     : 'Most Topic'
               "
-              :value="'vertex-cover'"
+              :value="KeyWord"
               :description="
                 lan === 'zh'
-                  ? '今天的主題: <span class=\'text-sm font-weight-bolder text-success\'>vertex-cover</span>'
-                  : lan === 'zh-TW'
-                    ? '今天的主題: <span class=\'text-sm font-weight-bolder text-success\'>vertex-cover</span>'
-                    : 'Today\'s Topic: <span class=\'text-sm font-weight-bolder text-success\'>graph theory</span>'
+                    ? `主題問得最多 <span class='text-sm font-weight-bolder text-success'></span>`
+                    : lan === 'zh-TW'
+                    ? `主題最常问的 <span class='text-sm font-weight-bolder text-success'></span>`
+                    : `Topic Most Student Asked <span class='text-sm font-weight-bolder text-success'></span>`
               "
               :icon="{
                 component: 'ni ni-paper-diploma',
@@ -466,7 +466,6 @@ export default {
       Course: ref([]),
       Top5: ref([]),
       CoursesCategoryCount: ref([]),
-      TestText: "I am a test text",
       selectedCourseID: "",
       MostTypeAsked: ref(""),
       AvgAnswerTimer: ref(""),
@@ -475,16 +474,41 @@ export default {
       QuestionTimesLabel: ref([]),
       QuestionDate: ref([]),
       optionsSelect: "total",
+      KeyWord: ref(""),
     };
   },
 
   methods: {
     async GetQuestion() {
-      fetch(`${getAllQuestionByCourseID}/${this.selectedCourseID}`)
+      fetch(`${getAllQuestionByCourseID}/${this.selectedCourseID}/${this.optionsSelect}`)
         .then((response) => response.json())
         .then((data) => {
           console.log(data);
+            let questionTitle = data.map((item) => String(item.QuestionTitle || ""));
+            let Description = data.map((item) => String(item.Description || ""));
+            const questionKeywords = countKeywords(questionTitle.join(" "));
+            const descriptionKeywords = countKeywords(Description.join(" "));
+
+            // Combine the keyword counts from both question titles and descriptions
+            const combinedKeywords = { ...questionKeywords };
+            for (const [key, value] of Object.entries(descriptionKeywords)) {
+            combinedKeywords[key] = (combinedKeywords[key] || 0) + value;
+            }
+
+            // console.log("Combined Keywords: ", combinedKeywords);
+
+            // Find the keyword with the highest count
+            const mostFrequentKeyword = Object.keys(combinedKeywords).reduce((a, b) =>
+            combinedKeywords[a] > combinedKeywords[b] ? a : b
+            );
+
+            // console.log("Most Frequent Keyword: ", mostFrequentKeyword);
+
+            this.KeyWord = mostFrequentKeyword;
+            // console.log("Most Frequent Keyword: ", this.KeyWord);
+
         });
+
     },
     async questiontimes() {
       this.$router.push({
@@ -722,7 +746,6 @@ export default {
   },
 
   mounted() {
-    console.log(countKeywords(this.TestText));
     this.GetCourses();
   },
 };
