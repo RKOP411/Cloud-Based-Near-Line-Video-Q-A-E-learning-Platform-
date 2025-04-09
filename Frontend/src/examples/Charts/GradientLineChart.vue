@@ -35,37 +35,42 @@ const props = defineProps({
 let chartInstance; // Variable to hold the chart instance
 
 const createChart = () => {
-  const gradientLineChart = document.getElementById(props.id).getContext("2d");
+  const barChartCanvas = document.getElementById(props.id).getContext("2d");
 
-  // Create the gradient stroke
-  var gradientStroke = gradientLineChart.createLinearGradient(0, 230, 0, 50);
-  gradientStroke.addColorStop(1, "rgba(203,12,159,0.2)");
-  gradientStroke.addColorStop(0.2, "rgba(72,72,176,0.0)");
-  gradientStroke.addColorStop(0, "rgba(203,12,159,0)");
-
-  chartInstance = new Chart(gradientLineChart, {
-    type: "line",
+  chartInstance = new Chart(barChartCanvas, {
+    type: "bar", // Histogram uses bar chart type
     data: {
       labels: props.chart.labels,
       datasets: [
         {
           label: props.chart.datasets[0].label,
           data: props.chart.datasets[0].data,
-          backgroundColor: gradientStroke,
-          borderColor: '#4BB543',
-          fill: true,
+          backgroundColor: "rgba(75, 181, 67, 0.5)", // Adjust bar color
+          borderColor: "#4BB543",
+          borderWidth: 1,
         },
       ],
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true },
-        x: { title: { display: true, text: '' } },
-      },
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: true } },
+    scales: {
+        y: { 
+            beginAtZero: true,
+            title: { display: true, text: 'Frequency' }, // Y-axis title for histogram
+            ticks: {
+                // This will format the ticks to show whole numbers
+                callback: function(value) {
+                    return Number.isInteger(value) ? value : ''; // show only whole numbers
+                }
+            }
+        },
+        x: { 
+            title: { display: true, text: 'Opened Queues' }, // X-axis title for histogram
+        },
     },
+},
   });
 };
 
