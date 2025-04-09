@@ -107,7 +107,8 @@ export default {
           //console.log("Combined Keywords: ", combinedKeywords);
           let sortKeywords = Object.entries(combinedKeywords)
             .map(([keyword, count]) => ({ keyword, count }))
-            .sort((a, b) => b.count - a.count);
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 10); // Only take the top 10 keywords
 
           this.keywords = sortKeywords;
         });
