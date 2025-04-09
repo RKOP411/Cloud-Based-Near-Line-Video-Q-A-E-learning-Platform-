@@ -93,6 +93,13 @@ function countKeywords(text) {
         "ask", "Ask", "tell", "Tell", "say", "Say",
         "Ask", "ask", "Tell", "tell", "Say", "say",
 
+        //test data
+        "test", "Test", "testing", "Testing",
+        "example", "Example", "sample", "Sample",
+        "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii",
+        "aaa", "bbb", "ccc", "ddd", "eee", "fff", "ggg", "hhh", "iii",
+        "gg", "fff", "ff", "dd",
+
         //a to z
         "a", "b", "c", "d", "e", "f", "g", "h", "i",
         "j", "k", "l", "m", "n", "o", "p", "q", "r", "s",
@@ -136,6 +143,7 @@ function countKeywords(text) {
         "breadth-first search",
         "divide and conquer",
         "greedy algorithms",
+        "algorithm"
     ];
 
     // Check if text contains <img src="data:image/

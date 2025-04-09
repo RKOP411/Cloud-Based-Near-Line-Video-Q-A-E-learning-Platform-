@@ -115,9 +115,11 @@ export default {
     },
     handleDurationChange(event) {
       this.optionsSelect = event.target.value;
+      this.fetchKeywords();
     },
     handleCourseChange(event) {
       this.selectedCourseID = event.target.value;
+      this.fetchKeywords();
     },
     getPushedData() {
       if (
@@ -126,10 +128,10 @@ export default {
       ) {
         this.selectedCourseID = this.$route.query.selectedCourseID;
         this.optionsSelect = this.$route.query.optionsSelect;
-        console.log(
-          "selectedCourseID: " + this.selectedCourseID,
-          "optionsSelect: " + this.optionsSelect
-        );
+        // console.log(
+        //   "selectedCourseID: " + this.selectedCourseID,
+        //   "optionsSelect: " + this.optionsSelect
+        // );
       }
     },
   },

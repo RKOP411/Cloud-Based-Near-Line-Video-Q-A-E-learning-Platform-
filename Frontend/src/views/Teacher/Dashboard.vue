@@ -498,16 +498,7 @@ export default {
           const questionKeywords = countKeywords(questionTitle.join(" "));
           const descriptionKeywords = countKeywords(Description.join(" "));
 
-          if (questionKeywords === null || questionKeywords === undefined) {
-            return;
-          }
 
-          if (
-            descriptionKeywords === null ||
-            descriptionKeywords === undefined
-          ) {
-            return;
-          }
 
           // Combine the keyword counts from both question titles and descriptions
           const combinedKeywords = { ...questionKeywords };
@@ -519,9 +510,6 @@ export default {
 
           // Find the keyword with the highest count
 
-          if (combinedKeywords == null || combinedKeywords == undefined) {
-            return;
-          }
           const mostFrequentKeyword = Object.keys(combinedKeywords).reduce(
             (a, b) => (combinedKeywords[a] > combinedKeywords[b] ? a : b),
             ""
