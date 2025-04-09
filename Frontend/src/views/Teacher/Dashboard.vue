@@ -197,6 +197,11 @@ if (Email === null || Email === "") {
           </div>
           <div class="col-lg-3 col-md-6 col-12">
             <mini-statistics-card
+              @click="ShowKeyWord()"
+              style="transition: transform 0.2s; cursor: pointer"
+              @mouseover="hover = true"
+              @mouseleave="hover = false"
+              :style="{ transform: hover ? 'scale(1.02)' : 'scale(1)' }"
               :title="
                 lan === 'zh'
                   ? '最多的主題'
@@ -207,8 +212,8 @@ if (Email === null || Email === "") {
               :value="KeyWord"
               :description="
                 lan === 'zh'
-                    ? `主題問得最多 <span class='text-sm font-weight-bolder text-success'></span>`
-                    : lan === 'zh-TW'
+                  ? `主題問得最多 <span class='text-sm font-weight-bolder text-success'></span>`
+                  : lan === 'zh-TW'
                     ? `主題最常问的 <span class='text-sm font-weight-bolder text-success'></span>`
                     : `Topic Most Student Asked <span class='text-sm font-weight-bolder text-success'></span>`
               "
@@ -480,35 +485,46 @@ export default {
 
   methods: {
     async GetQuestion() {
-      fetch(`${getAllQuestionByCourseID}/${this.selectedCourseID}/${this.optionsSelect}`)
+      fetch(
+        `${getAllQuestionByCourseID}/${this.selectedCourseID}/${this.optionsSelect}`
+      )
         .then((response) => response.json())
         .then((data) => {
           console.log(data);
-            let questionTitle = data.map((item) => String(item.QuestionTitle || ""));
-            let Description = data.map((item) => String(item.Description || ""));
-            const questionKeywords = countKeywords(questionTitle.join(" "));
-            const descriptionKeywords = countKeywords(Description.join(" "));
+          let questionTitle = data.map((item) =>
+            String(item.QuestionTitle || "")
+          );
+          let Description = data.map((item) => String(item.Description || ""));
+          const questionKeywords = countKeywords(questionTitle.join(" "));
+          const descriptionKeywords = countKeywords(Description.join(" "));
 
-            // Combine the keyword counts from both question titles and descriptions
-            const combinedKeywords = { ...questionKeywords };
-            for (const [key, value] of Object.entries(descriptionKeywords)) {
+          // Combine the keyword counts from both question titles and descriptions
+          const combinedKeywords = { ...questionKeywords };
+          for (const [key, value] of Object.entries(descriptionKeywords)) {
             combinedKeywords[key] = (combinedKeywords[key] || 0) + value;
-            }
+          }
 
-            // console.log("Combined Keywords: ", combinedKeywords);
+          // console.log("Combined Keywords: ", combinedKeywords);
 
-            // Find the keyword with the highest count
-            const mostFrequentKeyword = Object.keys(combinedKeywords).reduce((a, b) =>
-            combinedKeywords[a] > combinedKeywords[b] ? a : b
-            );
+          // Find the keyword with the highest count
+          const mostFrequentKeyword = Object.keys(combinedKeywords).reduce(
+            (a, b) => (combinedKeywords[a] > combinedKeywords[b] ? a : b)
+          );
 
-            // console.log("Most Frequent Keyword: ", mostFrequentKeyword);
+          // console.log("Most Frequent Keyword: ", mostFrequentKeyword);
 
-            this.KeyWord = mostFrequentKeyword;
-            // console.log("Most Frequent Keyword: ", this.KeyWord);
-
+          this.KeyWord = mostFrequentKeyword;
+          // console.log("Most Frequent Keyword: ", this.KeyWord);
         });
-
+    },
+    async ShowKeyWord() {
+      this.$router.push({
+        path: "/dashboard-default/showkeyword_dashboard",
+        query: {
+          selectedCourseID: this.selectedCourseID,
+          optionsSelect: this.optionsSelect,
+        },
+      });
     },
     async questiontimes() {
       this.$router.push({

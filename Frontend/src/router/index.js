@@ -180,7 +180,7 @@ const routes = [
   },
   {
     path: "/dashboard-default/showkeyword_dashboard",
-    name: "Show KeyWord Dashboard",
+    name: "Show KeyWord",
     component: ShowKeyWord_DashBoard,
   }
 

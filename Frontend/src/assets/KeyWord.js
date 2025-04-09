@@ -83,6 +83,31 @@ function countKeywords(text) {
         "takes", "Takes", "makes", "Makes", "goes", "Goes",
         "comes", "Comes", "says", "Says", "sees", "Sees",
         "wants", "Wants", "needs", "Needs", "likes", "Likes",
+        "opens", "Opens", "closes", "Closes", "starts", "Starts",
+        "open", "Open", "close", "Close", "start", "Start",
+        "stop", "Stop", "play", "Play", "pause", "Pause",
+        "cannot", "Cannot", "could not", "Could not", "would not", "Would not",
+        "should not", "Should not", "might not", "Might not",
+        "using", "Using", "used", "Used", "use", "Use",
+        "used to", "Used to", "used to be", "Used to be",
+        "ask", "Ask", "tell", "Tell", "say", "Say",
+        "Ask", "ask", "Tell", "tell", "Say", "say",
+
+        //a to z
+        "a", "b", "c", "d", "e", "f", "g", "h", "i",
+        "j", "k", "l", "m", "n", "o", "p", "q", "r", "s",
+        "t", "u", "v", "w", "x", "y", "z",
+        "A", "B", "C", "D", "E", "F", "G", "H", "I",
+        "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S",
+        "T", "U", "V", "W", "X", "Y", "Z",
+        //numbers
+        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+        //punctuation
+        "!", "@", "#", "$", "%", "^", "&", "*", "(", ")",
+        "-", "_", "=", "+", "{", "}", "[", "]", "|",
+        ";", ":", "'", "\"", "<", ">", ",", ".", "?",
+        "/", "\\", "`", "~",
+        
 
         //html tags
         "html", "head", "body", "title", "meta", "link", "script",
