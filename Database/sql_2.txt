@@ -26,7 +26,6 @@ CREATE TABLE Question(
   MediaID int,
   CourseID int,
   QueueListID int,
-  Week INT DEFAULT 1 NOT NULL,
   QuestionTitle varchar(255) NOT NULL,
   Description text NOT NULL,
   UploadTime datetime,

@@ -77,7 +77,7 @@ function countKeywords(text) {
         "over", "Over", "after", "After", "before", "Before",
         "help", "Help", "need", "Need", "want", "Want",
         "time", "Time", "day", "Day", "year", "Year",
-        "week", "Week", "month", "Month", "hour", "Hour", 
+        "week", "Week", "month", "Month", "hour", "Hour",
         "minute", "Minute", "second", "Second",
         "thing", "Thing", "place", "Place", "person", "Person",
         "takes", "Takes", "makes", "Makes", "goes", "Goes",
@@ -107,7 +107,7 @@ function countKeywords(text) {
         "-", "_", "=", "+", "{", "}", "[", "]", "|",
         ";", ":", "'", "\"", "<", ">", ",", ".", "?",
         "/", "\\", "`", "~",
-        
+
 
         //html tags
         "html", "head", "body", "title", "meta", "link", "script",
@@ -128,16 +128,20 @@ function countKeywords(text) {
 
     // Define multi-word keywords to count
     const keywords = [
-        "big o", 
-        "time complexity", 
-        "space complexity", 
-        "dynamic programming", 
-        "depth-first search", 
-        "breadth-first search", 
-        "divide and conquer", 
-        "greedy algorithms", 
-        "a* algorithm"
+        "big o",
+        "time complexity",
+        "space complexity",
+        "dynamic programming",
+        "depth-first search",
+        "breadth-first search",
+        "divide and conquer",
+        "greedy algorithms",
     ];
+
+    // Check if text contains <img src="data:image/
+    if (text.includes('<img src="data:image/')) {
+        return {}; // Return an empty object if it contains the image tag
+    }
 
     // Normalize the text
     const normalizedText = text
@@ -153,12 +157,13 @@ function countKeywords(text) {
     keywords.forEach(keyword => {
         const regex = new RegExp(`\\b${keyword}\\b`, 'g'); // Create a regex for the keyword
         const matches = normalizedText.match(regex); // Match the keyword in the text
+
         if (matches) {
             keywordCount[keyword] = matches.length; // Count occurrences
         }
     });
 
-    // Split the text into words for single word counting, avoiding counted keywords
+    // Split the text into words for single word counting
     const words = normalizedText.split(/\s+/);
 
     // Count occurrences of single words, excluding keywords

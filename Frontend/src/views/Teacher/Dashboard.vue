@@ -209,7 +209,7 @@ if (Email === null || Email === "") {
                     ? '最多的主題'
                     : 'Most Topic'
               "
-              :value="KeyWord"
+                :value="KeyWord || 'No Keyword Yet'"
               :description="
                 lan === 'zh'
                   ? `主題問得最多 <span class='text-sm font-weight-bolder text-success'></span>`
@@ -497,6 +497,15 @@ export default {
           let Description = data.map((item) => String(item.Description || ""));
           const questionKeywords = countKeywords(questionTitle.join(" "));
           const descriptionKeywords = countKeywords(Description.join(" "));
+          
+          if(questionKeywords === null || questionKeywords === undefined){
+            return;
+          }
+
+          if(descriptionKeywords === null || descriptionKeywords === undefined){
+            return;
+          }
+
 
           // Combine the keyword counts from both question titles and descriptions
           const combinedKeywords = { ...questionKeywords };
@@ -504,11 +513,17 @@ export default {
             combinedKeywords[key] = (combinedKeywords[key] || 0) + value;
           }
 
+
           // console.log("Combined Keywords: ", combinedKeywords);
 
           // Find the keyword with the highest count
+
+          if(combinedKeywords == null || combinedKeywords == undefined){
+            return;
+          }
           const mostFrequentKeyword = Object.keys(combinedKeywords).reduce(
-            (a, b) => (combinedKeywords[a] > combinedKeywords[b] ? a : b)
+            (a, b) => (combinedKeywords[a] > combinedKeywords[b] ? a : b),
+            ""
           );
 
           // console.log("Most Frequent Keyword: ", mostFrequentKeyword);
