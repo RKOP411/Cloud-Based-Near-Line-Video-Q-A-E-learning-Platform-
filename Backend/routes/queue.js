@@ -698,7 +698,7 @@ router.get('/GetInvitationUser', async (req, res) => {
     try {
         const connection = await connectToDB();
         // Query to get the TA information
-        const query = 'SELECT * FROM User WHERE Role = "TA"';
+        const query = 'SELECT * FROM User WHERE T_rank = "TA"';
         const results = await new Promise((resolve, reject) => {
             connection.query(query, (error, results) => {
                 if (error) return reject(error);
@@ -721,27 +721,27 @@ router.get('/GetInvitationUser', async (req, res) => {
 });
 
 
-router.post('/SendInvitationByUserID/:UserID/:QueueListID', async (req, res) => {
-  const { UserID, QueueListID } = req.params;
+router.post('/SendInvitationByUserID/:UserID/:QueueListID/:SenderID', async (req, res) => {
+    const { UserID, QueueListID, SenderID } = req.params;
 
-  if (!UserID || !QueueListID) {
-    console.error("Missing required fields");
-    return res.status(400).send('UserID and QueueListID are required');
-  }
-
-  const connection = await connectToDB();
-  const sql = `INSERT INTO invitation (UserID, QueueListID, Message, CreatedAt, IsRead) VALUES (?, ?, ?, NOW(), 0)`;
-
-  connection.query(sql, [UserID, QueueListID, 'You have been invited to join the queue'], (err, results) => {
-    if (err) {
-      console.error('Error inserting invitation:', err);
-      res.status(500).send('Server error');
-      return;
+    if (!UserID || !QueueListID) {
+        console.error("Missing required fields");
+        return res.status(400).send('UserID and QueueListID are required');
     }
 
-    res.status(200).json({ message: 'Invitation sent successfully', InvitationID: results.insertId });
-    connection.end(); // End the connection after the query
-  });
+    const connection = await connectToDB();
+    const sql = `INSERT INTO invitation (UserID, QueueListID, Message, CreatedAt, IsRead,SenderID) VALUES (?, ?, ?, NOW(), 0,?)`;
+
+    connection.query(sql, [UserID, QueueListID, 'You have been invited to join the queue', SenderID], (err, results) => {
+        if (err) {
+            console.error('Error inserting invitation:', err);
+            res.status(500).send('Server error');
+            return;
+        }
+
+        res.status(200).json({ message: 'Invitation sent successfully', InvitationID: results.insertId });
+        connection.end(); // End the connection after the query
+    });
 });
 
 

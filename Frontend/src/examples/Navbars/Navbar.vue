@@ -116,7 +116,7 @@ const closeMenu = () => {
                 <span>No notifications</span>
               </li>
               <li
-                v-else
+                v-else-if="Role === 'Student' && tableData.length > 0"
                 v-for="notification in tableData"
                 :key="notification.NotificationID"
                 class="mb-3"
@@ -169,6 +169,62 @@ const closeMenu = () => {
                   </div>
                 </a>
               </li>
+              <li
+                v-else-if="Role === 'Teacher' && tableData.length > 0"
+                v-for="invitation in tableData"
+                :key="invitation.InvitationID"
+                class="mb-3"
+              >
+                <a
+                  class="dropdown-item border-radius-md shadow-sm p-3"
+                  href="javascript:;"
+                  style="
+                    background-color: #f9f9f9;
+                    border-left: 4px solid #28a745;
+                  "
+                >
+                  <div class="d-flex align-items-start">
+                    <div class="me-3">
+                      <i
+                        class="fa fa-envelope"
+                        aria-hidden="true"
+                        style="font-size: 2rem; color: #28a745"
+                      ></i>
+                    </div>
+                    <div class="flex-grow-1">
+                      <h6 class="mb-1 text-sm font-weight-normal">
+                        <span class="font-weight-bold text-dark"
+                          >New Invitation</span
+                        >
+                        from
+                        <span class="font-weight-bold text-primary">{{
+                          invitation.UserName
+                        }}</span>
+                        of Course
+                        <span class="font-weight-bold text-primary">{{
+                          invitation.CourseName
+                        }}</span>
+                        in Queue
+                        <span class="font-weight-bold">{{
+                          invitation.CourseWeek
+                        }}</span>
+                      </h6>
+                      <button
+                        class="btn btn-success btn-sm mt-2"
+                        @click="joinCourse(invitation.InvitationID)"
+                      >
+                        Join
+                      </button>
+                      <p class="mb-1 text-xs text-secondary">
+                        <i class="fa fa-clock me-1"></i>
+                        <span :title="invitation.CreatedAt">{{
+                          TimeAgo(invitation.CreatedAt)
+                        }}</span>
+                      </p>
+                    </div>
+                  </div>
+                </a>
+              </li>
             </ul>
           </li>
         </ul>
@@ -181,16 +237,31 @@ const closeMenu = () => {
 import {
   getNotifications,
   removeNotificationByNotificationID,
+  getInvitation,
 } from "../../assets/Domain.js";
 
 export default {
   data() {
     return {
+      Role: localStorage.getItem("Role"),
       tableData: [],
       UserID: localStorage.getItem("UserID"),
     };
   },
   methods: {
+    getInvitation() {
+      if (this.Role === "Teacher") {
+        fetch(`${getInvitation}/${this.UserID}`)
+          .then((response) => response.json())
+          .then((data) => {
+            this.tableData = data;
+            //console.log(this.tableData);
+          })
+          .catch((error) => {
+            console.error("Error fetching user data:", error);
+          });
+      }
+    },
     ClickNotifi(NotificationID) {
       //console.log(NotificationID);
       fetch(`${removeNotificationByNotificationID}/${NotificationID}`, {
@@ -207,7 +278,7 @@ export default {
         .catch((error) => {
           console.error("Error deleting notification:", error);
         });
-        this.getAllNotifi();
+      this.getAllNotifi();
     },
     TimeAgo(NotifiMessage) {
       const date = new Date(NotifiMessage);
@@ -237,10 +308,23 @@ export default {
     },
   },
   mounted() {
-    this.getAllNotifi();
-    setInterval(() => {
+    if (this.Role === "Teacher") {
+      this.getInvitation();
+    }
+    if (this.Role === "Student") {
       this.getAllNotifi();
-    }, 5000);
+    }
+
+    if (this.Role === "Student") {
+      setInterval(() => {
+        this.getAllNotifi();
+      }, 5000);
+    }
+    if (this.Role === "Teacher") {
+      setInterval(() => {
+        this.getInvitation();
+      }, 5000);
+    }
   },
 };
 </script>

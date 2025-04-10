@@ -7,6 +7,7 @@ const getMedia = DomainName + "getMedia";
 //Notfication
 const getNotifications = DomainName + "getNotifications";
 const removeNotificationByNotificationID = DomainName + "removeNotificationByNotificationID";
+const getInvitation = DomainName + "getInvitation";
 
 //Account
 const changePasswordByEmail = "http://localhost:3000/account/changePasswordByEmail";
@@ -101,6 +102,7 @@ export {
     DomainName,
     getUser, getMedia,
     getNotifications, removeNotificationByNotificationID,
+    getInvitation,
     registerDomain, verifyEmailDomain, UpdateRankByUserID, changePasswordByEmail,
     GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment,
     GetAllCourses, GetCoursesByUserID, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse, CreateForumWithVideo,

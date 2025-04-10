@@ -261,12 +261,15 @@ export default {
     SendInvatitation(selectedUsers) {
       const urlParams = new URLSearchParams(window.location.search);
       const QueueListID = urlParams.get("QueueListID");
-      fetch(`${SendInvitationByUserID}/${selectedUsers}/${QueueListID}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
+      fetch(
+        `${SendInvitationByUserID}/${selectedUsers}/${QueueListID}/${userId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
         .then((response) => response.json())
         .then((data) => {
           console.log("Invitation sent successfully:", data);
@@ -285,13 +288,13 @@ export default {
         .then((response) => response.json())
         .then((data) => {
           const users = data
-            .filter((user) => user.Role === "TA")
+            .filter((user) => user.T_rank === "TA") // Use T_rank instead of Role
             .map((user) => ({ name: user.UserName, id: user.UserID }));
           // Continue with the rest of the logic using the filtered users
           const userList = users
             .map(
               (user) =>
-                `<li class="list-group-item list-group-item-action d-flex align-items-center" style="cursor: pointer;" onclick="toggleSelection('${user.id}')">
+          `<li class="list-group-item list-group-item-action d-flex align-items-center" style="cursor: pointer;" onclick="toggleSelection('${user.id}')">
         <input type="checkbox" class="form-check-input me-2" value="${user.id}" />
         <span>${user.name}</span>
             </li>`
@@ -570,13 +573,13 @@ export default {
         })
         .then(async (data) => {
           this.questions = await data.questions;
-          console.log("questions:", this.questions);
+          // console.log("questions:", this.questions);
           for (let i = 0; i < this.questions.length; i++) {
             this.questions[i].UploadTime = this.Calculate_LastUpdate(
               this.questions[i].UploadTime
             );
           }
-          console.log("Data: " + data[0]);
+          // console.log("Data: " + data[0]);
           if (this.questions[0] != null) {
             this.AccessCode = this.questions[0].AccessCode;
           } else {

@@ -206,5 +206,47 @@ router.put('/removeNotificationByNotificationID/:NotificationID', async (req, re
   });
 });
 
+router.get('/getInvitation/:UserID', async (req, res) => {
+  const { UserID } = req.params;
+
+  if (!UserID) {
+    console.error("User ID is undefined");
+    return res.status(400).send('User ID is required');
+  }
+
+  const connection = await connectToDB();
+  const sql = `
+    SELECT 
+      invitation.InvitationID, 
+      User.UserName, 
+      User.Email, 
+      Course.CourseName, 
+      Queue_list.CourseWeek,
+      invitation.CreatedAt,
+      invitation.QueueListID
+    FROM invitation
+    JOIN User ON invitation.SenderID = User.UserID
+    JOIN Queue_list ON invitation.QueueListID = Queue_list.QueueListID
+    JOIN Course ON Queue_list.CourseID = Course.CourseID
+    WHERE invitation.UserID = ?;
+  `;
+
+  connection.query(sql, [UserID], (err, results) => {
+    if (err) {
+      console.error('Error fetching invitation:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ message: 'Invitation not found' });
+      return;
+    }
+
+    res.status(200).json(results);
+    connection.end(); // End the connection after the query
+  });
+});
+
 
 module.exports = router;
