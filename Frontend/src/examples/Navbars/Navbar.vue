@@ -174,6 +174,7 @@ const closeMenu = () => {
                 v-for="invitation in tableData"
                 :key="invitation.InvitationID"
                 class="mb-3"
+                @click="ClickInva(invitation.InvitationID)"
               >
                 <a
                   class="dropdown-item border-radius-md shadow-sm p-3"
@@ -300,6 +301,22 @@ export default {
             console.error("Error fetching user data:", error);
           });
       }
+    },
+    ClickInva(InvID){
+      fetch(`${removeInvitationByInvitationID}/${InvID}`, {
+        method: "PUT",
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log("Invitation deleted successfully");
+            this.getInvitation();
+          } else {
+            console.error("Error deleting invitation");
+          }
+        })
+        .catch((error) => {
+          console.error("Error deleting invitation:", error);
+        });
     },
     ClickNotifi(NotificationID) {
       //console.log(NotificationID);
