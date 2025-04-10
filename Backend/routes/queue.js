@@ -757,7 +757,7 @@ router.get('/GetHelperByQueueListID/:QueueListID', async (req, res) => {
 
         // Query to get the helpers (TAs) associated with the QueueListID
         const query = `
-            SELECT u.UserID, u.UserName, u.T_rank
+            SELECT DISTINCT u.UserID, u.UserName, u.T_rank
             FROM User u
             JOIN Queue_Helper qh ON u.UserID = qh.UserID
             WHERE qh.QueueListID = ?;
