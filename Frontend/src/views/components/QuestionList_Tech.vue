@@ -230,6 +230,7 @@ import {
   getCurrentJoins,
   GetAllQuestionWithType,
   GetInvitationUser,
+  SendInvitationByUserID,
 } from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
 import Quill from "quill";
@@ -257,6 +258,23 @@ export default {
     };
   },
   methods: {
+    SendInvatitation(selectedUsers) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const QueueListID = urlParams.get("QueueListID");
+      fetch(`${SendInvitationByUserID}/${selectedUsers}/${QueueListID}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Invitation sent successfully:", data);
+        })
+        .catch((error) => {
+          console.error("Error sending invitation:", error);
+        });
+    },
     ShowHelper() {
       fetch(GetInvitationUser, {
         method: "GET",
@@ -267,13 +285,13 @@ export default {
         .then((response) => response.json())
         .then((data) => {
           const users = data
-        .filter((user) => user.Role === "TA")
-        .map((user) => ({ name: user.UserName, id: user.UserID }));
+            .filter((user) => user.Role === "TA")
+            .map((user) => ({ name: user.UserName, id: user.UserID }));
           // Continue with the rest of the logic using the filtered users
           const userList = users
-        .map(
+            .map(
               (user) =>
-          `<li class="list-group-item list-group-item-action d-flex align-items-center" style="cursor: pointer;" onclick="toggleSelection('${user.id}')">
+                `<li class="list-group-item list-group-item-action d-flex align-items-center" style="cursor: pointer;" onclick="toggleSelection('${user.id}')">
         <input type="checkbox" class="form-check-input me-2" value="${user.id}" />
         <span>${user.name}</span>
             </li>`
@@ -324,7 +342,11 @@ export default {
             .getElementById("inviteButton")
             .addEventListener("click", () => {
               if (selectedUsers.length > 0) {
-                alert(`Invited: ${selectedUsers.join(", ")}`);
+                selectedUsers.forEach((user) => {
+                  const encodedUser = encodeURIComponent(user);
+                  this.SendInvatitation(encodedUser);
+                });
+                alert("Invitation sent to users." + selectedUsers);
               } else {
                 alert("No users selected.");
               }
