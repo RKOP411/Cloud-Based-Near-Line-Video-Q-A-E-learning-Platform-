@@ -17,7 +17,7 @@
           class="people-count"
           style="font-size: 20px; color: #00796b; margin-right: 20px"
         >
-          <span style="margin-right: 10px; color: #2196f3">0 Helpers</span>
+          <span style="margin-right: 10px; color: #2196f3">{{ HelpersJoin }} Helpers</span>
           {{ CurrentJoins }} Students
         </div>
       </div>
@@ -231,6 +231,7 @@ import {
   GetAllQuestionWithType,
   GetInvitationUser,
   SendInvitationByUserID,
+  GetHelperByQueueListID,
 } from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
 import Quill from "quill";
@@ -241,6 +242,7 @@ const userId = localStorage.getItem("UserID");
 export default {
   data() {
     return {
+      HelpersJoin:0,
       CurrentJoins: 0,
       AccessCode: "",
       TheoryCount: 0,
@@ -258,6 +260,23 @@ export default {
     };
   },
   methods: {
+    GetHelpNum(){
+      const urlParams = new URLSearchParams(window.location.search);
+      const QueueListID = urlParams.get("QueueListID");
+      fetch(`${GetHelperByQueueListID}/${QueueListID}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          this.HelpersJoin = data.length;
+        })
+        .catch((error) => {
+          console.error("Error fetching current joins:", error);
+        });
+    },
     SendInvatitation(selectedUsers) {
       const urlParams = new URLSearchParams(window.location.search);
       const QueueListID = urlParams.get("QueueListID");
@@ -646,12 +665,14 @@ export default {
     },
   },
   mounted() {
+    this.GetHelpNum();
     this.getJoins();
     this.getQuestions();
     this.GetAllQueue();
     this.beforeDestroy();
     setInterval(() => {
       this.getJoins();
+      this.GetHelpNum();
       if (this.CurrentChoiceType == "") {
         this.getQuestions();
       } else {

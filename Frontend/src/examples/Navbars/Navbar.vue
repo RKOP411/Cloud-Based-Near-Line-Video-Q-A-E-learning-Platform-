@@ -211,7 +211,12 @@ const closeMenu = () => {
                       </h6>
                       <button
                         class="btn btn-success btn-sm mt-2"
-                        @click="joinCourse(invitation.InvitationID)"
+                        @click="
+                          joinCourse(
+                            invitation.QueueListID,
+                            invitation.InvitationID
+                          )
+                        "
                       >
                         Join
                       </button>
@@ -238,6 +243,8 @@ import {
   getNotifications,
   removeNotificationByNotificationID,
   getInvitation,
+  JoinInvitation,
+  removeInvitationByInvitationID,
 } from "../../assets/Domain.js";
 
 export default {
@@ -249,6 +256,38 @@ export default {
     };
   },
   methods: {
+    joinCourse(QueueListID, InvitationID) {
+      fetch(`${removeInvitationByInvitationID}/${InvitationID}`, {
+        method: "PUT",
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log("Invitation deleted successfully");
+          } else {
+            console.error("Error deleting invitation");
+          }
+        })
+        .catch((error) => {
+          console.error("Error deleting invitation:", error);
+        });
+      fetch(`${JoinInvitation}/${this.UserID}/${QueueListID}`, {
+        method: "POST",
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log("Joined successfully");
+            this.$router.push({
+              path: "/managequeue/answerquestion",
+              query: { QueueListID: QueueListID },
+            });
+          } else {
+            console.error("Error joining course");
+          }
+        })
+        .catch((error) => {
+          console.error("Error joining course:", error);
+        });
+    },
     getInvitation() {
       if (this.Role === "Teacher") {
         fetch(`${getInvitation}/${this.UserID}`)

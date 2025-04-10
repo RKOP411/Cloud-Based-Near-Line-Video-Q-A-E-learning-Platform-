@@ -248,5 +248,58 @@ router.get('/getInvitation/:UserID', async (req, res) => {
   });
 });
 
+router.put('/removeInvitationByInvitationID/:InvitationID', async (req, res) => {
+  const { InvitationID } = req.params;
+
+  if (!InvitationID) {
+    console.error("Invitation ID is undefined");
+    return res.status(400).send('Invitation ID is required');
+  }
+
+  const connection = await connectToDB();
+  const sql = `DELETE FROM invitation WHERE InvitationID = ?`;
+
+  connection.query(sql, [InvitationID], (err, results) => {
+    if (err) {
+      console.error('Error deleting invitation:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+    if (results.affectedRows === 0) {
+      res.status(404).json({ message: 'Invitation not found' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Invitation deleted successfully' });
+    connection.end(); // End the connection after the query
+  });
+}
+);
+
+router.post('/JoinInvitation/:UserID/:QueueListID', async (req, res) => {
+  const { UserID, QueueListID } = req.params;
+
+  if (!UserID || !QueueListID) {
+    console.error("User ID or Queue List ID is undefined");
+    return res.status(400).send('User ID and Queue List ID are required');
+  }
+
+  const connection = await connectToDB();
+  const sql = `
+    INSERT INTO Queue_Helper (QueueListID, UserID)
+    VALUES (?, ?)
+  `;
+
+  connection.query(sql, [QueueListID, UserID], (err, results) => {
+    if (err) {
+      console.error('Error joining invitation:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+
+    res.status(200).json({ message: 'User successfully joined the queue' });
+    connection.end(); // End the connection after the query
+  });
+});
 
 module.exports = router;

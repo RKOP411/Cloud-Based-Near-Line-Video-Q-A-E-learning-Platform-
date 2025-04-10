@@ -8,6 +8,8 @@ const getMedia = DomainName + "getMedia";
 const getNotifications = DomainName + "getNotifications";
 const removeNotificationByNotificationID = DomainName + "removeNotificationByNotificationID";
 const getInvitation = DomainName + "getInvitation";
+const JoinInvitation = DomainName + "JoinInvitation";
+const removeInvitationByInvitationID = DomainName + "removeInvitationByInvitationID";
 
 //Account
 const changePasswordByEmail = "http://localhost:3000/account/changePasswordByEmail";
@@ -69,7 +71,7 @@ const getTotalTakeTime = DomainName + "queue/getTotalTakeTime";
 const GetQueueByType = DomainName + "queue/GetQueueByType";
 const GetInvitationUser = DomainName + "queue/GetInvitationUser";
 const SendInvitationByUserID = DomainName + "queue/SendInvitationByUserID";
-
+const GetHelperByQueueListID = DomainName + "queue/GetHelperByQueueListID";
 //Dashboard
 const GetCourses = DomainName + "dashboard/GetCourses";
 const GetTop5Asking = DomainName + "dashboard/GetTop5Asking";
@@ -102,7 +104,7 @@ export {
     DomainName,
     getUser, getMedia,
     getNotifications, removeNotificationByNotificationID,
-    getInvitation,
+    getInvitation,removeInvitationByInvitationID,JoinInvitation,
     registerDomain, verifyEmailDomain, UpdateRankByUserID, changePasswordByEmail,
     GetAllForum, GetForumContentByID, GetCommentByForumID, AddComment,
     GetAllCourses, GetCoursesByUserID, GetForumByCourseID, CreateForum, CourseNumQuesstion, CreateCourse, CreateForumWithVideo,
@@ -118,5 +120,5 @@ export {
     GetCourses, GetTop5Asking, GetEngagement, GetCategoryCount, getAnswer_QA_AvgTime, GetNumAns, GetQuestionTimes,
     GetDashboradQuestions, AnswerGetTotal, AvgWaitingTime, MostTypeAsked, GetQuestionPerTime,
     GetAllAsking, GetQuestionPerTimes,getAllQuestionByCourseID,
-    GetInvitationUser,SendInvitationByUserID
+    GetInvitationUser,SendInvitationByUserID,GetHelperByQueueListID
 };

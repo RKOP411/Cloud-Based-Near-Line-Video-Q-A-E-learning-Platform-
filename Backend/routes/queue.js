@@ -745,5 +745,43 @@ router.post('/SendInvitationByUserID/:UserID/:QueueListID/:SenderID', async (req
 });
 
 
+router.get('/GetHelperByQueueListID/:QueueListID', async (req, res) => {
+    try {
+        const { QueueListID } = req.params;
+
+        if (!QueueListID) {
+            return res.status(400).send('QueueListID is required');
+        }
+
+        const connection = await connectToDB();
+
+        // Query to get the helpers (TAs) associated with the QueueListID
+        const query = `
+            SELECT u.UserID, u.UserName, u.T_rank
+            FROM User u
+            JOIN Queue_Helper qh ON u.UserID = qh.UserID
+            WHERE qh.QueueListID = ?;
+        `;
+        const results = await new Promise((resolve, reject) => {
+            connection.query(query, [QueueListID], (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+        if (results.length === 0) {
+            return res.status(404).send('No helpers found for the given QueueListID');
+        }
+
+        res.status(200).json(results);
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving helpers:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 // Export the router
 module.exports = router;
