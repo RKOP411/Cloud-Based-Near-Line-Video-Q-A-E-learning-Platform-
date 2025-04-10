@@ -4,11 +4,20 @@
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="mb-0" style="font-weight: bold; font-size: 24px">
           Access Code: <span style="color: #00796b">{{ AccessCode }}</span>
+          <button
+            class="btn btn-success"
+            style="margin-left: 20px"
+            @click="ShowHelper()"
+          >
+            Invatation
+          </button>
         </h5>
+
         <div
           class="people-count"
           style="font-size: 20px; color: #00796b; margin-right: 20px"
         >
+          <span style="margin-right: 10px; color: #2196f3">0 Helpers</span>
           {{ CurrentJoins }} Students
         </div>
       </div>
@@ -27,7 +36,7 @@
       <div class="container mt-2">
         <a
           @click="ClearQuestionType()"
-          style="cursor: pointer;"
+          style="cursor: pointer"
           @mouseover="hover = true"
           @mouseleave="hover = false"
           :style="{ color: hover ? '#00796b' : 'inherit' }"
@@ -220,11 +229,13 @@ import {
   SendStatus,
   getCurrentJoins,
   GetAllQuestionWithType,
+  GetInvitationUser,
 } from "../../assets/Domain.js";
 import DOMPurify from "dompurify";
 import Quill from "quill";
 
 import "quill/dist/quill.snow.css"; // Import Quill's CSS
+import * as bootstrap from "bootstrap"; // Import Bootstrap's JavaScript
 const userId = localStorage.getItem("UserID");
 export default {
   data() {
@@ -246,6 +257,86 @@ export default {
     };
   },
   methods: {
+    ShowHelper() {
+      fetch(GetInvitationUser, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          const users = data
+        .filter((user) => user.Role === "TA")
+        .map((user) => ({ name: user.UserName, id: user.UserID }));
+          // Continue with the rest of the logic using the filtered users
+          const userList = users
+        .map(
+              (user) =>
+          `<li class="list-group-item list-group-item-action d-flex align-items-center" style="cursor: pointer;" onclick="toggleSelection('${user.id}')">
+        <input type="checkbox" class="form-check-input me-2" value="${user.id}" />
+        <span>${user.name}</span>
+            </li>`
+            )
+            .join("");
+
+          const popup = document.createElement("div");
+          popup.className = "modal fade";
+          popup.id = "inviteModal";
+          popup.tabIndex = "-1";
+          popup.role = "dialog";
+          popup.innerHTML = `
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Select Helper to invite</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="list-group">
+            ${userList}
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="inviteButton">Invite</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+          </div>
+        </div>
+      `;
+
+          document.body.appendChild(popup);
+
+          const modal = new bootstrap.Modal(popup);
+          modal.show();
+
+          const selectedUsers = [];
+          window.toggleSelection = function (user) {
+            if (selectedUsers.includes(user)) {
+              const index = selectedUsers.indexOf(user);
+              selectedUsers.splice(index, 1);
+            } else {
+              selectedUsers.push(user);
+            }
+          };
+
+          document
+            .getElementById("inviteButton")
+            .addEventListener("click", () => {
+              if (selectedUsers.length > 0) {
+                alert(`Invited: ${selectedUsers.join(", ")}`);
+              } else {
+                alert("No users selected.");
+              }
+
+              modal.hide();
+            });
+
+          popup.addEventListener("hidden.bs.modal", () => {
+            document.body.removeChild(popup);
+          });
+        });
+    },
     ClearQuestionType() {
       this.CurrentChoiceType = "";
       this.getQuestions();
@@ -528,11 +619,8 @@ export default {
 
       return lastUpdatedTime;
     },
-    
-    
   },
   mounted() {
-
     this.getJoins();
     this.getQuestions();
     this.GetAllQueue();

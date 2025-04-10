@@ -54,7 +54,7 @@ router.post('/status', async (req, res) => {
               console.error('Error updating status to offline:', err);
               return;
             }
-           // console.log(`User ${userId} status set to Offline due to inactivity`);
+            // console.log(`User ${userId} status set to Offline due to inactivity`);
           });
         }
       });
@@ -202,6 +202,31 @@ router.put('/removeNotificationByNotificationID/:NotificationID', async (req, re
     }
 
     res.status(200).json({ message: 'Notification updated successfully' });
+    connection.end(); // End the connection after the query
+  });
+});
+
+
+router.post('/SendInvitationByUserID/:UserID/:QueueListID', async (req, res) => {
+  const { UserID, QueueListID } = req.params;
+  let { Message } = "You have been invited to join the queue";
+
+  if (!UserID || !Message || !QueueListID) {
+    console.error("Missing required fields");
+    return res.status(400).send('UserID, Message, and QueueListID are required');
+  }
+
+  const connection = await connectToDB();
+  const sql = `INSERT INTO invitation (UserID, QueueListID, Message, CreatedAt, IsRead) VALUES (?, ?, ?, NOW(), 0)`;
+
+  connection.query(sql, [UserID, QueueListID, Message], (err, results) => {
+    if (err) {
+      console.error('Error inserting invitation:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+
+    res.status(200).json({ message: 'Invitation sent successfully', InvitationID: results.insertId });
     connection.end(); // End the connection after the query
   });
 });

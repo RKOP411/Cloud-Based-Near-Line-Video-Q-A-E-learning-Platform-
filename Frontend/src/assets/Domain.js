@@ -66,6 +66,7 @@ const GetQueueStatus = DomainName + "queue/GetQueueStatus";
 const GetQueueTimeryCreatorID = DomainName + "queue/GetQueueTimeryCreatorID";
 const getTotalTakeTime = DomainName + "queue/getTotalTakeTime";
 const GetQueueByType = DomainName + "queue/GetQueueByType";
+const GetInvitationUser = DomainName + "queue/GetInvitationUser";
 
 //Dashboard
 const GetCourses = DomainName + "dashboard/GetCourses";
@@ -93,6 +94,8 @@ const GetStatus = DomainName + "GetStatus";
 
 
 
+
+
 export {
     DomainName,
     getUser, getMedia,
@@ -111,5 +114,6 @@ export {
     GetQueueByType,
     GetCourses, GetTop5Asking, GetEngagement, GetCategoryCount, getAnswer_QA_AvgTime, GetNumAns, GetQuestionTimes,
     GetDashboradQuestions, AnswerGetTotal, AvgWaitingTime, MostTypeAsked, GetQuestionPerTime,
-    GetAllAsking, GetQuestionPerTimes,getAllQuestionByCourseID
+    GetAllAsking, GetQuestionPerTimes,getAllQuestionByCourseID,
+    GetInvitationUser
 };

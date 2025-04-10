@@ -694,5 +694,34 @@ router.get('/GetQueueStatus/:QueueListID', async (req, res) => {
     }
 });
 
+router.get('/GetInvitationUser', async (req, res) => {
+    try {
+        const connection = await connectToDB();
+        // Query to get the TA information
+        const query = 'SELECT * FROM User WHERE Role = "TA"';
+        const results = await new Promise((resolve, reject) => {
+            connection.query(query, (error, results) => {
+                if (error) return reject(error);
+                resolve(results);
+            });
+        });
+
+        if (results.length === 0) {
+            return res.status(404).send('No TA found for the given UserID');
+        }
+
+        res.status(200).json(results);
+
+        // Ensure connection is closed
+        connection.end();
+    } catch (error) {
+        console.error('Error retrieving TA information:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
+
 // Export the router
 module.exports = router;

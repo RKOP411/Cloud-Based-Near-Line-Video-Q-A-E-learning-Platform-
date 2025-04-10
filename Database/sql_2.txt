@@ -82,6 +82,14 @@ CREATE TABLE Queue_Students (
   FOREIGN KEY (UserID) REFERENCES User(UserID)
 );
 
+CREATE TABLE Queue_Helper (
+  QueueListID INT,
+  UserID INT,
+  PRIMARY KEY (QueueListID, UserID),
+  FOREIGN KEY (QueueListID) REFERENCES Queue_list(QueueListID),
+  FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+
 CREATE TABLE Answer(
   ASID int AUTO_INCREMENT,
   QAID int,
@@ -186,4 +194,15 @@ CREATE TABLE notifications (
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES User(UserID),
     FOREIGN KEY (QAID) REFERENCES question(QAID)
+);
+
+CREATE TABLE invitation(
+    InvitationID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT,
+    QueueListID INT,
+    Message VARCHAR(255),
+    IsRead BOOLEAN DEFAULT FALSE,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES User(UserID),
+    FOREIGN KEY (QueueListID) REFERENCES Queue_list(QueueListID)
 );	
