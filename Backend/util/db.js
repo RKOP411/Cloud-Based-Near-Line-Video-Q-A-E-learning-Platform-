@@ -16,23 +16,7 @@ async function connectToDB() {
         keepAliveInitialDelay: 1000
     });
 
-    // Function to clear all active MySQL connections
-async function clearAllConnections(connection) {
-    try {
-        const [processlist] = await connection.query('SHOW PROCESSLIST;');
-        
-        // Iterate over the processes in the process list
-        for (const row of processlist) {
-            // You can decide to skip certain processes based on your requirements
-            if (row.Id !== connection.threadId) { // Skip your own connection to avoid issues
-                await connection.query(`KILL ${row.Id};`);
-                console.log(`Killed process with ID: ${row.Id}`);
-            }
-        }
-    } catch (error) {
-        console.error('Error clearing connections:', error);
-    }
-}
+    
 
     // Connect to MySQL
     connection.connect((err) => {
