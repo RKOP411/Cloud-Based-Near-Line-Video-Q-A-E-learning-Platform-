@@ -288,7 +288,70 @@ export default {
         console.log(data);
         if (data.count > 0) {
           simimlar = true;
-          errormsg.value = "A similar question already exists.";
+            const modalHtml = `
+            <div class="modal fade" id="similarQuestionsModal" tabindex="-1" aria-labelledby="similarQuestionsModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="similarQuestionsModalLabel">Similar Questions Found</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                <p>The following similar questions were found:</p>
+                <table class="table table-bordered">
+                  <thead>
+                  <tr>
+                    <th scope="col">QAID</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Text</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  ${data.similarQuestions
+                    .map(
+                    (question) => `
+                    <tr>
+                    <td>${question.QAID}</td>
+                    <td>${question.Description}</td>
+                    <td>${question.Text || "N/A"}</td>
+                    </tr>
+                  `
+                    )
+                    .join("")}
+                  </tbody>
+                </table>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+              </div>
+              </div>
+            </div>
+            `;
+
+            // Append the modal HTML to the body
+            document.body.insertAdjacentHTML("beforeend", modalHtml);
+
+            // Show the modal
+            const modalElement = new bootstrap.Modal(
+            document.getElementById("similarQuestionsModal")
+            );
+            modalElement.show();
+
+            // Handle the modal close event
+            const modalCloseButton = document.querySelector(
+            "#similarQuestionsModal .btn-close"
+            );
+            modalCloseButton.addEventListener("click", () => {
+            modalElement.hide(); // Hide the modal
+            document.getElementById("similarQuestionsModal").remove(); // Remove modal from DOM
+            });
+
+            // Also handle the modal dismissal from the backdrop
+            const modalBackdrop = document.querySelector("#similarQuestionsModal");
+            modalBackdrop.addEventListener("hidden.bs.modal", () => {
+            document.getElementById("similarQuestionsModal").remove(); // Remove modal from DOM
+            });
           return;
         }
       });

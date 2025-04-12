@@ -377,7 +377,14 @@ router.get('/CheckSimilar/:UserInput', async function (req, res) {
         const connection = await connectToDB();
 
         // Fetch QAID and Description from the question table
-        const sql = `SELECT QAID, Description FROM Question`;
+        const sql = `
+                SELECT 
+                    Question.QAID, 
+                    Question.Description, 
+                    Answer.Text 
+                FROM Question 
+                LEFT JOIN Answer ON Question.QAID = Answer.QAID
+            `;
         const [questions] = await connection.promise().query(sql);
 
         // Find similar questions
