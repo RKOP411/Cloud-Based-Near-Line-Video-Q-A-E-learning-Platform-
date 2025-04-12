@@ -122,6 +122,7 @@ import {
   AddQueue,
   AddCustomrQueue,
   GetQueueByType,
+  CheckSimilar,
 } from "../../assets/Domain.js";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle";
 
@@ -268,6 +269,33 @@ export default {
         errormsg.value = "Please fill all fields";
         return;
       }
+      let filteredDescription = quill.value.root.innerHTML.replace(
+        /<\/?[^>]+(>|$)/g,
+        ""
+      );
+      let simimlar = false;
+
+      await fetch(`${CheckSimilar}/${filteredDescription}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(async (response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        console.log(data);
+        if (data.count > 0) {
+          simimlar = true;
+          errormsg.value = "A similar question already exists.";
+          return;
+        }
+      });
+      if (simimlar) {
+        return;
+      }
+
       //const formData = new FormData();
       //console.log(formData);
       const response = await fetch(CreateQuestion, {

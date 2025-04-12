@@ -404,8 +404,8 @@ function isSimilarToUserQuestion(userInput, dbQuestion) {
     const dbText = dbQuestion.toLowerCase();
 
     // 1. Check if either is a question
-    const userIsQuestion = /^(what|how|can|explain|define|do|is|are)/i.test(userText);
-    const dbIsQuestion = /^(what|how|can|explain|define|do|is|are)/i.test(dbText);
+    const userIsQuestion = /^(what|how|can|explain|define||do|who|where|when|why|which|whose|could|may|should|would)/i.test(userText);
+    const dbIsQuestion = /^(what|how|can|explain|define||do|who|where|when|why|which|whose|could|may|should|would)/i.test(dbText);
 
     // If one is question and other isn't, they're not similar
     if (userIsQuestion !== dbIsQuestion) return false;

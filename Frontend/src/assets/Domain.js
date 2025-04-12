@@ -50,6 +50,7 @@ const GetQuestionByUserID = DomainName + "qa/GetQuestionByUserID/";
 const GetAnswerByQAID = DomainName + "qa/GetAnswerByQAID/";
 const GetAllQuestionByQueueListID = DomainName + "qa/GetAllQuestionByQueueListID";
 const GetAllQuestionWithType = DomainName + "qa/GetAllQuestionWithType";
+const CheckSimilar = DomainName + "qa/CheckSimilar";
 
 //Queue
 const AddQueue = DomainName + "queue/AddQueue";
@@ -102,7 +103,7 @@ const GetStatus = DomainName + "GetStatus";
 
 export {
     DomainName,
-    getUser, getMedia,
+    getUser, getMedia,CheckSimilar,
     getNotifications, removeNotificationByNotificationID,
     getInvitation,removeInvitationByInvitationID,JoinInvitation,
     registerDomain, verifyEmailDomain, UpdateRankByUserID, changePasswordByEmail,
