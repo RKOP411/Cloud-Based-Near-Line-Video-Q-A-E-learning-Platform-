@@ -368,6 +368,46 @@ router.get('/GetAllQuestionWithType/:QueueListID/:Type', async function (req, re
     }
 });
 
+
+router.get('/CheckSimilar/:UserInput', async function (req, res) {
+    try {
+        const { UserInput } = req.params;
+        const connection = await connectToDB();
+
+        // Fetch QAID and Description from the question table
+        const sql = `SELECT QAID, Description FROM Question`;
+        const [paragraphs] = await connection.promise().query(sql);
+
+        // Split user input into words and convert to lowercase
+        const userWords = UserInput.split(" ").map(word => word.toLowerCase());
+
+        // Function to check if a sentence is similar to an algorithm-related question
+        const isSimilarToAlgorithmQuestion = (sentence) => {
+            const text = sentence.Description.toLowerCase();
+
+            // Check if the sentence contains any user input words
+            const hasKeyWordTerm = userWords.some(word => text.includes(word));
+
+            // Check if the sentence is a question
+            const isQuestion = text.endsWith("?") || /^(what|how|can|explain|define|do)/i.test(text);
+
+            return hasKeyWordTerm && isQuestion;
+        };
+
+        // Filter paragraphs to find similar sentences
+        const similarSentences = paragraphs.filter(sentence =>
+            isSimilarToAlgorithmQuestion(sentence)
+        );
+
+        res.status(200).json(similarSentences);
+        connection.end();
+    } catch (error) {
+        console.error('Error checking similar questions:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
 router.post('/CreateQuestion', async function (req, res, next) {
     try {
         const { UserID, QuestionTitle, Type, Description, QueueListID } = req.body;
@@ -454,6 +494,7 @@ router.post('/CreateQuestionWithVideo', async function (req, res, next) {
         }
     });
 });
+
 
 
 module.exports = router;
