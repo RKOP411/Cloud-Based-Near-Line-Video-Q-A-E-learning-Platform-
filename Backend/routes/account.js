@@ -24,7 +24,7 @@ router.get('/verifyEmail', async function (req, res, next) {
         });
 
         // Close the connection
-        connection.end();
+        connection.release();
 
     } catch (error) {
         console.error('Error connecting to the database:', error);

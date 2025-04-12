@@ -298,7 +298,7 @@ router.get('/GetAllQuestionByQueueListID/:QueueListID', async function (req, res
         }
         res.status(200).json(response);
 
-       // connection.end();
+        connection.end();
 
 
     } catch (error) {

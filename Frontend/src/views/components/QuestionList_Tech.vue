@@ -17,7 +17,7 @@
           class="people-count"
           style="font-size: 20px; color: #00796b; margin-right: 20px"
         >
-          <span style="margin-right: 10px; color: #2196f3">{{ HelpersJoin }} Helpers</span>
+          <span style="margin-right: 10px; color: #2196f3" @click="ShowHelpsList()">{{ HelpersJoin }} Helpers</span>
           {{ CurrentJoins }} Students
         </div>
       </div>
@@ -257,9 +257,61 @@ export default {
       userActive: false,
       heartbeatInterval: null,
       CurrentChoiceType: "",
+      currentHelpsList: [],
     };
   },
   methods: {
+    ShowHelpsList(){
+      const popup = document.createElement("div");
+      popup.className = "modal fade";
+      popup.id = "helpersListModal";
+      popup.tabIndex = "-1";
+      popup.role = "dialog";
+      popup.innerHTML = `
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Helpers List</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th scope="col">Index</th>
+                    <th scope="col">Helper Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${this.currentHelpsList
+                    .map(
+                      (helper, index) => `
+                        <tr>
+                          <td>${index + 1}</td>
+                          <td>${helper.name}</td>
+                        </tr>
+                      `
+                    )
+                    .join("")}
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(popup);
+
+      const modal = new bootstrap.Modal(popup);
+      modal.show();
+
+      popup.addEventListener("hidden.bs.modal", () => {
+        document.body.removeChild(popup);
+      });
+    },
     GetHelpNum(){
       const urlParams = new URLSearchParams(window.location.search);
       const QueueListID = urlParams.get("QueueListID");
@@ -272,6 +324,9 @@ export default {
         .then((response) => response.json())
         .then((data) => {
           this.HelpersJoin = data.length;
+          this.currentHelpsList = data.map((user) => ({
+            name: user.UserName,
+          }));
         })
         .catch((error) => {
           console.error("Error fetching current joins:", error);
