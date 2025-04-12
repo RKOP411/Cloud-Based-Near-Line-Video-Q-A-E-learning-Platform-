@@ -175,7 +175,6 @@ router.get('/getNotifications/:UserID', async (req, res) => {
     }
 
     res.status(200).json(results);
-    connection.end(); // End the connection after the query
   });
 });
 
@@ -244,7 +243,7 @@ router.get('/getInvitation/:UserID', async (req, res) => {
     }
 
     res.status(200).json(results);
-    connection.end(); // End the connection after the query
+   
   });
 });
 

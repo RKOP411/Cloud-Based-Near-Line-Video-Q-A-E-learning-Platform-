@@ -273,7 +273,9 @@ export default {
         /<\/?[^>]+(>|$)/g,
         ""
       );
-      let simimlar = false;
+
+      // let ContinueAsking = false;
+      let userChoice = '';
 
       await fetch(`${CheckSimilar}/${filteredDescription}`, {
         method: "GET",
@@ -287,8 +289,7 @@ export default {
         const data = await response.json();
         console.log(data);
         if (data.count > 0) {
-          simimlar = true;
-            const modalHtml = `
+          const modalHtml = `
             <div class="modal fade" id="similarQuestionsModal" tabindex="-1" aria-labelledby="similarQuestionsModalLabel" aria-hidden="true">
               <div class="modal-dialog modal-lg">
               <div class="modal-content">
@@ -308,10 +309,10 @@ export default {
                   <tbody>
                   ${data.similarQuestions
                     .map(
-                    (question) => `
+                      (question) => `
                     <tr>
                     <td>${question.Description}</td>
-                    <td>${question.Text ? question.Text : "No answer yet"}</td>
+                    <td style="word-wrap: break-word; white-space: pre-wrap;">${question.Text ? question.Text : "No answer yet"}</td>
                     </tr>
                   `
                     )
@@ -320,70 +321,88 @@ export default {
                 </table>
                 </div>
                 <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-secondary" id="closeModalBtn">Close</button>
+              <button type="button" class="btn btn-primary" id="continueAskingBtn">Continue Asking</button>
+                </div>
+                </div>
                 </div>
               </div>
-              </div>
-            </div>
-            `;
+              `;
 
-            // Append the modal HTML to the body
-            document.body.insertAdjacentHTML("beforeend", modalHtml);
-
-            // Show the modal
-            const modalElement = new bootstrap.Modal(
+          document.body.insertAdjacentHTML("beforeend", modalHtml);
+          const modalElement = new bootstrap.Modal(
             document.getElementById("similarQuestionsModal")
-            );
-            modalElement.show();
+          );
 
-            // Handle the modal close event
-            const modalCloseButton = document.querySelector(
+          // Return a promise that resolves when user makes a choice
+           userChoice = await new Promise((resolve) => {
+            document
+              .getElementById("continueAskingBtn")
+              .addEventListener("click", () => {
+                modalElement.hide();
+                resolve(true); // User wants to continue
+              });
+
+            document
+              .getElementById("closeModalBtn")
+              .addEventListener("click", () => {
+                modalElement.hide();
+                resolve(false); // User doesn't want to continue
+              });
+
+            modalElement.show();
+          });
+
+          // Handle the modal close event
+          const modalCloseButton = document.querySelector(
             "#similarQuestionsModal .btn-close"
-            );
-            modalCloseButton.addEventListener("click", () => {
+          );
+          modalCloseButton.addEventListener("click", () => {
             modalElement.hide(); // Hide the modal
             document.getElementById("similarQuestionsModal").remove(); // Remove modal from DOM
-            });
+          });
 
-            // Also handle the modal dismissal from the backdrop
-            const modalBackdrop = document.querySelector("#similarQuestionsModal");
-            modalBackdrop.addEventListener("hidden.bs.modal", () => {
+          // Also handle the modal dismissal from the backdrop
+          const modalBackdrop = document.querySelector(
+            "#similarQuestionsModal"
+          );
+          modalBackdrop.addEventListener("hidden.bs.modal", () => {
             document.getElementById("similarQuestionsModal").remove(); // Remove modal from DOM
-            });
+          });
           return;
         }
       });
-      if (simimlar) {
+      if (!userChoice) {
         return;
+      } else {
+        //const formData = new FormData();
+        //console.log(formData);
+        const response = await fetch(CreateQuestion, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            QuestionTitle: QuestionTitle.value,
+            Description: quill.value.root.innerHTML,
+            Type: type.value,
+            UserID: userId,
+            QueueListID: QueueListID,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        console.log(data);
+        await AddIntoCustomerQueue();
+        await AddIntoQueue();
+        await GetCurrentQueue();
+
+        //router.push("/questionlist");
       }
-
-      //const formData = new FormData();
-      //console.log(formData);
-      const response = await fetch(CreateQuestion, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          QuestionTitle: QuestionTitle.value,
-          Description: quill.value.root.innerHTML,
-          Type: type.value,
-          UserID: userId,
-          QueueListID: QueueListID,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      const data = await response.json();
-      console.log(data);
-      await AddIntoCustomerQueue();
-      await AddIntoQueue();
-      await GetCurrentQueue();
-
-      //router.push("/questionlist");
     };
 
     const AddQuestionVideo = async () => {

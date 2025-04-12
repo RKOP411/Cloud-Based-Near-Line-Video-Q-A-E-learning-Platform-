@@ -7,7 +7,11 @@ async function connectToDB() {
         user: 'root',      // Your database username
         password: 'root12', // Your database password
         database: 'LearnPlatform',
-        multipleStatements: true
+        multipleStatements: true,
+        waitForConnections: true,
+        connectionLimit: 10, // Adjust this number based on your expected load
+        queueLimit: 0,
+        connectTimeout: 2000 // Connection timeout in milliseconds
     });
 
     // Connect to MySQL

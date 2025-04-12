@@ -174,7 +174,6 @@ router.get('/GetQueue/:QueueListID', async (req, res) => {
 
         res.status(200).json(response);
 
-        connection.end();
     } catch (error) {
         console.error('Error connecting to the database:', error);
         res.status(500).send('Server error');
@@ -202,8 +201,6 @@ router.get('/GetQueueByType/:QueueListID/:QueueType', async (req, res) => {
 
         res.status(200).json({ count: results });
 
-        // Ensure connection is closed
-        connection.end();
     } catch (error) {
         console.error('Error retrieving queues by type:', error);
         res.status(500).send('Server error');
