@@ -7,6 +7,8 @@ const cors = require('cors')
 const app = express();
 app.use(cors());
 const mysql = require('mysql2/promise');
+const natural = require('natural');
+const nlp = require('compromise');
 
 router.post('/AddAnswerByQuestionID', async function (req, res) {
     try {
@@ -376,36 +378,65 @@ router.get('/CheckSimilar/:UserInput', async function (req, res) {
 
         // Fetch QAID and Description from the question table
         const sql = `SELECT QAID, Description FROM Question`;
-        const [paragraphs] = await connection.promise().query(sql);
+        const [questions] = await connection.promise().query(sql);
 
-        // Split user input into words and convert to lowercase
-        const userWords = UserInput.split(" ").map(word => word.toLowerCase());
-
-        // Function to check if a sentence is similar to an algorithm-related question
-        const isSimilarToAlgorithmQuestion = (sentence) => {
-            const text = sentence.Description.toLowerCase();
-
-            // Check if the sentence contains any user input words
-            const hasKeyWordTerm = userWords.some(word => text.includes(word));
-
-            // Check if the sentence is a question
-            const isQuestion = text.endsWith("?") || /^(what|how|can|explain|define|do)/i.test(text);
-
-            return hasKeyWordTerm && isQuestion;
-        };
-
-        // Filter paragraphs to find similar sentences
-        const similarSentences = paragraphs.filter(sentence =>
-            isSimilarToAlgorithmQuestion(sentence)
+        // Find similar questions
+        const similarQuestions = questions.filter(question =>
+            isSimilarToUserQuestion(UserInput, question.Description)
         );
 
-        res.status(200).json(similarSentences);
+        res.status(200).json({
+            userInput: UserInput,
+            similarQuestions: similarQuestions,
+            count: similarQuestions.length
+        });
+
         connection.end();
     } catch (error) {
         console.error('Error checking similar questions:', error);
         res.status(500).send('Server error');
     }
 });
+
+function isSimilarToUserQuestion(userInput, dbQuestion) {
+    // Normalize both inputs
+    const userText = userInput.toLowerCase();
+    const dbText = dbQuestion.toLowerCase();
+
+    // 1. Check if either is a question
+    const userIsQuestion = /^(what|how|can|explain|define|do|is|are)/i.test(userText);
+    const dbIsQuestion = /^(what|how|can|explain|define|do|is|are)/i.test(dbText);
+
+    // If one is question and other isn't, they're not similar
+    if (userIsQuestion !== dbIsQuestion) return false;
+
+    // 2. Check keyword similarity using TF-IDF
+    const tfidf = new natural.TfIdf();
+    tfidf.addDocument(userText);
+    tfidf.addDocument(dbText);
+
+    const userTerms = new Set();
+    const dbTerms = new Set();
+
+    tfidf.listTerms(0).forEach(item => userTerms.add(item.term));
+    tfidf.listTerms(1).forEach(item => dbTerms.add(item.term));
+
+    // Calculate Jaccard similarity
+    const intersection = new Set([...userTerms].filter(term => dbTerms.has(term)));
+    const union = new Set([...userTerms, ...dbTerms]);
+    const similarity = intersection.size / union.size;
+
+    // 3. Check for specific important terms
+    const importantTerms = ['algorithm', 'complexity', 'sort', 'recursion', 'structure'];
+    const hasImportantTerm = importantTerms.some(term =>
+        userText.includes(term) || dbText.includes(term)
+    );
+
+    // Consider similar if either:
+    // - Similarity score > 0.4
+    // - Shares important term and similarity > 0.2
+    return similarity > 0.4 || (hasImportantTerm && similarity > 0.2);
+}
 
 
 router.post('/CreateQuestion', async function (req, res, next) {
