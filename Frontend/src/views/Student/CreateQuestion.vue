@@ -301,9 +301,8 @@ export default {
                 <table class="table table-bordered">
                   <thead>
                   <tr>
-                    <th scope="col">QAID</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Text</th>
+                    <th scope="col">Question</th>
+                    <th scope="col">Answer</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -311,9 +310,8 @@ export default {
                     .map(
                     (question) => `
                     <tr>
-                    <td>${question.QAID}</td>
                     <td>${question.Description}</td>
-                    <td>${question.Text || "N/A"}</td>
+                    <td>${question.Text ? question.Text : "No answer yet"}</td>
                     </tr>
                   `
                     )
