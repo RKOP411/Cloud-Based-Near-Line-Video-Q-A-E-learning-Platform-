@@ -24,7 +24,7 @@ router.get('/verifyEmail', async function (req, res, next) {
         });
 
         // Close the connection
-        connection.release();
+        connection.end();
 
     } catch (error) {
         console.error('Error connecting to the database:', error);
@@ -47,7 +47,7 @@ router.post('/register', async function (req, res, next) {
         const connection = await connectToDB();
 
         const sql = `INSERT INTO User (UserName, Email, Password, Role) 
-                     VALUES (?, ?, ?, ?)`;
+                 VALUES (?, ?, ?, ?)`;
 
         const values = [UserName, Email, Password, Role];
 
