@@ -53,7 +53,7 @@
           </div>
           <div class="col my-auto">
             <div class="d-flex align-items-center">
-              <h5 class="mb-0" style="font-weight: 600">Sayo Kravits</h5>
+              <h5 class="mb-0" style="font-weight: 600">{{ TeacherName }}</h5>
               <span
                 class="badge"
                 style="
@@ -282,6 +282,7 @@ export default {
       showAlertTimes: 0,
       TotalWaitTime: 0,
       CurrentChoiceType: "",
+      TeacherName: "",
     };
   },
   methods: {
@@ -434,6 +435,8 @@ export default {
           this.TeacherUserID = data[0].TeacherUserID;
           //console.log(data[0]);
           this.CourseName = data[0].CourseName;
+          this.TeacherName = data[0].TeacherName;
+          
 
           for (let i = 0; i < this.questions.length; i++) {
             if (this.questions[i].QuestionUserID == userId) {
@@ -471,6 +474,7 @@ export default {
           }
           this.TeacherUserID = this.questions[0].TeacherUserID;
           this.CourseName = this.questions[0].CourseName;
+          this.TeacherName = this.questions[0].TeacherName;
 
           for (let i = 0; i < this.questions.length; i++) {
             if (this.questions[i].QuestionUserID == userId) {

@@ -74,7 +74,7 @@
   </main>
 </template>
 <script>
-import { GetAllCourses,CreateQueue_list } from "../../assets/Domain.js";
+import { GetCoursesByUserID,CreateQueue_list } from "../../assets/Domain.js";
 export default {
   data() {
     return {
@@ -83,6 +83,7 @@ export default {
       Course_items: [],
       errmsg: "",
       showAccessCode: false,
+      UserID : localStorage.getItem("UserID"),
     };
   },
   methods: {
@@ -90,7 +91,12 @@ export default {
       return day * 24 * 60 * 60;
     },
     async getCourse() {
-      fetch(GetAllCourses)
+      fetch(`${GetCoursesByUserID}${this.UserID}`, {
+        method: "get",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
         .then((response) => response.json())
         .then((data) => {
           this.Course_items = data;
