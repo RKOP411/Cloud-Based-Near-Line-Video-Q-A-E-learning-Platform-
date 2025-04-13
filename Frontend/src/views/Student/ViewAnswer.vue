@@ -181,7 +181,7 @@ export default {
       })
         .then((response) => response.json())
         .then((data) => {
-          this.questions = data.questions;
+          this.questions = data.questions || [];
           for (let i = 0; i < this.questions.length; i++) {
             this.questions[i].UploadTime = this.Calculate_LastUpdate(
               this.questions[i].UploadTime
@@ -200,7 +200,9 @@ export default {
           }
         })
         .then(() => {
-          this.loadAnswers();
+          if (this.questions.length > 0) {
+            this.loadAnswers();
+          }
         })
         .catch((error) => {
           console.error("Error fetching questions:", error);

@@ -1,6 +1,7 @@
 <script setup>
-import { onBeforeMount, onMounted, onBeforeUnmount } from "vue";
+import { onBeforeMount, onMounted, onBeforeUnmount, watch } from "vue";
 import { useStore } from "vuex";
+import { ref } from "vue";
 
 import setNavPills from "@/assets/js/nav-pills.js";
 import setTooltip from "@/assets/js/tooltip.js";
@@ -17,6 +18,7 @@ if (Email === null || Email === "") {
 const body = document.getElementsByTagName("body")[0];
 
 const store = useStore();
+
 
 onMounted(() => {
   store.state.isAbsolute = true;
@@ -38,6 +40,14 @@ onBeforeUnmount(() => {
   store.state.hideConfigButton = false;
   body.classList.remove("profile-overview");
 });
+const UserName = localStorage.getItem("UserName");
+const Role = localStorage.getItem("Role");
+const emailRef = ref(localStorage.getItem("Email") || "");
+
+watch(emailRef, (newEmail) => {
+  localStorage.setItem("Email", newEmail);
+});
+
 </script>
 <template>
   <main>
@@ -58,7 +68,7 @@ onBeforeUnmount(() => {
             <div class="col-auto">
               <div class="avatar avatar-xl position-relative">
                 <img
-                  src="../assets/img/team-1.jpg"
+                  src="../assets/img/team-0.webp"
                   alt="profile_image"
                   class="shadow-sm w-100 border-radius-lg"
                 />
@@ -66,8 +76,8 @@ onBeforeUnmount(() => {
             </div>
             <div class="col-auto my-auto">
               <div class="h-100">
-                <h5 class="mb-1">Sayo Kravits</h5>
-                <p class="mb-0 font-weight-bold text-sm">Public Relations</p>
+                <h5 class="mb-1">{{ UserName }}</h5>
+                <p class="mb-0 font-weight-bold text-sm">{{ Role }}</p>
               </div>
             </div>
             <div
@@ -258,13 +268,13 @@ onBeforeUnmount(() => {
                     <label for="example-text-input" class="form-control-label"
                     >Username</label
                     >
-                    <argon-input type="text" v-model="username" />
+                    <argon-input type="text" v-model="UserName" />
                 </div>
                 <div class="col-md-6">
-                  <label for="example-text-input" class="form-control-label"
+                    <label for="example-text-input" class="form-control-label"
                     >Email address</label
-                  >
-                  <argon-input type="email" />
+                    >
+                    <argon-input type="email" v-model="emailRef" :disabled="true" />
                 </div>
                 <div class="col-md-6">
                   <label for="example-text-input" class="form-control-label"

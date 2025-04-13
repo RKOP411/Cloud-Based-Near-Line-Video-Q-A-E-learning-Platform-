@@ -38,7 +38,7 @@
           <div class="col-auto">
             <div class="avatar avatar-lg position-relative">
               <img
-                src="../../assets/img/team-3.jpg"
+                src="../../assets/img/team-0.webp"
                 alt="profile_image"
                 class="shadow-sm border-radius-lg"
                 style="

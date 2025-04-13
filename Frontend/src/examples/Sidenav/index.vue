@@ -7,7 +7,9 @@ const store = useStore();
 const isRTL = computed(() => store.state.isRTL);
 const layout = computed(() => store.state.layout);
 const sidebarType = computed(() => store.state.sidebarType);
+
 const darkMode = computed(() => store.state.darkMode);
+const UserName = localStorage.getItem("UserName");
 </script>
 <template>
   <div v-show="layout === 'default'" class="min-height-300 position-absolute w-100"
@@ -24,7 +26,7 @@ const darkMode = computed(() => store.state.darkMode);
         <i
           class="fa fa-user-circle navbar-brand-img h-100" alt="main_logo"> </i>
 
-        <span class="ms-2 font-weight-bold me-2">User A</span>
+        <span class="ms-2 font-weight-bold me-2">{{ UserName }}</span>
       </router-link>
     </div>
 
