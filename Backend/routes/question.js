@@ -15,22 +15,37 @@ router.post('/AddAnswerByQuestionID', async function (req, res) {
         const connection = await connectToDB();
 
         const sql = `INSERT INTO Answer (UserID, QAID, Text, UploadTime, TakeTime) VALUES (?, ?, ?, NOW(), ?)`;
-        connection.query(sql, [UserID, QAID, Answer, Timer]);
-
+        connection.query(sql, [UserID, QAID, Answer, Timer], (err) => {
+            if (err) {
+                console.error('Error executing SQL 1 (Insert Answer):', err);
+            }
+        });
 
 
         const sql2 = `UPDATE Question SET Replied = 1 WHERE QAID = ?`;
-        connection.query(sql2, [QAID])
+        connection.query(sql2, [QAID], (err) => {
+            if (err) {
+                console.error('Error executing SQL 2 (Update Question):', err);
+            }
+        });
 
  
 
 
         const sql3 = `UPDATE Customer_queue SET Status = 'solved' WHERE QAID = ?`;
-        connection.query(sql3, [QAID]);
+        connection.query(sql3, [QAID], (err) => {
+            if (err) {
+                console.error('Error executing SQL 3 (Update Customer_queue):', err);
+            }
+        });
 
 
         const sql4 = `INSERT INTO notifications (UserID, QAID, Message, IsRead, CreatedAt) VALUES (?, ?, ?, FALSE, NOW())`;
-        connection.query(sql4, [UserID, QAID, 'Your question has been answered.']);
+        connection.query(sql4, [UserID, QAID, 'Your question has been answered.'], (err) => {
+            if (err) {
+                console.error('Error executing SQL 4 (Insert Notification):', err);
+            }
+        });
 
         res.status(200).json({ message: 'Answer added successfully' });
         // Close the connection after the query is executed

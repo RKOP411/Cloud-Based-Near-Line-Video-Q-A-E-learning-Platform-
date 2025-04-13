@@ -275,7 +275,7 @@ export default {
       );
 
       // let ContinueAsking = false;
-      let userChoice = '';
+      let userChoice = true;
 
       await fetch(`${CheckSimilar}/${filteredDescription}`, {
         method: "GET",
@@ -287,8 +287,10 @@ export default {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        console.log(data);
+        //console.log(data);
         if (data.count > 0) {
+
+          console.log("Similar question found");
           const modalHtml = `
             <div class="modal fade" id="similarQuestionsModal" tabindex="-1" aria-labelledby="similarQuestionsModalLabel" aria-hidden="true">
               <div class="modal-dialog modal-lg">
@@ -312,7 +314,15 @@ export default {
                       (question) => `
                     <tr>
                     <td>${question.Description}</td>
-                    <td style="word-wrap: break-word; white-space: pre-wrap;">${question.Text ? question.Text : "No answer yet"}</td>
+                    <td style="word-wrap: break-word; white-space: pre-wrap;">
+                      ${question.Text ? `<p>${question.Text}</p>` : "<p>No answer yet</p>"}
+                      <style>
+                        td img {
+                          max-width: 100%;
+                          height: auto;
+                        }
+                      </style>
+                    </td>
                     </tr>
                   `
                     )
@@ -335,7 +345,7 @@ export default {
           );
 
           // Return a promise that resolves when user makes a choice
-           userChoice = await new Promise((resolve) => {
+          userChoice = await new Promise((resolve) => {
             document
               .getElementById("continueAskingBtn")
               .addEventListener("click", () => {
@@ -373,8 +383,11 @@ export default {
         }
       });
       if (!userChoice) {
+        console.log("User chose not to continue asking.");
         return;
-      } else {
+      }
+      if (userChoice) {
+        console.log("No Similar question found, but user chose to continue.");
         //const formData = new FormData();
         //console.log(formData);
         const response = await fetch(CreateQuestion, {
