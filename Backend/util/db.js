@@ -16,21 +16,41 @@ async function connectToDB() {
         keepAliveInitialDelay: 1
     });
 
-    
+
 
     // Connect to MySQL
     connection.connect((err) => {
-        if (err) {
-            console.error('Error connecting to MySQL:', err.stack);
-            return;
-        }
-        console.log('Connected to MySQL as id ' + connection.threadId);
+
+        connection.query('SELECT CONCAT("KILL ", id, ";") AS kill_command FROM INFORMATION_SCHEMA.PROCESSLIST WHERE COMMAND = "Sleep" AND Time >= 10;', (err, results) => {
+            if (err) {
+                console.error('Error fetching sleep connections:', err);
+                return;
+            }
+            results.forEach(row => {
+                connection.query(row.kill_command, (err) => {
+                    if (err) {
+                        console.error('Error killing connection:', err);
+                    } else {
+                        console.log('Killed connection:', row.kill_command);
+                    }
+                });
+            });
+
+            // Check for errors
+            if (err) {
+                console.error('Error connecting to MySQL:', err.stack);
+                return;
+            }
+            console.log('Connected to MySQL as id ' + connection.threadId);
+        });
     });
 
     return connection;
 
 
 }
+
+
 
 
 module.exports = { connectToDB };
