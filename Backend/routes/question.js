@@ -378,12 +378,18 @@ router.get('/CheckSimilar/:UserInput', async function (req, res) {
 
         // Fetch QAID and Description from the question table
         const sql = `
-                SELECT 
-                    Question.QAID, 
-                    Question.Description, 
-                    Answer.Text 
-                FROM Question 
-                LEFT JOIN Answer ON Question.QAID = Answer.QAID;
+            SELECT 
+                Question.QAID, 
+                Question.Description, 
+                Answer.Text 
+            FROM 
+                Question 
+            LEFT JOIN 
+                Answer 
+            ON 
+                Question.QAID = Answer.QAID
+            GROUP BY 
+                Question.QAID, Answer.Text;
             `;
         const [questions] = await connection.promise().query(sql);
 
