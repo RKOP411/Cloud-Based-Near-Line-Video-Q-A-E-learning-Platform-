@@ -423,7 +423,7 @@ export default {
                   const encodedUser = encodeURIComponent(user);
                   this.SendInvatitation(encodedUser);
                 });
-                alert("Invitation sent to users." + selectedUsers);
+                alert("Invitation sent to users.");
               } else {
                 alert("No users selected.");
               }
